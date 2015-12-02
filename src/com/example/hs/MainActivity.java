@@ -1,16 +1,23 @@
 package com.example.hs;
 
-import android.support.v7.app.ActionBarActivity;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends ActionBarActivity {
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		Intent GameEngine = new Intent("com.example.hs.GAMEENGINE");
+		startActivity(GameEngine);
 	}
 
 	@Override
