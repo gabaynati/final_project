@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		Intent GameEngine = new Intent("com.example.hs.GAMEENGINE");
+		Intent GameEngine = new Intent("com.example.hs.GAMEINTERFACE");
 		startActivity(GameEngine);
 	}
 
