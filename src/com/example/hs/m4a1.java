@@ -4,11 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 
-public class M4a1 extends View implements OnTouchListener {
+public class M4a1 extends View {
 
 	private Drawable image;
 	private MediaPlayer player;
@@ -39,9 +37,11 @@ public class M4a1 extends View implements OnTouchListener {
 		player.start();
 	}
 
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		player.start();
-		return false;
+	public void out_this_weapon() {
+
+	}
+	
+	public void reload(){
+		
 	}
 }
