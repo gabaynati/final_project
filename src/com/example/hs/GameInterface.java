@@ -73,7 +73,12 @@ public class GameInterface extends Activity implements OnTouchListener {
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		m4a1.shoot();
+		new Thread(new Runnable() {
+	        public void run() {
+	        	m4a1.choose_this_weapon(m4a1);
+	        }
+	    }).start();
+		//m4a1.shoot();
 		return false;
 	}
 
