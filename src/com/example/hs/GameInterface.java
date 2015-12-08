@@ -3,16 +3,17 @@ package com.example.hs;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 public class GameInterface extends Activity implements OnTouchListener {
 
@@ -20,7 +21,7 @@ public class GameInterface extends Activity implements OnTouchListener {
 	private SurfaceHolder previewHolder;
 	private Camera camera = null;
 	private SurfaceView cameraPreview;
-	private M4a1 m4a1;
+	private Weapon m4a1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +33,11 @@ public class GameInterface extends Activity implements OnTouchListener {
 		previewHolder.addCallback(surfaceCallback);
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-		FrameLayout gameLayout = (FrameLayout)findViewById(R.id.game_layout);
-		m4a1 = new M4a1(getApplicationContext());
-		gameLayout.addView(m4a1);
+		m4a1 = new M4a1(getApplicationContext(), "m4a1");
+		ImageView img = (ImageView)findViewById(R.id.weaponView);
+		img.setImageBitmap(m4a1.getImage());
 
-		m4a1.setOnTouchListener(this);
+		cameraPreview.setOnTouchListener(this);
 	}
 
 
@@ -72,13 +73,42 @@ public class GameInterface extends Activity implements OnTouchListener {
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
+		/*
+		ImageView m = (ImageView)findViewById(R.id.imageView1);
+		BitmapDrawable f0 = (BitmapDrawable)getResources().getDrawable(R.drawable.m0);
+		BitmapDrawable f1 = (BitmapDrawable)getResources().getDrawable(R.drawable.m1);
+		BitmapDrawable f2 = (BitmapDrawable)getResources().getDrawable(R.drawable.m2);
+		BitmapDrawable f3 = (BitmapDrawable)getResources().getDrawable(R.drawable.m3);
+		BitmapDrawable f4 = (BitmapDrawable)getResources().getDrawable(R.drawable.m4);
+		BitmapDrawable f5 = (BitmapDrawable)getResources().getDrawable(R.drawable.m5);
+		BitmapDrawable f6 = (BitmapDrawable)getResources().getDrawable(R.drawable.m6);
+		BitmapDrawable f7 = (BitmapDrawable)getResources().getDrawable(R.drawable.m7);
+		BitmapDrawable f8 = (BitmapDrawable)getResources().getDrawable(R.drawable.m8);
+		
+		AnimationDrawable ad = new AnimationDrawable();
+		
+		ad.addFrame(f0, 250);
+		ad.addFrame(f1, 250);
+		ad.addFrame(f2, 250);
+		ad.addFrame(f3, 250);
+		ad.addFrame(f4, 250);
+		ad.addFrame(f5, 250);
+		ad.addFrame(f6, 250);
+		ad.addFrame(f7, 250);
+		ad.addFrame(f8, 250);
+		
+		m.setBackgroundDrawable(ad);
+		ad.start();
 
-		new Thread(new Runnable() {
-	        public void run() {
-	        	m4a1.choose_this_weapon(m4a1);
-	        }
-	    }).start();
-		//m4a1.shoot();
+		
+	        //	m4a1.choose_this_weapon();
+
+	        
+	  */
+		
+		m4a1.shoot();
+		
+
 		return false;
 	}
 
