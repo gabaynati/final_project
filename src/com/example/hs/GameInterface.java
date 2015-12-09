@@ -3,25 +3,37 @@ package com.example.hs;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
-public class GameInterface extends Activity implements OnTouchListener {
+public class GameInterface extends Activity implements OnTouchListener, OnClickListener {
 
 	final static String TAG = "PAAR";
 	private SurfaceHolder previewHolder;
 	private Camera camera = null;
 	private SurfaceView cameraPreview;
+	private int currentBullets, totalBullets;
 	private Weapon m4a1;
+	private TextView current_bulletsText, max_bulletsText, total_bulletsText;
+	private ProgressBar player_life;
+	private ImageButton reload;
+	private ImageView img;
+	private boolean pressed = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +46,21 @@ public class GameInterface extends Activity implements OnTouchListener {
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		m4a1 = new M4a1(getApplicationContext(), "m4a1");
-		ImageView img = (ImageView)findViewById(R.id.weaponView);
+		
+		img = (ImageView)findViewById(R.id.weaponView);
+		reload = (ImageButton)findViewById(R.id.reload);
+		player_life = (ProgressBar)findViewById(R.id.life_progress);
+		 
+		player_life.setMax(100);
 		img.setImageBitmap(m4a1.getImage());
 
+		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
+		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
+
+		setScreen();
+		
 		cameraPreview.setOnTouchListener(this);
+		reload.setOnClickListener(this);
 	}
 
 
@@ -73,46 +96,53 @@ public class GameInterface extends Activity implements OnTouchListener {
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		/*
-		ImageView m = (ImageView)findViewById(R.id.imageView1);
-		BitmapDrawable f0 = (BitmapDrawable)getResources().getDrawable(R.drawable.m0);
-		BitmapDrawable f1 = (BitmapDrawable)getResources().getDrawable(R.drawable.m1);
-		BitmapDrawable f2 = (BitmapDrawable)getResources().getDrawable(R.drawable.m2);
-		BitmapDrawable f3 = (BitmapDrawable)getResources().getDrawable(R.drawable.m3);
-		BitmapDrawable f4 = (BitmapDrawable)getResources().getDrawable(R.drawable.m4);
-		BitmapDrawable f5 = (BitmapDrawable)getResources().getDrawable(R.drawable.m5);
-		BitmapDrawable f6 = (BitmapDrawable)getResources().getDrawable(R.drawable.m6);
-		BitmapDrawable f7 = (BitmapDrawable)getResources().getDrawable(R.drawable.m7);
-		BitmapDrawable f8 = (BitmapDrawable)getResources().getDrawable(R.drawable.m8);
-		
-		AnimationDrawable ad = new AnimationDrawable();
-		
-		ad.addFrame(f0, 250);
-		ad.addFrame(f1, 250);
-		ad.addFrame(f2, 250);
-		ad.addFrame(f3, 250);
-		ad.addFrame(f4, 250);
-		ad.addFrame(f5, 250);
-		ad.addFrame(f6, 250);
-		ad.addFrame(f7, 250);
-		ad.addFrame(f8, 250);
-		
-		m.setBackgroundDrawable(ad);
-		ad.start();
 
-		
-	        //	m4a1.choose_this_weapon();
+		switch (event.getAction()){
+		case MotionEvent.ACTION_DOWN:
+			pressed = true;
+			break;
 
-	        
-	  */
-		
-		m4a1.shoot();
-		
+		case MotionEvent.ACTION_UP:
+			pressed = false;
+			break;
+		}
 
-		return false;
+		if(pressed & currentBullets > 0){
+			m4a1.shoot();
+			((M4a1)m4a1).setCurrentBullets();	
+			setScreen();
+		}
+
+		return pressed;
 	}
 
 
+	@Override
+	public void onClick(View v) {
+
+		AnimationDrawable animation;
+
+		switch(v.getId()) {
+		case R.id.reload:
+			if((animation = ((M4a1)m4a1).reload()) != null){
+				setScreen();
+				img.setImageDrawable(null);
+				img.setBackgroundDrawable(animation);
+				animation.start();				
+			}
+			break;
+		}	
+	}
+
+	private void setScreen(){		
+		
+		currentBullets = ((M4a1) m4a1).getCurrentBullets();
+		totalBullets = ((M4a1) m4a1).getTotalBullets();
+		String c_B = String.valueOf(currentBullets);
+		String t_B = String.valueOf(totalBullets);
+		current_bulletsText.setText(c_B);
+		total_bulletsText.setText("/" + t_B);
+	}
 
 }
 
