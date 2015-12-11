@@ -14,7 +14,7 @@ public class M4a1 extends Weapon {
 	private final int max_bullets = 60;
 	private int total_bullets = 150;
 	private int current_bullets;
-	private AnimationDrawable ad;
+	private AnimationDrawable target_animation, normal_animation;
 	
 
 	public M4a1(Context context, String name) {
@@ -25,7 +25,8 @@ public class M4a1 extends Weapon {
 		
 		img = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.img);
 		stand = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.animation);
-		ad = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.target);
+		target_animation = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.target);
+		normal_animation = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.back_to_normal);
 	}
 	
 	public int getMaxBullets(){
@@ -69,7 +70,10 @@ public class M4a1 extends Weapon {
 	}
 	
 	public AnimationDrawable target(){
-		return ad;
+		return target_animation;
 	}
-
+	
+	public AnimationDrawable normal(){
+		return normal_animation;
+	}
 }

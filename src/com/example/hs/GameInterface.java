@@ -32,15 +32,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private SurfaceView cameraPreview;
 	private int currentBullets, totalBullets;
 	private Weapon m4a1;
-	private TextView current_bulletsText, max_bulletsText, total_bulletsText;
+	private TextView current_bulletsText, total_bulletsText;
 	private ProgressBar player_life;
 	private ImageButton reload, target;
 	private ImageView img;
 	private AnimationDrawable animation;
-	private boolean pressed = false;
+	private boolean pressed = false, target_state;
 	private BitmapDrawable image;
 	private int img_w,img_h;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	
@@ -52,15 +52,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		m4a1 = new M4a1(getApplicationContext(), "m4a1");
-		
+
 		img = (ImageView)findViewById(R.id.weaponView);
 		reload = (ImageButton)findViewById(R.id.reload);
 		target = (ImageButton)findViewById(R.id.target);
 		player_life = (ProgressBar)findViewById(R.id.life_progress);
-		 
+
 		player_life.setMax(100);
 		image = m4a1.getImage();
-		
+
 		img.setImageDrawable(image);
 		img_w = img.getWidth();
 		img_h = img.getHeight();
@@ -68,7 +68,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
 
 		setScreen();
-		
+		target_state = false;
+
 		cameraPreview.setOnTouchListener(this);
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
@@ -132,49 +133,67 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	public void onClick(View v) {
 
 		switch(v.getId()) {
+
 		case R.id.reload:
+
 			if((animation = ((M4a1)m4a1).reload()) != null){
 				setScreen();
 				img.setImageDrawable(null);
 				if(animation.isRunning())
 					((AnimationDrawable)(img.getBackground())).stop();
-				
+
 				img.setBackgroundDrawable(animation);
-				
+
 				setImgSize(img_w, img_h);
 				run();	
 			}
 			break;
-				
+
 		case R.id.target:
-			if((animation = ((M4a1)m4a1).target()) != null){
+
+			if(target_state)
+				animation = ((M4a1)m4a1).normal();
+				
+			else
+				animation = ((M4a1)m4a1).target();
+
+			if(animation != null){
 				setScreen();
 				img.setImageDrawable(null);
 				if(animation.isRunning())
 					((AnimationDrawable)(img.getBackground())).stop();
-				
+
 				img.setBackgroundDrawable(animation);
-				Display display = getWindowManager().getDefaultDisplay();
-				Point size = new Point();
-				display.getSize(size);
-				int width = size.x;
-				int height = size.y;
-				int newSize;
+
+				if(!target_state){
+					target_state = true;
+					Display display = getWindowManager().getDefaultDisplay();
+					Point size = new Point();
+					display.getSize(size);
+					int width = size.x;
+					int height = size.y;
+					int newSize;
+
+					if(width < height)
+						newSize = width;
+					else
+						newSize = height;
+
+					setImgSize(newSize, newSize);
+				}
 				
-				if(width < height)
-					newSize = width;
-				else
-					newSize = height;
-				
-				setImgSize(newSize, newSize);
+				else{
+					target_state = false;
+					setImgSize(img_w, img_h);
+				}
 				run();	
 			}
 			break;
+		}
 	}
-}
 
 	private void setScreen(){		
-		
+
 		currentBullets = ((M4a1) m4a1).getCurrentBullets();
 		totalBullets = ((M4a1) m4a1).getTotalBullets();
 		String c_B = String.valueOf(currentBullets);
@@ -187,15 +206,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public void run() {
 		runOnUiThread(new Runnable(){
-            public void run() {  
-                 animation.start();
-            }
-         });
-		
+			public void run() {  
+				animation.start();
+			}
+		});
+
 	}
 
 	private void setImgSize(int width, int height){
-		
+
 		img.setMaxWidth(width);
 		img.setMaxHeight(height);
 		img.setMinimumWidth(width);
