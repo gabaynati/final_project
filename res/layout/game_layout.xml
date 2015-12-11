@@ -21,6 +21,16 @@
             android:layout_centerHorizontal="true" />
 
         <ImageButton
+            android:id="@+id/target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/reload"
+            android:layout_alignParentLeft="true"
+            android:alpha="0.85"
+            android:background="@null"
+            android:src="@drawable/button2" />
+        
+        <ImageButton
             android:id="@+id/reload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -63,6 +73,8 @@
             android:layout_marginTop="5dp"
             android:alpha="0.8"
             android:progressDrawable="@drawable/customprogressbar" />
+
+        
 
     </RelativeLayout>
 

@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 
 public class M4a1 extends Weapon {
 
@@ -20,31 +21,11 @@ public class M4a1 extends Weapon {
 		
 		super(context, name);
 		current_bullets = max_bullets;
-		image = BitmapFactory.decodeResource(actContext.getResources(), R.drawable.m4a1);
 		sound = MediaPlayer.create(actContext, R.raw.m4a1_single);
 		
-		BitmapDrawable f0 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m0);
-		BitmapDrawable f1 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m1);
-		BitmapDrawable f2 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m2);
-		BitmapDrawable f3 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m3);
-		BitmapDrawable f4 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m4);
-		BitmapDrawable f5 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m5);
-		BitmapDrawable f6 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m6);
-		BitmapDrawable f7 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m7);
-		BitmapDrawable f8 = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.m8);
-		
-		ad = new AnimationDrawable();
-		
-		ad.addFrame(f0, 10);
-		ad.addFrame(f1, 10);
-		ad.addFrame(f2, 10);
-		ad.addFrame(f3, 10);
-		ad.addFrame(f4, 10);
-		ad.addFrame(f5, 10);
-		ad.addFrame(f6, 10);
-		ad.addFrame(f7, 10);
-		ad.addFrame(f8, 10);
-		
+		img = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.img);
+		stand = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.animation);
+		ad = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.target);
 	}
 	
 	public int getMaxBullets(){
@@ -84,6 +65,10 @@ public class M4a1 extends Weapon {
 		else 
 			current_bullets = total_bullets;
 		
+		return stand;
+	}
+	
+	public AnimationDrawable target(){
 		return ad;
 	}
 

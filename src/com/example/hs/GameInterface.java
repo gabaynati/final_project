@@ -3,12 +3,15 @@ package com.example.hs;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -21,7 +24,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class GameInterface extends Activity implements OnTouchListener, OnClickListener {
+public class GameInterface extends Activity implements OnTouchListener, OnClickListener, Runnable {
 
 	final static String TAG = "PAAR";
 	private SurfaceHolder previewHolder;
@@ -31,10 +34,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Weapon m4a1;
 	private TextView current_bulletsText, max_bulletsText, total_bulletsText;
 	private ProgressBar player_life;
-	private ImageButton reload;
+	private ImageButton reload, target;
 	private ImageView img;
+	private AnimationDrawable animation;
 	private boolean pressed = false;
-
+	private BitmapDrawable image;
+	private int img_w,img_h;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	
@@ -49,11 +55,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		
 		img = (ImageView)findViewById(R.id.weaponView);
 		reload = (ImageButton)findViewById(R.id.reload);
+		target = (ImageButton)findViewById(R.id.target);
 		player_life = (ProgressBar)findViewById(R.id.life_progress);
 		 
 		player_life.setMax(100);
-		img.setImageBitmap(m4a1.getImage());
-
+		image = m4a1.getImage();
+		
+		img.setImageDrawable(image);
+		img_w = img.getWidth();
+		img_h = img.getHeight();
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
 
@@ -61,6 +71,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		
 		cameraPreview.setOnTouchListener(this);
 		reload.setOnClickListener(this);
+		target.setOnClickListener(this);
 	}
 
 
@@ -120,19 +131,47 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public void onClick(View v) {
 
-		AnimationDrawable animation;
-
 		switch(v.getId()) {
 		case R.id.reload:
 			if((animation = ((M4a1)m4a1).reload()) != null){
 				setScreen();
 				img.setImageDrawable(null);
+				if(animation.isRunning())
+					((AnimationDrawable)(img.getBackground())).stop();
+				
 				img.setBackgroundDrawable(animation);
-				animation.start();				
+				
+				setImgSize(img_w, img_h);
+				run();	
 			}
 			break;
-		}	
+				
+		case R.id.target:
+			if((animation = ((M4a1)m4a1).target()) != null){
+				setScreen();
+				img.setImageDrawable(null);
+				if(animation.isRunning())
+					((AnimationDrawable)(img.getBackground())).stop();
+				
+				img.setBackgroundDrawable(animation);
+				Display display = getWindowManager().getDefaultDisplay();
+				Point size = new Point();
+				display.getSize(size);
+				int width = size.x;
+				int height = size.y;
+				int newSize;
+				
+				if(width < height)
+					newSize = width;
+				else
+					newSize = height;
+				
+				setImgSize(newSize, newSize);
+				run();	
+			}
+			break;
 	}
+}
 
 	private void setScreen(){		
 		
@@ -144,6 +183,24 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		total_bulletsText.setText("/" + t_B);
 	}
 
+
+	@Override
+	public void run() {
+		runOnUiThread(new Runnable(){
+            public void run() {  
+                 animation.start();
+            }
+         });
+		
+	}
+
+	private void setImgSize(int width, int height){
+		
+		img.setMaxWidth(width);
+		img.setMaxHeight(height);
+		img.setMinimumWidth(width);
+		img.setMinimumHeight(height);
+	}
 }
 
 
