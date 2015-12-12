@@ -9,6 +9,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Display;
@@ -136,58 +137,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		case R.id.reload:
 
-			if((animation = ((M4a1)m4a1).reload()) != null){
-				setScreen();
-				img.setImageDrawable(null);
-				if(animation.isRunning())
-					((AnimationDrawable)(img.getBackground())).stop();
-
-				img.setBackgroundDrawable(animation);
-
-				setImgSize(img_w, img_h);
-				run();	
-			}
+			reload();
 			break;
 
 		case R.id.target:
 
-			if(target_state)
-				animation = ((M4a1)m4a1).normal();
-				
-			else
-				animation = ((M4a1)m4a1).target();
-
-			if(animation != null){
-				setScreen();
-				img.setImageDrawable(null);
-				if(animation.isRunning())
-					((AnimationDrawable)(img.getBackground())).stop();
-
-				img.setBackgroundDrawable(animation);
-
-				if(!target_state){
-					target_state = true;
-					Display display = getWindowManager().getDefaultDisplay();
-					Point size = new Point();
-					display.getSize(size);
-					int width = size.x;
-					int height = size.y;
-					int newSize;
-
-					if(width < height)
-						newSize = width;
-					else
-						newSize = height;
-
-					setImgSize(newSize, newSize);
-				}
-				
-				else{
-					target_state = false;
-					setImgSize(img_w, img_h);
-				}
-				run();	
-			}
+			targetState();
 			break;
 		}
 	}
@@ -196,6 +151,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		currentBullets = ((M4a1) m4a1).getCurrentBullets();
 		totalBullets = ((M4a1) m4a1).getTotalBullets();
+		if(currentBullets == 0 && totalBullets >0)
+			reload();
 		String c_B = String.valueOf(currentBullets);
 		String t_B = String.valueOf(totalBullets);
 		current_bulletsText.setText(c_B);
@@ -206,7 +163,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public void run() {
 		runOnUiThread(new Runnable(){
-			public void run() {  
+			public void run() {  	
 				animation.start();
 			}
 		});
@@ -219,6 +176,61 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		img.setMaxHeight(height);
 		img.setMinimumWidth(width);
 		img.setMinimumHeight(height);
+	}
+
+	private void reload(){
+
+		if((animation = ((M4a1)m4a1).reload()) != null){
+			setScreen();
+			img.setImageDrawable(null);
+			if(animation.isRunning())
+				((AnimationDrawable)(img.getBackground())).stop();
+
+			img.setBackgroundDrawable(animation);
+			setImgSize(img_w, img_h);
+			animation.start();
+		}
+	}
+	
+	private void targetState(){
+		
+		if(target_state)
+			animation = ((M4a1)m4a1).normal();
+
+		else
+			animation = ((M4a1)m4a1).target();
+
+		if(animation != null){
+			setScreen();
+			img.setImageDrawable(null);
+			if(animation.isRunning())
+				((AnimationDrawable)(img.getBackground())).stop();
+
+			img.setBackgroundDrawable(animation);
+
+			if(!target_state){
+				target_state = true;
+				Display display = getWindowManager().getDefaultDisplay();
+				Point size = new Point();
+				display.getSize(size);
+				int width = size.x;
+				int height = size.y;
+				int newSize;
+
+				if(width < height)
+					newSize = width;
+				else
+					newSize = height;
+
+				setImgSize(newSize, newSize);
+			}
+
+			else{
+				target_state = false;
+				setImgSize(img_w, img_h);
+			}
+			animation.start();	
+		}
 	}
 }
 
