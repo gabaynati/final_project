@@ -615,6 +615,7 @@ int menu main 0x7f0d0000
 int raw full_reload_sound 0x7f050000
 int raw m4a1_single 0x7f050001
 int raw reload 0x7f050002
+int raw shoot_sound 0x7f050003
 int string abc_action_bar_home_description 0x7f0b0001
 int string abc_action_bar_home_description_format 0x7f0b0005
 int string abc_action_bar_home_subtitle_description_format 0x7f0b0006

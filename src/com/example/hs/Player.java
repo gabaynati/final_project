@@ -14,7 +14,7 @@ public class Player {
 		current_weapon = 0;
 		weapons = new Weapon[1];
 		
-		Weapon m4a1 = new M4a1(context, "m4a1");
+		Weapon m4a1 = new Ak12(context, "m4a1");
 		weapons[0] = m4a1;
 	}
 	

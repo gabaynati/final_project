@@ -52,7 +52,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		previewHolder.addCallback(surfaceCallback);
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-		m4a1 = new M4a1(getApplicationContext(), "m4a1");
+		m4a1 = new Ak12(getApplicationContext(), "Ak12");
 
 		img = (ImageView)findViewById(R.id.weaponView);
 		reload = (ImageButton)findViewById(R.id.reload);
@@ -122,9 +122,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		if(pressed & currentBullets > 0){
 			m4a1.shoot();
-			((M4a1)m4a1).setCurrentBullets();	
+			((Ak12)m4a1).setCurrentBullets();	
 			setScreen();
 		}
+		
+		
 
 		return pressed;
 	}
@@ -149,8 +151,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	private void setScreen(){		
 
-		currentBullets = ((M4a1) m4a1).getCurrentBullets();
-		totalBullets = ((M4a1) m4a1).getTotalBullets();
+		currentBullets = ((Ak12) m4a1).getCurrentBullets();
+		totalBullets = ((Ak12) m4a1).getTotalBullets();
 		if(currentBullets == 0 && totalBullets >0)
 			reload();
 		String c_B = String.valueOf(currentBullets);
@@ -180,7 +182,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	private void reload(){
 
-		if((animation = ((M4a1)m4a1).reload()) != null){
+		if((animation = ((Ak12)m4a1).reload()) != null){
 			setScreen();
 			img.setImageDrawable(null);
 			if(animation.isRunning())
@@ -195,10 +197,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private void targetState(){
 		
 		if(target_state)
-			animation = ((M4a1)m4a1).normal();
+			animation = ((Ak12)m4a1).normal();
 
 		else
-			animation = ((M4a1)m4a1).target();
+			animation = ((Ak12)m4a1).target();
 
 		if(animation != null){
 			setScreen();
@@ -233,6 +235,3 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 	}
 }
-
-
-

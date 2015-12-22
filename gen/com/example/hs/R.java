@@ -2209,6 +2209,7 @@ containing a value of this type.
         public static final int full_reload_sound=0x7f050000;
         public static final int m4a1_single=0x7f050001;
         public static final int reload=0x7f050002;
+        public static final int shoot_sound=0x7f050003;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
