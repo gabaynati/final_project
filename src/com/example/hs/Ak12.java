@@ -10,7 +10,7 @@ public class Ak12 extends Weapon {
 	private final int max_bullets = 10;
 	private int total_bullets = 150;
 	private int current_bullets;
-	private AnimationDrawable reload_anim, fullReload_anim, target_anim, normal_anim;
+	private AnimationDrawable reload_anim, fullReload_anim, target_anim, normal_anim, stand_anim;
 	
 
 	public Ak12(Context context, String name) {
@@ -24,7 +24,8 @@ public class Ak12 extends Weapon {
 		fullReload_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_full_reload);
 		target_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_target);
 		normal_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_back_to_normal);
-	}
+		stand_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_stand);
+	} 
 	
 	public int getMaxBullets(){
 		return max_bullets;

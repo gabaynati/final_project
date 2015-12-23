@@ -2013,16 +2013,25 @@ containing a value of this type.
         public static final int ak12_reload7=0x7f02005d;
         public static final int ak12_reload8=0x7f02005e;
         public static final int ak12_reload9=0x7f02005f;
-        public static final int ak12_target=0x7f020060;
-        public static final int ak12_target1=0x7f020061;
-        public static final int ak12_target2=0x7f020062;
-        public static final int ak12_target3=0x7f020063;
-        public static final int button=0x7f020064;
-        public static final int button2=0x7f020065;
-        public static final int customprogressbar=0x7f020066;
-        public static final int ic_launcher=0x7f020067;
-        public static final int img=0x7f020068;
-        public static final int notification_template_icon_bg=0x7f020069;
+        public static final int ak12_stand=0x7f020060;
+        public static final int ak12_stand1=0x7f020061;
+        public static final int ak12_stand2=0x7f020062;
+        public static final int ak12_stand3=0x7f020063;
+        public static final int ak12_stand4=0x7f020064;
+        public static final int ak12_stand5=0x7f020065;
+        public static final int ak12_stand6=0x7f020066;
+        public static final int ak12_stand7=0x7f020067;
+        public static final int ak12_stand8=0x7f020068;
+        public static final int ak12_target=0x7f020069;
+        public static final int ak12_target1=0x7f02006a;
+        public static final int ak12_target2=0x7f02006b;
+        public static final int ak12_target3=0x7f02006c;
+        public static final int button=0x7f02006d;
+        public static final int button2=0x7f02006e;
+        public static final int customprogressbar=0x7f02006f;
+        public static final int ic_launcher=0x7f020070;
+        public static final int img=0x7f020071;
+        public static final int notification_template_icon_bg=0x7f020072;
     }
     public static final class id {
         public static final int action0=0x7f0a0056;
