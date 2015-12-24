@@ -148,7 +148,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	@Override
 	public void onClick(View v) {
-
+/*
 		switch(v.getId()) {
 
 		case R.id.reload:
@@ -161,6 +161,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			targetState();
 			break;
 		}
+		*/
 	}
 
 	private void setScreen(){		
