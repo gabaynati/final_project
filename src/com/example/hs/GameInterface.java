@@ -1,6 +1,8 @@
 package com.example.hs;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.graphics.Point;
@@ -19,11 +21,14 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, Runnable {
 
@@ -32,15 +37,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Camera camera = null;
 	private SurfaceView cameraPreview;
 	private int currentBullets, totalBullets;
-	private Weapon m4a1;
+	private Weapon ak12;
 	private TextView current_bulletsText, total_bulletsText;
 	private ProgressBar player_life;
 	private ImageButton reload, target;
 	private ImageView img;
-	private AnimationDrawable animation;
 	private boolean pressed = false, target_state;
-	private BitmapDrawable image;
 	private int img_w,img_h;
+	private Timer timer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		previewHolder.addCallback(surfaceCallback);
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-		m4a1 = new Ak12(getApplicationContext(), "Ak12");
+		ak12 = new Ak12(getApplicationContext(), "Ak12");
 
 		img = (ImageView)findViewById(R.id.weaponView);
 		reload = (ImageButton)findViewById(R.id.reload);
@@ -60,9 +64,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		player_life = (ProgressBar)findViewById(R.id.life_progress);
 
 		player_life.setMax(100);
-		image = m4a1.getImage();
+		//image = ak12.getImage();
 
-		img.setImageDrawable(image);
+		timer = new Timer();
+
+		setAnimation(((Ak12)ak12).stand());
 		img_w = img.getWidth();
 		img_h = img.getHeight();
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
@@ -121,12 +127,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 
 		if(pressed & currentBullets > 0){
-			m4a1.shoot();
-			((Ak12)m4a1).setCurrentBullets();	
+			ak12.shoot();
+			((Ak12)ak12).setCurrentBullets();	
 			setScreen();
 		}
-		
-		
+
+
 
 		return pressed;
 	}
@@ -151,8 +157,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	private void setScreen(){		
 
-		currentBullets = ((Ak12) m4a1).getCurrentBullets();
-		totalBullets = ((Ak12) m4a1).getTotalBullets();
+		currentBullets = ((Ak12) ak12).getCurrentBullets();
+		totalBullets = ((Ak12) ak12).getTotalBullets();
 		if(currentBullets == 0 && totalBullets >0)
 			reload();
 		String c_B = String.valueOf(currentBullets);
@@ -161,12 +167,25 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		total_bulletsText.setText("/" + t_B);
 	}
 
+	private void setAnimation(AnimationDrawable animation){
+
+		if(animation != null){
+			img.setImageDrawable(null);
+			if(animation.isRunning())
+				((AnimationDrawable)(img.getBackground())).stop();
+
+			img.setBackgroundDrawable(animation);
+			setImgSize(img_w, img_h);
+			animation.start();
+		}
+	}
 
 	@Override
 	public void run() {
 		runOnUiThread(new Runnable(){
 			public void run() {  	
-				animation.start();
+
+
 			}
 		});
 
@@ -182,33 +201,27 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	private void reload(){
 
-		if((animation = ((Ak12)m4a1).reload()) != null){
-			setScreen();
-			img.setImageDrawable(null);
-			if(animation.isRunning())
-				((AnimationDrawable)(img.getBackground())).stop();
+		AnimationDrawable anim = ((Ak12)ak12).reload();
+		if(anim != null){
 
-			img.setBackgroundDrawable(animation);
-			setImgSize(img_w, img_h);
-			animation.start();
+			setAnimation(anim);
+			setScreen();
 		}
 	}
-	
+
 	private void targetState(){
-		
+
+		AnimationDrawable animation;
+
 		if(target_state)
-			animation = ((Ak12)m4a1).normal();
+			animation = ((Ak12)ak12).normal();
 
 		else
-			animation = ((Ak12)m4a1).target();
+			animation = ((Ak12)ak12).target();
 
 		if(animation != null){
-			setScreen();
-			img.setImageDrawable(null);
-			if(animation.isRunning())
-				((AnimationDrawable)(img.getBackground())).stop();
 
-			img.setBackgroundDrawable(animation);
+			setAnimation(animation);
 
 			if(!target_state){
 				target_state = true;
@@ -231,7 +244,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				target_state = false;
 				setImgSize(img_w, img_h);
 			}
-			animation.start();	
+
+
 		}
 	}
+
 }

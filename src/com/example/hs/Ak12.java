@@ -81,6 +81,11 @@ public class Ak12 extends Weapon {
 		}
 	}
 	
+	public AnimationDrawable stand(){
+
+		return stand_anim;
+	}
+	
 	public AnimationDrawable target(){
 
 		return target_anim;
