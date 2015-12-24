@@ -19,7 +19,8 @@ import android.view.MenuItem;
 public class MainActivity extends Activity {
 
 	public static Socket socket;
-
+	public static String serverIP="192.168.0.199";
+	public static int serverPort=9008;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

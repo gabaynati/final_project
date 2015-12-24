@@ -287,7 +287,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				/*
 				//writing texts
 				DataOutputStream out = new DataOutputStream(MainActivity.socket.getOutputStream());
-				out.writeUTF("I am Cleint");
+				out.writeUTF("I am Client");
 				 */
 
 			} catch (UnknownHostException e) {

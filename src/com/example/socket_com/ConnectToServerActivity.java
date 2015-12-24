@@ -63,8 +63,10 @@ import android.widget.TextView;
 		OnClickListener buttonConnectOnClickListener = new OnClickListener(){
 			@Override
 			public void onClick(View arg0) {
-				String address=editTextAddress.getText().toString();
-				int port=Integer.parseInt(editTextPort.getText().toString());
+				//String address=editTextAddress.getText().toString();
+				//int port=Integer.parseInt(editTextPort.getText().toString());
+				String address=MainActivity.serverIP;
+				int port=MainActivity.serverPort;
 				String nickname=editTextNickName.getText().toString();
 				String password=editTextPassword.getText().toString();
 				MyClientTask_Connect myClientTask = new MyClientTask_Connect(address,port);
@@ -140,8 +142,8 @@ import android.widget.TextView;
 
 					}
 					 */
-					Intent gameEngine = new Intent("com.example.socket_com.GAMEINTERFACE");
-					startActivity(gameEngine);
+		//			Intent gameEngine = new Intent("com.example.socket_com.GAMEINTERFACE");
+		//			startActivity(gameEngine);
 					return null;
 				}
 
