@@ -39,8 +39,6 @@ import android.widget.TextView;
 
 
 
-			Intent inte=new Intent("com.example.socket_com.REGISTERACTIVITY");
-			startActivity(inte);
 			setContentView(R.layout.activity_main);
 
 			editTextAddress = (EditText)findViewById(R.id.address);
