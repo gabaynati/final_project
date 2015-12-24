@@ -15,7 +15,7 @@ public class Ak12 extends Weapon {
 	private int total_bullets = 150;
 	private int current_bullets;
 	private AnimationDrawable reload_anim, fullReload_anim, target_anim, normal_anim, stand_anim;
-	
+	private int x;
 
 	public Ak12(Context context, String name) {
 		
