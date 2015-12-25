@@ -28,8 +28,11 @@ public class MainActivity extends Activity {
 		
 		
 		//moving to connect to server
-		Intent connectToServer = new Intent("com.example.socket_com.CONNECTTOSERVERACTIVITY");
-		startActivity(connectToServer);
+		//Intent connectToServer = new Intent("com.example.socket_com.CONNECTTOSERVERACTIVITY");
+		//startActivity(connectToServer);
+		
+		Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
+		startActivity(gameInterface);
 	}
 
 	@Override

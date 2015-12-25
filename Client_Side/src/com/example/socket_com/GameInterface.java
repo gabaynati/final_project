@@ -3,25 +3,14 @@ package com.example.socket_com;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import com.example.hs.R;
-import com.example.hs.R.id;
-import com.example.hs.R.layout;
 import com.example.socket_com.sendGameDataToServerActivity.MyClientTask_SendObject;
-
 import android.app.Activity;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
-import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -29,14 +18,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, Runnable {
 
@@ -52,7 +37,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private ImageView img;
 	private boolean pressed = false, target_state;
 	private int img_w,img_h;
-	private Timer timer;
+	private AnimationDrawable animation;
+	private boolean someAnimationRun;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +58,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		player_life = (ProgressBar)findViewById(R.id.life_progress);
 
 		player_life.setMax(100);
-		//image = ak12.getImage();
 
-		timer = new Timer();
+		someAnimationRun = false;
 
-		setAnimation(((Ak12)ak12).stand());
+		animation = ((Ak12)ak12).stand();
+		setAnimation(animation);
 		img_w = img.getWidth();
 		img_h = img.getHeight();
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
@@ -124,23 +110,24 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		switch (event.getAction()){
-		case MotionEvent.ACTION_DOWN:
-			pressed = true;
-			break;
+		if(!someAnimationRun){
+			
+			switch (event.getAction()){
+			case MotionEvent.ACTION_DOWN:
+				pressed = true;
+				break;
 
-		case MotionEvent.ACTION_UP:
-			pressed = false;
-			break;
+			case MotionEvent.ACTION_UP:
+				pressed = false;
+				break;
+			}
+
+			if(pressed & currentBullets > 0){
+				ak12.shoot();
+				((Ak12)ak12).setCurrentBullets();	
+				setScreen();
+			}
 		}
-
-		if(pressed & currentBullets > 0){
-			ak12.shoot();
-			((Ak12)ak12).setCurrentBullets();	
-			setScreen();
-		}
-
-
 
 		return pressed;
 	}
@@ -148,7 +135,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	@Override
 	public void onClick(View v) {
-/*
+
 		switch(v.getId()) {
 
 		case R.id.reload:
@@ -161,7 +148,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			targetState();
 			break;
 		}
-		*/
+
 	}
 
 	private void setScreen(){		
@@ -176,17 +163,43 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		total_bulletsText.setText("/" + t_B);
 	}
 
-	private void setAnimation(AnimationDrawable animation){
+	private void setAnimation(AnimationDrawable anim){
 
-		if(animation != null){
+		if(anim != null){
 			img.setImageDrawable(null);
-			if(animation.isRunning())
+			if(anim.isRunning())
 				((AnimationDrawable)(img.getBackground())).stop();
 
-			img.setBackgroundDrawable(animation);
-			setImgSize(img_w, img_h);
-			animation.start();
+			int imgSize;
+			if(target_state){
+				imgSize = getMaxScreenSize();
+				setImgSize(imgSize, imgSize);
+			}
+
+			else
+				setImgSize(img_w, img_h);
+
+			img.setBackgroundDrawable(anim);
+			anim.start();
 		}
+	}
+
+	private void executeAnimation(AnimationDrawable anim){
+
+		someAnimationRun = true;
+		
+		CustomAnimationDrawable CustomAnimation = new CustomAnimationDrawable(anim) {
+			@Override
+			void onAnimationFinish() {
+
+				setScreen();
+				animation.stop();
+				setAnimation(animation);
+				someAnimationRun = false;
+			}
+		};
+		img.setBackgroundDrawable(CustomAnimation);
+		CustomAnimation.start();
 	}
 
 	@Override
@@ -209,60 +222,66 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 
 	private void reload(){
-/*
+
 		AnimationDrawable anim = ((Ak12)ak12).reload();
+
 		if(anim != null){
 
-			setAnimation(anim);
-			setScreen();
+			if(target_state){
+				setImgSize(img_w, img_h);
+				animation.stop();
+				animation = ((Ak12)ak12).target();
+			}
+
+			else{
+				animation.stop();
+				animation = ((Ak12)ak12).stand();
+			}
+			executeAnimation(anim);
 		}
-		*/
-		
-		
+
+
+
+		/*
 		GamePacket packet=new GamePacket("hey", "hello");
 		MyClientTask_SendObject myClientTask = new MyClientTask_SendObject(packet);
-		myClientTask.execute();
+		myClientTask.execute();*/
 	}
 
 	private void targetState(){
 
-		AnimationDrawable animation;
+		AnimationDrawable anim;
 
-		if(target_state)
-			animation = ((Ak12)ak12).normal();
-
-		else
-			animation = ((Ak12)ak12).target();
-
-		if(animation != null){
-
-			setAnimation(animation);
-
-			if(!target_state){
-				target_state = true;
-				Display display = getWindowManager().getDefaultDisplay();
-				Point size = new Point();
-				display.getSize(size);
-				int width = size.x;
-				int height = size.y;
-				int newSize;
-
-				if(width < height)
-					newSize = width;
-				else
-					newSize = height;
-
-				setImgSize(newSize, newSize);
-			}
-
-			else{
-				target_state = false;
-				setImgSize(img_w, img_h);
-			}
-
-
+		if(target_state){
+			anim = ((Ak12)ak12).normal();
+			target_state = false;
+			animation.stop();
+			animation = ((Ak12)ak12).stand();
+			executeAnimation(anim);
 		}
+
+		else{
+			anim = ((Ak12)ak12).target();
+			target_state = true;
+			setAnimation(anim);
+		}		
 	}
+
+
+	private int getMaxScreenSize(){
+
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		int width = size.x;
+		int height = size.y;
+
+		if(width < height)
+			return width;
+		else
+			return height;
+	}
+
 	public class MyClientTask_SendObject extends AsyncTask<Void, Void, Void> {
 
 

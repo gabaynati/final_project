@@ -16,6 +16,12 @@ public abstract class CustomAnimationDrawable extends AnimationDrawable {
     }
 
     @Override
+	public void stop() {
+		// TODO Auto-generated method stub
+		super.stop();
+	}
+
+	@Override
     public void start() {
         super.start();
         /*
@@ -27,6 +33,7 @@ public abstract class CustomAnimationDrawable extends AnimationDrawable {
         mAnimationHandler.postDelayed(new Runnable() {
 
             public void run() {
+            	stop();
                 onAnimationFinish();
             }
         }, getTotalDuration());
