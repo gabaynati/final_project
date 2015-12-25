@@ -1,6 +1,8 @@
 package com.example.socket_com;
 import java.io.IOException;
 
+import javax.swing.JFrame;
+
 
 public class Main {
 	public static Game game=new Game();
@@ -18,7 +20,14 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-
+/*
+		JFrame j=new JFrame();
+		ServerInterface panel=new ServerInterface();
+		j.add(panel);
+		j.setSize(500, 500);
+		j.setVisible(true);
+		j.show();
+		*/
 		
 	//	GameDB.addPlayer("natifdfdfdfdfredefdefdd", "fdfdfd", "nati@gmail.com");
 		//gameDB.connect();
