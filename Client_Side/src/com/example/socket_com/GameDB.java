@@ -52,8 +52,8 @@ public class GameDB {
 
 
 	public static String addPlayer(String nickname,String password,String email){
-		if(isExists(nickname))
-			return "Exists";
+		//if(isExists(nickname,password))
+	//		return "Exists";
 		try {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 			StrictMode.setThreadPolicy(policy);
@@ -84,32 +84,32 @@ public class GameDB {
 
 
 
-	public static boolean isExists(String nickname){
+	public static String isExists(String nickname,String password){
 		try {
 			// Establish the connection.
 			Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
 			con = DriverManager.getConnection(dbConnectionString,"","");
 
 			// Create and execute an SQL statement that returns some data.
-			String SQL = "select * from Players where player_nickname='"+nickname+"'";
+			String SQL = "select * from Players where player_nickname='"+nickname+"' and player_password='"+password+"'";
 			stmt = con.createStatement();
 			rs=stmt.executeQuery(SQL);
 			if(rs.next())
-				return true;
+				return "exists";
 
 		}
 		// Handle any errors that may have occurred.
 		catch (Exception e) {
 			e.printStackTrace();
 			Log.e("YOUR_APP_LOG_TAG", "I got an error", e);
-			return false;
+			return e.getMessage();
 		}
 		finally {
 			if (rs != null) try { rs.close(); } catch(Exception e) {}
 			if (stmt != null) try { stmt.close(); } catch(Exception e) {}
 			if (con != null) try { con.close(); } catch(Exception e) {}
 		}
-		return false;
+		return "notExists";
 
 	}
 }

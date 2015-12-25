@@ -30,7 +30,8 @@ import android.widget.TextView;
 		EditText editTextAddress, editTextPort,editTextNickName,editTextPassword; 
 		Button buttonConnect;
 		
-
+		String nickname;
+		String password;
 
 		@Override
 		protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +68,16 @@ import android.widget.TextView;
 				//int port=Integer.parseInt(editTextPort.getText().toString());
 				String address=MainActivity.serverIP;
 				int port=MainActivity.serverPort;
-				String nickname=editTextNickName.getText().toString();
-				String password=editTextPassword.getText().toString();
+				nickname=editTextNickName.getText().toString();
+				password=editTextPassword.getText().toString();
+			
+					
+				
+			
+				
 				MyClientTask_Connect myClientTask = new MyClientTask_Connect(address,port);
 				myClientTask.execute();
+				
 			}};
 
 
@@ -102,8 +109,22 @@ import android.widget.TextView;
 				protected Void doInBackground(Void... arg0) {
 
 					try {
+						
+						
+						String isExists=GameDB.isExists(nickname,password);
+						if(!isExists.equals("exists")){
+							textResponse.setText(isExists);
+						}
+						
+						
 						MainActivity.socket = new Socket(dstAddress, dstPort);
 
+						
+						
+						
+						
+						/*
+ * 
 						//reading hello
 						ByteArrayOutputStream byteArrayOutputStream = 
 								new ByteArrayOutputStream(1024);
@@ -120,6 +141,16 @@ import android.widget.TextView;
 						while ((bytesRead = inputStream.read(buffer)) != -1){
 							response += byteArrayOutputStream.toString("UTF-8");
 						}
+						*/
+						
+						
+						
+						
+						
+						ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
+						outToServer.writeObject(new GamePacket(nickname, password));
+						
+						
 
 					} catch (UnknownHostException e) {
 						// TODO Auto-generated catch block

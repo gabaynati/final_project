@@ -10,7 +10,7 @@ public class Main {
 		
 		try
 		{
-			Thread t = new  connectThread(registerPort);
+			Thread t = new  brodcastUpdateThread(registerPort);
 			t.start();
 			
 		}catch(IOException e)

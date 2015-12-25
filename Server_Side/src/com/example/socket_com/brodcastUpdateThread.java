@@ -99,7 +99,7 @@ public class brodcastUpdateThread extends Thread
 				
 				*/
 				
-				server.close();
+				//server.close();
 			}catch(SocketTimeoutException s)
 			{
 				System.out.println("Socket timed out!");

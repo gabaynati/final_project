@@ -19,13 +19,15 @@ import android.view.MenuItem;
 public class MainActivity extends Activity {
 
 	public static Socket socket;
-	public static String serverIP="192.168.0.199";
+	public static String serverIP="192.168.1.12";
 	public static int serverPort=9008;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		
+		//moving to connect to server
 		Intent connectToServer = new Intent("com.example.socket_com.CONNECTTOSERVERACTIVITY");
 		startActivity(connectToServer);
 	}
