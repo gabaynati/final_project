@@ -1,29 +1,21 @@
 package com.example.socket_com;
 
 import com.example.hs.R;
-import com.example.hs.R.drawable;
-import com.example.hs.R.raw;
-
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 
 public class Ak12 extends Weapon {
 
 	private final int max_bullets = 10;
-	private int total_bullets = 150;
-	private int current_bullets;
 	private AnimationDrawable reload_anim, fullReload_anim, target_anim, normal_anim, stand_anim;
-	private int x;
 
-	public Ak12(Context context, String name) {
+	public Ak12(Context context, String name, int total_bullets) {
 		
-		super(context, name);
+		super(context, name, total_bullets);
+
+		
 		current_bullets = max_bullets;
-		
-		
-		img = (BitmapDrawable)actContext.getResources().getDrawable(R.drawable.img);
 		reload_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_reload);
 		fullReload_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_full_reload);
 		target_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_target);
@@ -31,24 +23,8 @@ public class Ak12 extends Weapon {
 		stand_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_stand);
 	} 
 	
-	public int getMaxBullets(){
-		return max_bullets;
-	}
 	
-	public int getCurrentBullets(){
-		return current_bullets;
-	}
-	
-	public int getTotalBullets(){
-		return total_bullets;
-	}
-	
-	public void setCurrentBullets(){
-		current_bullets--;
-		total_bullets--;
-	}
-	
-		@Override
+	@Override
 	public void/*AnimationDrawable*/ shoot(){
 		//sound.start();
 	}
@@ -57,6 +33,7 @@ public class Ak12 extends Weapon {
 
 	}
 
+	@Override
 	public AnimationDrawable reload(){
 		
 		if(total_bullets <= 0 || current_bullets == max_bullets || current_bullets == total_bullets)
@@ -85,18 +62,23 @@ public class Ak12 extends Weapon {
 		}
 	}
 	
+	@Override
 	public AnimationDrawable stand(){
-
 		return stand_anim;
 	}
 	
+	@Override
 	public AnimationDrawable target(){
-
 		return target_anim;
 	}
 	
+	@Override
 	public AnimationDrawable normal(){
-
 		return normal_anim;
+	}
+
+	@Override
+	public int getMaxBullets() {
+		return max_bullets;
 	}
 }
