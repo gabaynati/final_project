@@ -1,5 +1,8 @@
 package com.example.socket_com;
 import java.net.*;
+
+import javax.swing.JPanel;
+
 import java.io.*;
 //note: in case that the two computers are on separate lan and are remote, you need to open a port forwarding on 
 //your router.
@@ -49,18 +52,16 @@ public class connectThread extends Thread
 
 
 	
-
+/*
 				//writing hello to client
 				DataOutputStream out = new DataOutputStream(server.getOutputStream());
 				out.writeUTF("You are connected to the server: "+ ip);
+*/
 
-
-				
-				
-				
-				/*
-				//reading "packet" object from client	
 				GamePacket packet = null;
+
+
+				//reading "packet" object from client
 				ObjectInputStream inFromClient = new ObjectInputStream(server.getInputStream());
 				try {
 		
@@ -72,11 +73,12 @@ public class connectThread extends Thread
 				}
 				
 				//adding new player
-				Main.game.addPlayerToTeam1(new Player(server.getRemoteSocketAddress(),packet.getNickName()));
+				Main.game.addPlayer(new Player(server.getRemoteSocketAddress(),packet.getNickName()));
+				Main.panel.update();
 				System.out.println(packet.getNickName());
 				System.out.println(packet.getPassword());
 				System.out.println(Main.game.toString());
-*/
+				
 				/*
 				/////////////////////////
 				String response="";
@@ -101,7 +103,7 @@ public class connectThread extends Thread
 				
 				*/
 				
-				server.close();
+				//server.close();
 			}catch(SocketTimeoutException s)
 			{
 				System.out.println("Socket timed out!");

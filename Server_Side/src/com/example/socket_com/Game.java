@@ -26,7 +26,7 @@ public class Game {
 		else if(team2NumOfPlayers>team1NumOfPlayers){
 			addPlayerToTeam1(player);
 		}
-		Main.panel.repaint();
+		
 	}
 	public String toString(){
 		String str="";

@@ -5,17 +5,20 @@ import java.awt.Graphics;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
+import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-public class Logo extends Component {
+public class imgPanel extends JPanel {
 	private Image img;
-	public Logo(){
-		this.img=new ImageIcon("Images/logo.jpg").getImage();
+	public imgPanel(String url){
+		this.img=new ImageIcon(url).getImage();
 	}
 	public void paintComponent(Graphics g) {
+		//g.drawString("H&S", 40, 40);
 		g.drawImage(img, 0, 0, null);
 	}
 	public Image getLogo(){
 		return this.img;
 	}
+	
 }
