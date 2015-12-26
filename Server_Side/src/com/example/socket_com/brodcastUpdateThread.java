@@ -1,5 +1,8 @@
 package com.example.socket_com;
 import java.net.*;
+
+import javax.swing.JPanel;
+
 import java.io.*;
 //note: in case that the two computers are on separate lan and are remote, you need to open a port forwarding on 
 //your router.
@@ -71,10 +74,11 @@ public class brodcastUpdateThread extends Thread
 				
 				//adding new player
 				Main.game.addPlayer(new Player(server.getRemoteSocketAddress(),packet.getNickName()));
+				Main.panel.update();
 				System.out.println(packet.getNickName());
 				System.out.println(packet.getPassword());
 				System.out.println(Main.game.toString());
-
+				
 				/*
 				/////////////////////////
 				String response="";

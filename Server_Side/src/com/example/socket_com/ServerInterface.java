@@ -18,8 +18,7 @@ public ServerInterface(){
 
 	logo=new Logo();	
 	this.setLayout(new BorderLayout());
-	team1Players=getActivePlayers(Main.game, 1);
-	team2Players=getActivePlayers(Main.game, 2);
+	update();
 	this.add(team1Players, BorderLayout.WEST);
 	this.add(team2Players, BorderLayout.EAST);
 	repaint();
@@ -28,6 +27,7 @@ public ServerInterface(){
 public void paintComponent(Graphics g) {
     super.paintComponents(g);
     logo.paintComponent(g);
+
 }
 
 public JTable getActivePlayers(Game game,int team_index){
@@ -55,6 +55,11 @@ public JTable getActivePlayers(Game game,int team_index){
 	return tab;
 	
 }
-
+public void update(){
+	team1Players=getActivePlayers(Main.game, 1);
+	team2Players=getActivePlayers(Main.game, 2);
+	repaint();
+	revalidate();
+}
 
 }
