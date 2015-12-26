@@ -1,21 +1,22 @@
 package com.example.socket_com;
 
-import android.content.Context;
-
 public class Player {
 
+	private final int maxLife = 100;
 	private int life;
 	private String rank;
 	private int current_weapon;
 	private Weapon[] weapons;
 	
-	public Player(Context context){
-		life = 100;
-		current_weapon = 0;
-		weapons = new Weapon[1];
+	public Player(Weapon[] weaponsList){
 		
-		Weapon m4a1 = new Ak12(context, "m4a1");
-		weapons[0] = m4a1;
+		life = maxLife;
+		current_weapon = 0;
+		weapons = weaponsList;
+	}
+	
+	public int getMaxLife(){
+		return maxLife;
 	}
 	
 	public int getLife(){
