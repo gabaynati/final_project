@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 
 public class Main {
 	public static Game game=new Game();
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		
 		int registerPort = Integer.parseInt("9008");
@@ -20,14 +21,14 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-/*
+
 		JFrame j=new JFrame();
 		ServerInterface panel=new ServerInterface();
 		j.add(panel);
-		j.setSize(500, 500);
+		j.setSize(822, 850);
 		j.setVisible(true);
 		j.show();
-		*/
+		
 		
 	//	GameDB.addPlayer("natifdfdfdfdfredefdefdd", "fdfdfd", "nati@gmail.com");
 		//gameDB.connect();

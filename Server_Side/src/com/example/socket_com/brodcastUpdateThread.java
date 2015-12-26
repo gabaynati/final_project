@@ -70,7 +70,7 @@ public class brodcastUpdateThread extends Thread
 				}
 				
 				//adding new player
-				Main.game.addPlayerToTeam1(new Player(server.getRemoteSocketAddress(),packet.getNickName()));
+				Main.game.addPlayer(new Player(server.getRemoteSocketAddress(),packet.getNickName()));
 				System.out.println(packet.getNickName());
 				System.out.println(packet.getPassword());
 				System.out.println(Main.game.toString());

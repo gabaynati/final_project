@@ -1,14 +1,12 @@
 package com.example.socket_com;
-import java.io.*;
-import java.net.Inet4Address;
 import java.net.SocketAddress;
-import java.lang.Object;
 public class Player {
 	private SocketAddress address;
 	private String nickName;
 	private int life;
 	private int gameScore;
 	private int killCount;
+	@SuppressWarnings("unused")
 	private int ammunition;
 	public Player(SocketAddress socketAddress,String nickName){
 		this.address=socketAddress;

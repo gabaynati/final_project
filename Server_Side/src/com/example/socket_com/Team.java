@@ -3,8 +3,8 @@ package com.example.socket_com;
 import java.util.Vector;
 
 public class Team {
-	Vector<Player> players;
-	int totalScore;
+	private Vector<Player> players;
+	private int totalScore;
 	
 	public String toString(){
 		String str="";
@@ -26,6 +26,9 @@ public class Team {
 	}
 	public Vector<Player> getPlayers(){
 		return this.players;
+	}
+	public int getNumOfPlayers(){
+		return this.players.size();
 	}
 	
 }
