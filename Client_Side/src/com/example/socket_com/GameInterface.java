@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
 import com.example.hs.R;
-import com.example.socket_com.sendGameDataToServerActivity.MyClientTask_SendObject;
 import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;

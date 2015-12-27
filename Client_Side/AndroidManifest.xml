@@ -37,11 +37,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.socket_com.sendGameDataToServerActivity"
+            android:name="com.example.socket_com.MenuActivity"
             android:label="@string/app_name"
-            android:screenOrientation="landscape" >
+        
+            android:screenOrientation="sensor" >
             <intent-filter>
-                <action android:name="com.example.socket_com.SENDGAMEDATATOSERVERACTIVITY" />
+                <action android:name="com.example.socket_com.MENUACTIVITY" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
