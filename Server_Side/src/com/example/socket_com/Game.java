@@ -1,5 +1,6 @@
 package com.example.socket_com;
 
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Vector;
 
@@ -41,22 +42,36 @@ public class Game {
 	public Vector<Player> getTeam2Players(){
 		return this.team2.getPlayers();
 	}
-	public SocketAddress getAddressByNickName(String nickName){
-		if(team1.getAddressByNickName(nickName)!=null)
-			return team1.getAddressByNickName(nickName);
-		else if(team2.getAddressByNickName(nickName)!=null)
-			return team2.getAddressByNickName(nickName);
+	public Socket getSocketByNickName(String nickName){
+		if(team1.getSocketByNickName(nickName)!=null)
+			return team1.getSocketByNickName(nickName);
+		else if(team2.getSocketByNickName(nickName)!=null)
+			return team2.getSocketByNickName(nickName);
 		else
 			return null;
 		
 	}
 	public void Hit(String Hitman_nickName,String injured_nickName){
-		SocketAddress hitman_address=getAddressByNickName(Hitman_nickName);
-		SocketAddress injured_address=getAddressByNickName(injured_nickName);
+		Socket hitman_address=getSocketByNickName(Hitman_nickName);
+		Socket injured_address=getSocketByNickName(injured_nickName);
 		
-		String print="hit detected:\n"+Hitman_nickName +":"+hitman_address.toString()+"\n"
-				+"shot "+injured_nickName+":"+injured_address.toString();
+		String print="";
+		if(hitman_address!=null && injured_address!=null)
+		print="hit detected:\n"+Hitman_nickName +":"+hitman_address.toString()+"\n"
+		            +"shot "+injured_nickName+":"+injured_address.toString();
+		else
+			print="hit detected";
 		System.out.println(print);
 
+	}
+	public Vector<Socket> getPlayersSockets(){
+		Vector<Socket> sockets =new Vector<Socket>();
+		for(int i=0;i<team1.getPlayers().size();i++){
+			sockets.addElement(team1.getPlayers().elementAt(i).getSocket());
+		}
+		for(int i=0;i<team2.getPlayers().size();i++){
+			sockets.addElement(team2.getPlayers().elementAt(i).getSocket());
+		}
+		return sockets;
 	}
 }

@@ -6,15 +6,14 @@ import javax.swing.JPanel;
 import java.io.*;
 //note: in case that the two computers are on separate lan and are remote, you need to open a port forwarding on 
 //your router.
-public class connectThread extends Thread
+public class ListenToPlayersThread extends Thread
 {
-	private ServerSocket serverSocket;
+	private Socket player_socket;
 	
 
-	public  connectThread(int port) throws IOException
+	public  ListenToPlayersThread(Socket player_socket) throws IOException
 	{
-		serverSocket = new ServerSocket(port);
-		serverSocket.setSoTimeout(1000000);
+		this.player_socket=player_socket;
 	
 	}
 
@@ -24,6 +23,7 @@ public class connectThread extends Thread
 		{
 			try
 			{
+				/*
 				//getting the public ip of the server
 				URL whatismyip = new URL("http://checkip.amazonaws.com");
 				BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -59,11 +59,14 @@ public class connectThread extends Thread
 				out.writeUTF("You are connected to the server: "+ ip);
 */
 
+				
+				
+				
 				GamePacket packet = null;
 
 
 				//reading "packet" object from client
-				ObjectInputStream inFromClient = new ObjectInputStream(socket.getInputStream());
+				ObjectInputStream inFromClient = new ObjectInputStream(player_socket.getInputStream());
 				try {
 		
 					packet=(GamePacket) inFromClient.readObject();
@@ -75,7 +78,7 @@ public class connectThread extends Thread
 				
 				//adding new player
 				if(packet.isConnect()){
-				Main.game.addPlayer(new Player(socket,packet.getNickName()));
+				Main.game.addPlayer(new Player(player_socket,packet.getNickName()));
 				Main.panel.update();
 				System.out.println(packet.getNickName());
 				System.out.println(packet.getPassword());
@@ -83,17 +86,7 @@ public class connectThread extends Thread
 				else if(packet.isHit()){
 					Main.game.Hit(packet.getNickName(), packet.getInjured_nickName());
 				}
-			
-				
-				try
-				{
-					Thread t = new  ListenToPlayersThread(socket);
-					t.start();
-
-				}catch(IOException e)
-				{
-					e.printStackTrace();
-				}	
+					
 			
 				//System.out.println(Main.game.toString());
 				

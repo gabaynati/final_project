@@ -1,15 +1,16 @@
 package com.example.socket_com;
+import java.net.Socket;
 import java.net.SocketAddress;
 public class Player {
-	private SocketAddress address;
+	private Socket socket;
 	private String nickName;
 	private int life;
 	private int gameScore;
 	private int killCount;
 	@SuppressWarnings("unused")
 	private int ammunition;
-	public Player(SocketAddress socketAddress,String nickName){
-		this.address=socketAddress;
+	public Player(Socket socket,String nickName){
+		this.socket=socket;
 		life=100;
 		gameScore=0;
 		killCount=0;
@@ -25,15 +26,15 @@ public class Player {
 	
 	public String toString(){
 		String str="";
-		str+="address: "+this.address.toString() +"\n"
+		str+="address: "+this.socket.toString() +"\n"
 	         +"nickName: "+ this.nickName;
 		return str;
 	}
-	public SocketAddress getAddress() {
-		return address;
+	public Socket getSocket() {
+		return socket;
 	}
-	public void setAddress(SocketAddress address) {
-		this.address = address;
+	public void setSocket(Socket socket) {
+		this.socket = socket;
 	}
 	public String getNickName() {
 		return nickName;

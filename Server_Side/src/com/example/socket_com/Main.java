@@ -24,7 +24,7 @@ public class Main {
 		j.setVisible(true);
 		j.show();
 
-		int registerPort = Integer.parseInt("9005");
+		int registerPort = Integer.parseInt("9008");
 		
 		try
 		{

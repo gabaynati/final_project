@@ -20,8 +20,8 @@ public class MainActivity extends Activity {
 
 	public static Socket socket;
 	public static String serverIP="192.168.1.13";
-	public static int serverPort=9005;
-	public static String nickName="nati";
+	public static int serverPort=9008;
+	public static String nickName="gili";
 	public static String password="1234";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

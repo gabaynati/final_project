@@ -68,9 +68,10 @@ import android.widget.TextView;
 				//int port=Integer.parseInt(editTextPort.getText().toString());
 				String address=MainActivity.serverIP;
 				int port=MainActivity.serverPort;
-				nickname=editTextNickName.getText().toString();
-				password=editTextPassword.getText().toString();
-			
+				//nickname=editTextNickName.getText().toString();
+				//password=editTextPassword.getText().toString();
+				nickname=MainActivity.nickName;
+				password=MainActivity.password;
 					
 				
 			

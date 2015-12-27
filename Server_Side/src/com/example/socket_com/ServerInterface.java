@@ -66,7 +66,7 @@ public class ServerInterface extends JPanel {
 		for(int i=0;i<team.size();i++){
 			Vector<String> row = new Vector<String>();
 			row.addElement(team.elementAt(i).getNickName().toString());
-			row.addElement(team.elementAt(i).getAddress().toString());
+			row.addElement(team.elementAt(i).getSocket().getRemoteSocketAddress().toString());
 			rowData.addElement(row);
 		}
 
