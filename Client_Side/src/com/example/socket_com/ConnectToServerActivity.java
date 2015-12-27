@@ -148,7 +148,7 @@ import android.widget.TextView;
 						
 						
 						ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-						outToServer.writeObject(new GamePacket(nickname, password));
+						outToServer.writeObject(new GamePacket(nickname, password,false,true,null));
 						
 						
 
@@ -173,8 +173,8 @@ import android.widget.TextView;
 
 					}
 					 */
-		//			Intent gameEngine = new Intent("com.example.socket_com.GAMEINTERFACE");
-		//			startActivity(gameEngine);
+				Intent gameEngine = new Intent("com.example.socket_com.GAMEINTERFACE");
+				startActivity(gameEngine);
 					return null;
 				}
 

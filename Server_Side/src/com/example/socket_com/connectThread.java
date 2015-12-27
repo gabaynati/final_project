@@ -73,11 +73,18 @@ public class connectThread extends Thread
 				}
 				
 				//adding new player
+				if(packet.isConnect()){
 				Main.game.addPlayer(new Player(server.getRemoteSocketAddress(),packet.getNickName()));
 				Main.panel.update();
 				System.out.println(packet.getNickName());
 				System.out.println(packet.getPassword());
-				System.out.println(Main.game.toString());
+				}
+				else if(packet.isHit()){
+					Main.game.Hit(packet.getNickName(), packet.getInjured_nickName());
+				}
+					
+			
+				//System.out.println(Main.game.toString());
 				
 				/*
 				/////////////////////////

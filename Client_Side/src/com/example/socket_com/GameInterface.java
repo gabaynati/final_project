@@ -224,7 +224,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 
 	private void reload(){
-
+/*
 		AnimationDrawable anim = (player.getWeaponds()[player.getCurrentWeapon()]).reload();
 
 		if(anim != null){
@@ -244,10 +244,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-		/*
-		GamePacket packet=new GamePacket("hey", "hello");
+		*/
+		GamePacket packet=new GamePacket(MainActivity.nickName, MainActivity.password,true,false,"gili");
 		MyClientTask_SendObject myClientTask = new MyClientTask_SendObject(packet);
-		myClientTask.execute();*/
+		myClientTask.execute();
 	}
 
 	private void targetState(){

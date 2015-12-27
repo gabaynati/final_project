@@ -1,5 +1,6 @@
 package com.example.socket_com;
 
+import java.net.SocketAddress;
 import java.util.Vector;
 
 public class Team {
@@ -30,5 +31,11 @@ public class Team {
 	public int getNumOfPlayers(){
 		return this.players.size();
 	}
-	
+	public SocketAddress getAddressByNickName(String nickName){
+		for(int i=0;i<players.size();i++){
+			if(players.elementAt(i).getNickName().equals(nickName))
+				return players.elementAt(i).getAddress();
+		}
+		return null;
+	}
 }

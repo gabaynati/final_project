@@ -47,9 +47,9 @@ public class sendGameDataToServerActivity extends Activity {
 		public void onClick(View v) {
 			String nickName=editTextNickName.getText().toString();
 			String password=editTextPassword.getText().toString();
-			GamePacket packet=new GamePacket(nickName, password);
-			MyClientTask_SendObject myClientTask = new MyClientTask_SendObject(packet);
-			myClientTask.execute();
+			//GamePacket packet=new GamePacket(nickName, password);
+		//	MyClientTask_SendObject myClientTask = new MyClientTask_SendObject(packet);
+		//	myClientTask.execute();
 			//textResponse.setText("");
 		}
 

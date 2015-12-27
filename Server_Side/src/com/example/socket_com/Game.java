@@ -1,5 +1,6 @@
 package com.example.socket_com;
 
+import java.net.SocketAddress;
 import java.util.Vector;
 
 public class Game {
@@ -39,5 +40,23 @@ public class Game {
 	}
 	public Vector<Player> getTeam2Players(){
 		return this.team2.getPlayers();
+	}
+	public SocketAddress getAddressByNickName(String nickName){
+		if(team1.getAddressByNickName(nickName)!=null)
+			return team1.getAddressByNickName(nickName);
+		else if(team2.getAddressByNickName(nickName)!=null)
+			return team2.getAddressByNickName(nickName);
+		else
+			return null;
+		
+	}
+	public void Hit(String Hitman_nickName,String injured_nickName){
+		SocketAddress hitman_address=getAddressByNickName(Hitman_nickName);
+		SocketAddress injured_address=getAddressByNickName(injured_nickName);
+		
+		String print="hit detected:\n"+Hitman_nickName +":"+hitman_address.toString()+"\n"
+				+"shot "+injured_nickName+":"+injured_address.toString();
+		System.out.println(print);
+
 	}
 }
