@@ -2,11 +2,13 @@ package com.example.socket_com;
 
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 
 public abstract class Weapon {
 
 	protected String name;
+	protected Drawable sight;
 	protected int total_bullets;
 	protected int current_bullets;
 	protected boolean target_state;
@@ -19,6 +21,10 @@ public abstract class Weapon {
 		name = n;
 		total_bullets = t_bullets;
 		target_state = false;
+	}
+	
+	public Drawable getSight(){
+		return sight;
 	}
 	
 	public boolean getTargetState(){
@@ -49,7 +55,7 @@ public abstract class Weapon {
 	
 	public abstract int getMaxBullets();
 
-	public abstract void/*AnimationDrawable*/ shoot();
+	public abstract AnimationDrawable shoot();
 
 	public abstract AnimationDrawable reload();
 

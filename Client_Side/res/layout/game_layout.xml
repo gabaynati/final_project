@@ -9,7 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
-   <RelativeLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
@@ -17,8 +17,7 @@
             android:id="@+id/weaponView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_alignParentBottom="true" />
 
         <ImageButton
             android:id="@+id/target"
@@ -26,54 +25,132 @@
             android:layout_height="wrap_content"
             android:layout_above="@+id/reload"
             android:layout_alignParentLeft="true"
-            android:alpha="0.9"
+            android:alpha="0.5"
             android:background="@null"
             android:src="@drawable/button2" />
-        
+
         <ImageButton
             android:id="@+id/reload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:alpha="0.9"
+            android:alpha="0.5"
             android:background="@null"
             android:src="@drawable/button" />
 
+        <ImageView
+            android:id="@+id/sight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/weaponView"
+            android:layout_centerHorizontal="true" />
 
-        <TextView
-            android:id="@+id/bullets_total"
+        <TableLayout
+            android:id="@+id/tableLayout1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:textSize="50dp"
-            android:textColor="#F5F5F5"
-            android:text="/0" />
+            android:layout_marginBottom="5dip"
+            android:layout_marginRight="5dip"
+            android:alpha="0.5"
+            android:background="@drawable/board" >
 
-        <TextView
-            android:id="@+id/bullets_condition"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/bullets_total"
-            android:layout_alignBottom="@+id/bullets_total"
-            android:layout_toLeftOf="@+id/bullets_total"
-            android:text="0"
-            android:textColor="#F5F5F5"
-            android:textSize="50dp" />
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingTop="5dp"
+                android:paddingRight="5dp"
+                android:paddingBottom="5dp" >
 
-        <ProgressBar
-            android:id="@+id/life_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="170dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
-            android:alpha="0.8"
-            android:progressDrawable="@drawable/customprogressbar" />
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
 
+                    <TextView
+                        android:id="@+id/bullets_condition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_toRightOf="@+id/board_num2"
+                        android:text="0 "
+                        android:textColor="#F5F5F5"
+                        android:textSize="55dp" />
+
+                    <ImageView
+                        android:id="@+id/board_num1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/board_num" />
+
+                    <ImageView
+                        android:id="@+id/board_num2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@+id/board_num1"
+                        android:src="@drawable/board_num" />
+
+                    <TextView
+                        android:id="@+id/bullets_total"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/slesh"
+                        android:text="0"
+                        android:textColor="#F5F5F5"
+                        android:textSize="30dp" />
+                    
+                    <TextView
+                        android:id="@+id/slesh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/bullets_condition"
+                        android:text="/"
+                        android:textColor="#F5F5F5"
+                        android:textSize="30dp" />
+                    
+                    
+                    
+
+                </RelativeLayout>
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <ProgressBar
+                    android:id="@+id/bullets_progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:alpha="0.8"
+                    android:progressDrawable="@drawable/customprogressbar" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dip" >
+
+                <ProgressBar
+                    android:id="@+id/life_progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:alpha="0.8"
+                    android:progressDrawable="@drawable/customprogressbar" />
+            </TableRow>
+        </TableLayout>
     </RelativeLayout>
 
 </FrameLayout>

@@ -7,6 +7,8 @@ import com.example.hs.R;
 import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, Runnable {
@@ -28,13 +31,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private SurfaceHolder previewHolder;
 	private Camera camera = null;
 	private SurfaceView cameraPreview;
-	private TextView current_bulletsText, total_bulletsText;
-	private ProgressBar player_life;
+	private TextView current_bulletsText, total_bulletsText, slesh;
+	private ProgressBar player_life, bullets;
 	private ImageButton reload, target;
-	private ImageView img;
+	private ImageView img, sight_img, board_num1, board_num2;
 	private boolean pressed = false;
 	private int img_w,img_h;
 	private AnimationDrawable animation;
+	private Drawable sight;
 	private boolean someAnimationRun;
 	private Player player;
 
@@ -49,25 +53,36 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		img = (ImageView)findViewById(R.id.weaponView);
+		sight_img = (ImageView)findViewById(R.id.sight);
+		board_num1 = (ImageView)findViewById(R.id.board_num1);
+		board_num2 = (ImageView)findViewById(R.id.board_num2);
 		reload = (ImageButton)findViewById(R.id.reload);
 		target = (ImageButton)findViewById(R.id.target);
 		player_life = (ProgressBar)findViewById(R.id.life_progress);
+		bullets = (ProgressBar)findViewById(R.id.bullets_progress);
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
-		
+		slesh = (TextView)findViewById(R.id.slesh);
+
 		someAnimationRun = false;
-		
+
 		Weapon ak12 = new Ak12(getApplicationContext(), "Ak12", 150);
 		Weapon[] wl = new Weapon[1];
 		wl[0] = ak12;
 		player = new Player(wl);
 
+		sight_img.setImageDrawable(player.getWeaponds()[player.getCurrentWeapon()].getSight());
 		player_life.setMax(player.getMaxLife());
+		bullets.setMax(player.getWeaponds()[player.getCurrentWeapon()].getTotalBullets());
 
 		animation = (player.getWeaponds())[player.getCurrentWeapon()].stand();
 		setAnimation(animation);
-		img_w = img.getWidth();
-		img_h = img.getHeight();
+
+		BitmapDrawable bd=(BitmapDrawable) this.getResources().getDrawable(R.drawable.img);
+		img_h = bd.getBitmap().getHeight();
+		img_w = bd.getBitmap().getWidth();
+
+		setViewMargin(img, getScreenSize("width") - getScreenSize("width")/2, -1, -1, -1);
 
 		setScreen();
 
@@ -76,6 +91,24 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		target.setOnClickListener(this);
 	}
 
+	//set view margin by l - left, t - top, r - right, b - bottom
+	private void setViewMargin(View view, int l, int t, int r, int b){
+
+		LayoutParams params = (LayoutParams) view.getLayoutParams();
+
+		if(l != -1)
+			params.leftMargin = l;
+
+		if(t != -1)
+			params.topMargin = t;
+
+		if(r != -1)
+			params.rightMargin = r;
+
+		if(b != -1)
+			params.bottomMargin = b;
+
+	}
 
 
 	SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
@@ -107,16 +140,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	};
 
 
+	//call whene the user touch the screen
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
 		if(!someAnimationRun){
-			
+
 			switch (event.getAction()){
+			//if the user still touch the screen
 			case MotionEvent.ACTION_DOWN:
 				pressed = true;
 				break;
 
+			//if the user left the screen
 			case MotionEvent.ACTION_UP:
 				pressed = false;
 				break;
@@ -124,13 +160,22 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			int currentBullets = (player.getWeaponds()[player.getCurrentWeapon()]).getCurrentBullets();
 			if(pressed & currentBullets > 0){
-				(player.getWeaponds()[player.getCurrentWeapon()]).shoot();
-				(player.getWeaponds()[player.getCurrentWeapon()]).setCurrentBullets();	
+				AnimationDrawable anim = (player.getWeaponds()[player.getCurrentWeapon()]).shoot();
+				
+				if(player.getWeaponds()[player.getCurrentWeapon()].target_state)
+					setAnimation(anim);
+				
+				else
+					executeAnimation(anim);
+				
+				(player.getWeaponds()[player.getCurrentWeapon()]).setCurrentBullets();
+				bullets.setProgress((player.getWeaponds()[player.getCurrentWeapon()]).getTotalBullets());
 				setScreen();
 			}
 		}
 
-		return pressed;
+		return false;
+		//return pressed;
 	}
 
 
@@ -152,6 +197,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	}
 
+	//set the screen information - player life, bullets state etc
 	private void setScreen(){		
 
 		int currentBullets = (player.getWeaponds()[player.getCurrentWeapon()]).getCurrentBullets();
@@ -160,10 +206,36 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			reload();
 		String c_B = String.valueOf(currentBullets);
 		String t_B = String.valueOf(totalBullets);
+
+		if(currentBullets >= 100){
+			board_num1.setVisibility(View.GONE);
+			board_num2.setVisibility(View.GONE);
+		}
+
+		else if(currentBullets < 100 && currentBullets >= 10){
+			board_num1.setVisibility(View.VISIBLE);
+			board_num2.setVisibility(View.GONE);
+		}
+
+		else{
+			board_num1.setVisibility(View.VISIBLE);
+			board_num2.setVisibility(View.VISIBLE);
+		}
+
+		if(totalBullets >= 100)
+			slesh.setText("/");
+
+		else if(totalBullets < 100 && totalBullets >= 10)
+			slesh.setText("/  ");
+
+		else
+			slesh.setText("/   ");
+
 		current_bulletsText.setText(c_B);
-		total_bulletsText.setText("/" + t_B);
+		total_bulletsText.setText(t_B);
 	}
 
+	//operate the animation anim on img
 	private void setAnimation(AnimationDrawable anim){
 
 		if(anim != null){
@@ -173,22 +245,27 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			int imgSize;
 			if((player.getWeaponds()[player.getCurrentWeapon()]).getTargetState()){
-				imgSize = getMaxScreenSize();
+				imgSize = getScreenSize("max");
 				setImgSize(imgSize, imgSize);
+				setViewMargin(img, (getScreenSize("width") - imgSize) / 2, -1, -1, -1);
 			}
 
-			else
+			else{
 				setImgSize(img_w, img_h);
+				setViewMargin(img, getScreenSize("width") - getScreenSize("width")/2, -1, -1, -1);
+				sight_img.setVisibility(View.VISIBLE);
+			}
 
 			img.setBackgroundDrawable(anim);
 			anim.start();
 		}
 	}
 
+	//execute the animation anim once
 	private void executeAnimation(AnimationDrawable anim){
 
 		someAnimationRun = true;
-		
+
 		CustomAnimationDrawable CustomAnimation = new CustomAnimationDrawable(anim) {
 			@Override
 			void onAnimationFinish() {
@@ -196,6 +273,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				setScreen();
 				animation.stop();
 				setAnimation(animation);
+
 				someAnimationRun = false;
 			}
 		};
@@ -214,6 +292,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	}
 
+	//set the size of img to width, height
 	private void setImgSize(int width, int height){
 
 		img.setMaxWidth(width);
@@ -222,14 +301,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		img.setMinimumHeight(height);
 	}
 
+	//reload the weapon
 	private void reload(){
-/*
+
 		AnimationDrawable anim = (player.getWeaponds()[player.getCurrentWeapon()]).reload();
 
 		if(anim != null){
 
+			//if the weapon on target state
 			if((player.getWeaponds()[player.getCurrentWeapon()]).getTargetState()){
 				setImgSize(img_w, img_h);
+				setViewMargin(img, getScreenSize("width") - getScreenSize("width")/2, -1, -1, -1);
 				animation.stop();
 				animation = (player.getWeaponds()[player.getCurrentWeapon()]).target();
 			}
@@ -238,21 +320,25 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				animation.stop();
 				animation = (player.getWeaponds()[player.getCurrentWeapon()]).stand();
 			}
+			
+			sight_img.setVisibility(View.INVISIBLE);
 			executeAnimation(anim);
 		}
 
+		/*
 
 
-		*/
 		GamePacket packet=new GamePacket(MainActivity.nickName, MainActivity.password,true,false,"gili");
 		MyClientTask_SendObject myClientTask = new MyClientTask_SendObject(packet);
-		myClientTask.execute();
+		myClientTask.execute(); */
 	}
 
+	//switch to target state and vice versa
 	private void targetState(){
 
 		AnimationDrawable anim;
 
+		//if the weapon already on target state
 		if((player.getWeaponds()[player.getCurrentWeapon()]).getTargetState()){
 			anim = (player.getWeaponds()[player.getCurrentWeapon()]).normal();
 			(player.getWeaponds()[player.getCurrentWeapon()]).setTargetState();
@@ -264,12 +350,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		else{
 			anim = (player.getWeaponds()[player.getCurrentWeapon()]).target();
 			(player.getWeaponds()[player.getCurrentWeapon()]).setTargetState();
+			sight_img.setVisibility(View.INVISIBLE);
 			setAnimation(anim);
 		}		
 	}
 
 
-	private int getMaxScreenSize(){
+    //get the size of the screen according to sizeOf
+	private int getScreenSize(String sizeOf){
 
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
@@ -277,10 +365,21 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		int width = size.x;
 		int height = size.y;
 
-		if(width < height)
+		if(sizeOf.equals("width"))
 			return width;
-		else
+
+		else if(sizeOf.equals("height"))
 			return height;
+
+		else if(sizeOf.equals("max")){
+
+			if(width < height)
+				return width;
+			else
+				return height;
+		}
+
+		return 0;
 	}
 
 	public class MyClientTask_SendObject extends AsyncTask<Void, Void, Void> {

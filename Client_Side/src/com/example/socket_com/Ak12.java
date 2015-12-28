@@ -8,7 +8,7 @@ import android.media.MediaPlayer;
 public class Ak12 extends Weapon {
 
 	private final int max_bullets = 10;
-	private AnimationDrawable reload_anim, fullReload_anim, target_anim, normal_anim, stand_anim;
+	private AnimationDrawable reload_anim, fullReload_anim, target_anim, normal_anim, stand_anim, shoot_anim, target_shoot_anim;
 
 	public Ak12(Context context, String name, int total_bullets) {
 		
@@ -21,12 +21,24 @@ public class Ak12 extends Weapon {
 		target_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_target);
 		normal_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_back_to_normal);
 		stand_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_stand);
+		shoot_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_shoot);
+		target_shoot_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.target_shoot);
+		
+		sight = actContext.getResources().getDrawable( R.drawable.ak12_sight);
 	} 
 	
 	
 	@Override
-	public void/*AnimationDrawable*/ shoot(){
-		//sound.start();
+	public AnimationDrawable shoot(){
+		
+		sound = MediaPlayer.create(actContext, R.raw.ak12_one_shoot);
+		sound.start();
+		
+		if(target_state)
+			return target_shoot_anim;
+		
+		else
+			return shoot_anim;
 	}
 
 	public void choose_this_weapon() {
@@ -50,13 +62,13 @@ public class Ak12 extends Weapon {
 			current_bullets = total_bullets;
 
 		if(fullReload){
-			sound = MediaPlayer.create(actContext, R.raw.full_reload_sound);
+			sound = MediaPlayer.create(actContext, R.raw.ak12_full_reload);
 			sound.start();
 			return fullReload_anim;
 		}
 		
 		else{
-			sound = MediaPlayer.create(actContext, R.raw.reload);
+			sound = MediaPlayer.create(actContext, R.raw.ak12_reload);
 			sound.start();
 			return reload_anim;
 		}
