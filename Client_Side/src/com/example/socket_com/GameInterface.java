@@ -1,6 +1,7 @@
 package com.example.socket_com;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
 import com.example.hs.R;
@@ -40,8 +41,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private AnimationDrawable animation;
 	private Drawable sight;
 	private boolean someAnimationRun;
-	private Player player;
-
+	private Player player=MainActivity.player;
+	private MyClientTask_ListenToPakcets listener;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	
@@ -69,7 +70,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		Weapon ak12 = new Ak12(getApplicationContext(), "Ak12", 150);
 		Weapon[] wl = new Weapon[1];
 		wl[0] = ak12;
-		player = new Player(wl);
+		player.setWeapons(wl);;
 
 		sight_img.setImageDrawable(player.getWeaponds()[player.getCurrentWeapon()].getSight());
 		player_life.setMax(player.getMaxLife());
@@ -89,6 +90,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		cameraPreview.setOnTouchListener(this);
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
+		
+		
+		
+		//listener=new MyClientTask_ListenToPakcets();
+		//listener.execute();
 	}
 
 	//set view margin by l - left, t - top, r - right, b - bottom
@@ -152,7 +158,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				pressed = true;
 				break;
 
-			//if the user left the screen
+				//if the user left the screen
 			case MotionEvent.ACTION_UP:
 				pressed = false;
 				break;
@@ -161,13 +167,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			int currentBullets = (player.getWeaponds()[player.getCurrentWeapon()]).getCurrentBullets();
 			if(pressed & currentBullets > 0){
 				AnimationDrawable anim = (player.getWeaponds()[player.getCurrentWeapon()]).shoot();
-				
+
 				if(player.getWeaponds()[player.getCurrentWeapon()].target_state)
 					setAnimation(anim);
-				
+
 				else
 					executeAnimation(anim);
-				
+
 				(player.getWeaponds()[player.getCurrentWeapon()]).setCurrentBullets();
 				bullets.setProgress((player.getWeaponds()[player.getCurrentWeapon()]).getTotalBullets());
 				setScreen();
@@ -320,17 +326,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				animation.stop();
 				animation = (player.getWeaponds()[player.getCurrentWeapon()]).stand();
 			}
-			
+
 			sight_img.setVisibility(View.INVISIBLE);
 			executeAnimation(anim);
 		}
 
-		/*
 
 
-		GamePacket packet=new GamePacket(MainActivity.nickName, MainActivity.password,true,false,"gili");
-		MyClientTask_SendObject myClientTask = new MyClientTask_SendObject(packet);
-		myClientTask.execute(); */
+
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
+		MyClientTask_SendPakcet  myClientTask = new MyClientTask_SendPakcet(packet);
+		myClientTask.execute(); 
 	}
 
 	//switch to target state and vice versa
@@ -356,7 +362,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 
 
-    //get the size of the screen according to sizeOf
+	//get the size of the screen according to sizeOf
 	private int getScreenSize(String sizeOf){
 
 		Display display = getWindowManager().getDefaultDisplay();
@@ -382,7 +388,91 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		return 0;
 	}
 
-	public class MyClientTask_SendObject extends AsyncTask<Void, Void, Void> {
+
+
+
+
+
+
+
+
+
+	public class MyClientTask_ListenToPakcets extends AsyncTask<Void, Void, Void> {
+
+
+		String response = "";
+
+
+
+		MyClientTask_ListenToPakcets(){
+
+
+		}
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+
+			GamePacket packet = null;
+
+
+			//reading "packet" object from client
+			try {
+				ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
+				packet=(GamePacket) inFromClient.readObject();
+
+			} 
+			catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				response = "UnknownHostException: " + e.toString();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				response = "IOException: " + e.toString();
+			}
+			
+			
+			
+			if(packet.isHit()){
+				MainActivity.player.Hit();
+			}
+			/*finally
+			{
+				if(MainActivity.socket != null){
+					try {
+						MainActivity.socket.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}*/
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			//textResponse.setText(response);
+			super.onPostExecute(result);
+		}
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	public class MyClientTask_SendPakcet extends AsyncTask<Void, Void, Void> {
 
 
 		String response = "";
@@ -390,7 +480,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		GamePacket packet;
 
-		MyClientTask_SendObject(GamePacket packet){
+		MyClientTask_SendPakcet(GamePacket packet){
 
 			this.packet=packet;
 		}

@@ -1,20 +1,83 @@
 package com.example.socket_com;
 
 public class Player {
-
 	private final int maxLife = 100;
+	private final int hit = 50;
+	
 	private int life;
 	private String rank;
 	private int current_weapon;
 	private Weapon[] weapons;
-	
+	private int gameScore;
+	private int killCount;
+	private int ammunition;
+	private String nickName;
+	private String password;
 	public Player(Weapon[] weaponsList){
 		
 		life = maxLife;
 		current_weapon = 0;
 		weapons = weaponsList;
 	}
+	public Player(String nickName,String password){
+		
+		life = maxLife;
+		current_weapon = 0;
+		gameScore=0;
+		killCount=0;
+		this.nickName=nickName;
+		this.password=password;
+		ammunition=30;
+	}
 	
+	public void Hit(){
+	this.life=this.life-this.hit;
+	}
+	
+	
+
+	public String getRank() {
+		return rank;
+	}
+	public void setRank(String rank) {
+		this.rank = rank;
+	}
+	public int getCurrent_weapon() {
+		return current_weapon;
+	}
+	public void setCurrent_weapon(int current_weapon) {
+		this.current_weapon = current_weapon;
+	}
+	public Weapon[] getWeapons() {
+		return weapons;
+	}
+	public void setWeapons(Weapon[] weapons) {
+		this.weapons = weapons;
+	}
+	public int getGameScore() {
+		return gameScore;
+	}
+	public void setGameScore(int gameScore) {
+		this.gameScore = gameScore;
+	}
+	public int getKillCount() {
+		return killCount;
+	}
+	public void setKillCount(int killCount) {
+		this.killCount = killCount;
+	}
+	public int getAmmunition() {
+		return ammunition;
+	}
+	public void setAmmunition(int ammunition) {
+		this.ammunition = ammunition;
+	}
+	public String getNickName() {
+		return nickName;
+	}
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
 	public int getMaxLife(){
 		return maxLife;
 	}
@@ -51,5 +114,8 @@ public class Player {
 			if(current_weapon < 0)
 				current_weapon = weapons.length - 1;
 		}
+	}
+	public String getPassword() {
+		return this.password;
 	}
 }

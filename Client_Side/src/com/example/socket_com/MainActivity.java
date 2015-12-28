@@ -21,8 +21,10 @@ public class MainActivity extends Activity {
 	public static Socket socket;
 	public static String serverIP="192.168.1.13";
 	public static int serverPort=9008;
-	public static String nickName="gili";
-	public static String password="1234";
+	
+	
+	public static Player player=new Player("nati","1234");
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
