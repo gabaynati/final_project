@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.NetworkChannel;
+import java.util.Vector;
 
 import javax.swing.JFrame;
 
@@ -12,19 +13,34 @@ import javax.swing.JFrame;
 public class Main {
 	public static Game game=new Game();
 	public static ServerInterface panel;
+	public static  Vector<String> serverLogs= new Vector<String>();
+	
+	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 
-	
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
+		serverLogs.add("server started");
 		JFrame j=new JFrame();
 		panel=new ServerInterface();
 	
 		j.add(panel);
-		j.setSize(1300, 750);
+		j.setSize(822, 973);
 		j.setVisible(true);
 		j.show();
-
-		int registerPort = Integer.parseInt("9008");
+		serverLogs.add("server started");
+/*
+		int registerPort = Integer.parseInt("9002");
 		
 		try
 		{
@@ -36,7 +52,7 @@ public class Main {
 			e.printStackTrace();
 		}
 
-
+*/
 		 
 		/*
 		try {

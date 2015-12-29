@@ -61,7 +61,8 @@ public class Game {
 		            +"shot "+injured_nickName+":"+injured_address.toString();
 		else
 			print="hit detected";
-		System.out.println(print);
+		Main.serverLogs.add(print);
+		Main.panel.update();
 
 	}
 	public Vector<Socket> getPlayersSockets(){

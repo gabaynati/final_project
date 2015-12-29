@@ -1,5 +1,6 @@
 package com.example.socket_com;
 import java.net.*;
+import java.util.Vector;
 
 import javax.swing.JPanel;
 
@@ -10,7 +11,7 @@ public class connectThread extends Thread
 {
 	private ServerSocket serverSocket;
 	
-
+private Vector<String> serverLogs=Main.serverLogs;
 	public  connectThread(int port) throws IOException
 	{
 		serverSocket = new ServerSocket(port);
@@ -32,18 +33,18 @@ public class connectThread extends Thread
 
 
 				//printing the server ip address
-				System.out.println("server ip address:"+ip);        	 
-
+				serverLogs.add("server ip address:"+ip);        	 
+				
 
 				//waiting to connect from client
-				System.out.println("Waiting for client on port " +
-						serverSocket.getLocalPort() + "...");
+				serverLogs.add("Waiting for client on port " +serverSocket.getLocalPort() + "...");
+				Main.panel.update();
 				Socket socket = serverSocket.accept();//inf loop until client connects
 				
 
 				//printing the client IP address
-				System.out.println("Just connected to "+ socket.getRemoteSocketAddress());
-
+				serverLogs.add("Just connected to "+ socket.getRemoteSocketAddress());
+				Main.panel.update();
 
 
 				//note:
@@ -77,8 +78,8 @@ public class connectThread extends Thread
 				if(packet.isConnect()){
 				Main.game.addPlayer(new Player(socket,packet.getNickName()));
 				Main.panel.update();
-				System.out.println(packet.getNickName());
-				System.out.println(packet.getPassword());
+				serverLogs.add(packet.getNickName());
+				serverLogs.add(packet.getPassword());
 				}
 				else if(packet.isHit()){
 					Main.game.Hit(packet.getNickName(), packet.getInjured_nickName());
@@ -124,7 +125,8 @@ public class connectThread extends Thread
 				//server.close();
 			}catch(SocketTimeoutException s)
 			{
-				System.out.println("Socket timed out!");
+				serverLogs.add("Socket timed out!");
+				Main.panel.update();
 				break;
 			}catch(IOException e)
 			{

@@ -4,7 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
@@ -19,8 +22,8 @@ import javax.swing.JTable;
 @SuppressWarnings("serial")
 public class ServerInterface extends JPanel {
 	private imgPanel logo;
-	private JLabel team1Icon,team2Icon;
-	
+	private JLabel team1Icon,team2Icon,serverMessages;
+
 	
 	private JTable team1Players;
 	private JTable team2Players;
@@ -30,14 +33,21 @@ public class ServerInterface extends JPanel {
 //		team1Label=new JLabel("Team1 players");
 //		team2Label=new JLabel("Team2 players");
 //		team1Label.setFont (new Font("", Font.BOLD,30));
-//		team2Label.setFont (new Font("Courier", Font.BOLD,30));
-//		team1Label.setForeground(Color.BLACK);
+//		serverMessages.setFont (new Font("Courier", Font.BOLD,30));
+//		serverMessages.setForeground(Color.RED);
 //		team2Label.setForeground(Color.BLACK);
 		
 		team1Icon=new JLabel(new ImageIcon("Images/team1.jpg"));
 		team2Icon=new JLabel(new ImageIcon("Images/team2.jpg"));
+		team1Icon.setForeground(Color.LIGHT_GRAY);
+		team2Icon.setForeground(Color.LIGHT_GRAY);
+		
+		
 		logo=new imgPanel("Images/logo.jpg");
 		layout=new BorderLayout();
+		serverMessages=new JLabel();
+		serverMessages.setFont (new Font("Courier", Font.BOLD,30));
+		serverMessages.setForeground(Color.DARK_GRAY);
 		update();
 		
 		repaint();
@@ -45,7 +55,7 @@ public class ServerInterface extends JPanel {
 
 	public void paintComponent(Graphics g) {
 		super.paintComponents(g);
-		//logo.paintComponent(g);
+		logo.paintComponent(g);
 
 	}
 
@@ -63,6 +73,12 @@ public class ServerInterface extends JPanel {
 		else
 			team=game.getTeam2Players();
 
+		///	
+		Vector<String> firstRow = new Vector<String>();
+		firstRow.addElement("Nick Name");
+		firstRow.addElement("Socket Address");
+		rowData.addElement(firstRow);
+		
 		for(int i=0;i<team.size();i++){
 			Vector<String> row = new Vector<String>();
 			row.addElement(team.elementAt(i).getNickName().toString());
@@ -76,12 +92,29 @@ public class ServerInterface extends JPanel {
 
 	}
 	
+	public String getServerMessages(Vector<String> serverLogs){
+		String str="<html>";
+		for(int i=0;i<serverLogs.size();i++)
+			str+="<br>"+serverLogs.elementAt(i)+"</br>";
+		str+="</html>";
+		return str;
+	}
+	
+	
+	
+	
 	public void update(){
 		this.removeAll();
 	
-		this.setLayout(layout);
-
-		this.add(logo,BorderLayout.CENTER);
+		
+		/*
+		
+		JPanel serverLogPanel=new JPanel();
+		serverLogPanel.setLayout(new BorderLayout());
+		serverMessages.setText(getServerMessages(Main.serverLogs));
+		serverLogPanel.add(serverMessages,BorderLayout.CENTER);
+		logo.add(serverLogPanel,BorderLayout.CENTER);
+		
 		
 		
 		team1Players=getActivePlayers(Main.game, 1);
@@ -90,20 +123,82 @@ public class ServerInterface extends JPanel {
 		
 		
 		JPanel team1Panel=new JPanel();
-		team1Panel.add(team1Icon,BorderLayout.PAGE_START);
+		team1Panel.setLayout(new BorderLayout());
+		team1Panel.add(team1Icon,BorderLayout.NORTH);
 		team1Panel.add(team1Players,BorderLayout.CENTER);
-		this.add(team1Panel,BorderLayout.LINE_START);
+		logo.add(team1Panel,BorderLayout.WEST);
 		
 		
 		
 		
 		JPanel team2Panel=new JPanel();
-		team2Panel.add(team2Icon,BorderLayout.PAGE_START);
+		team2Panel.setLayout(new BorderLayout());
+		team2Panel.add(team2Icon,BorderLayout.NORTH);
 		team2Panel.add(team2Players,BorderLayout.CENTER);
-		this.add(team2Panel,BorderLayout.LINE_END);
+		logo.add(team2Panel,BorderLayout.EAST);
+		
+		*/
 		
 		
 		
+		
+		
+		logo.setLayout(new GridBagLayout());
+
+		
+		serverMessages.setText(getServerMessages(Main.serverLogs));
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor=GridBagConstraints.PAGE_START;
+		c.gridx=2;
+		c.gridy=0;
+		c.gridheight=3;
+		c.gridwidth=1;
+		c.ipadx = 0;  
+		logo.add(serverMessages,c);
+		
+		
+		
+		team1Players=getActivePlayers(Main.game, 1);
+		team2Players=getActivePlayers(Main.game, 2);
+		
+		
+		
+		c.anchor=GridBagConstraints.FIRST_LINE_START;
+		c.gridx=0;
+		c.gridy=0;
+		c.gridheight=1;
+		c.gridwidth=1;
+		//c.ipadx=111;
+		logo.add(team1Icon,c);
+		c.anchor=GridBagConstraints.LINE_START;
+		c.gridx=0;
+		c.gridy=1;
+		c.gridheight=GridBagConstraints.RELATIVE;
+		c.gridwidth=1;
+		//c.ipadx=;
+		logo.add(team1Players,c);
+		
+		
+		
+		
+		
+		c.anchor=GridBagConstraints.FIRST_LINE_END;
+		c.gridx=3;
+		c.gridy=0;
+		c.gridheight=1;
+		c.gridwidth=GridBagConstraints.REMAINDER;
+		//c.ipady = 0;  
+		logo.add(team2Icon,c);
+		c.anchor=GridBagConstraints.LINE_END;
+		c.gridx=3;
+		c.gridy=1;
+		c.gridheight=GridBagConstraints.RELATIVE;
+		c.gridwidth=GridBagConstraints.REMAINDER;
+		c.ipadx=111;
+		logo.add(team2Players,c);
+		
+		
+		this.add(logo);
 		repaint();
 		revalidate();
 	}
