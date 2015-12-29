@@ -43,6 +43,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private boolean someAnimationRun;
 	private Player player=MainActivity.player;
 	private MyClientTask_ListenToPakcets listener;
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	
@@ -70,13 +72,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		Weapon ak12 = new Ak12(getApplicationContext(), "Ak12", 150);
 		Weapon[] wl = new Weapon[1];
 		wl[0] = ak12;
-		player.setWeapons(wl);;
+		player.setWeapons(wl);
 
-		sight_img.setImageDrawable(player.getWeaponds()[player.getCurrentWeapon()].getSight());
+		sight_img.setImageDrawable(player.getWeapons()[player.getCurrentWeapon()].getSight());
 		player_life.setMax(player.getMaxLife());
-		bullets.setMax(player.getWeaponds()[player.getCurrentWeapon()].getTotalBullets());
+		bullets.setMax(player.getWeapons()[player.getCurrentWeapon()].getTotalBullets());
 
-		animation = (player.getWeaponds())[player.getCurrentWeapon()].stand();
+		animation = (player.getWeapons())[player.getCurrentWeapon()].stand();
 		setAnimation(animation);
 
 		BitmapDrawable bd=(BitmapDrawable) this.getResources().getDrawable(R.drawable.img);
@@ -164,18 +166,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				break;
 			}
 
-			int currentBullets = (player.getWeaponds()[player.getCurrentWeapon()]).getCurrentBullets();
+			int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
 			if(pressed & currentBullets > 0){
-				AnimationDrawable anim = (player.getWeaponds()[player.getCurrentWeapon()]).shoot();
+				AnimationDrawable anim = (player.getWeapons()[player.getCurrentWeapon()]).shoot();
 
-				if(player.getWeaponds()[player.getCurrentWeapon()].target_state)
+				if(player.getWeapons()[player.getCurrentWeapon()].target_state)
 					setAnimation(anim);
 
 				else
 					executeAnimation(anim);
 
-				(player.getWeaponds()[player.getCurrentWeapon()]).setCurrentBullets();
-				bullets.setProgress((player.getWeaponds()[player.getCurrentWeapon()]).getTotalBullets());
+				(player.getWeapons()[player.getCurrentWeapon()]).setCurrentBullets();
+				bullets.setProgress((player.getWeapons()[player.getCurrentWeapon()]).getTotalBullets());
 				setScreen();
 			}
 		}
@@ -206,8 +208,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//set the screen information - player life, bullets state etc
 	private void setScreen(){		
 
-		int currentBullets = (player.getWeaponds()[player.getCurrentWeapon()]).getCurrentBullets();
-		int totalBullets = (player.getWeaponds()[player.getCurrentWeapon()]).getTotalBullets();
+		int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
+		int totalBullets = (player.getWeapons()[player.getCurrentWeapon()]).getTotalBullets();
 		if(currentBullets == 0 && totalBullets >0)
 			reload();
 		String c_B = String.valueOf(currentBullets);
@@ -250,7 +252,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				((AnimationDrawable)(img.getBackground())).stop();
 
 			int imgSize;
-			if((player.getWeaponds()[player.getCurrentWeapon()]).getTargetState()){
+			if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
 				imgSize = getScreenSize("max");
 				setImgSize(imgSize, imgSize);
 				setViewMargin(img, (getScreenSize("width") - imgSize) / 2, -1, -1, -1);
@@ -310,21 +312,21 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//reload the weapon
 	private void reload(){
 
-		AnimationDrawable anim = (player.getWeaponds()[player.getCurrentWeapon()]).reload();
+		AnimationDrawable anim = (player.getWeapons()[player.getCurrentWeapon()]).reload();
 
 		if(anim != null){
 
 			//if the weapon on target state
-			if((player.getWeaponds()[player.getCurrentWeapon()]).getTargetState()){
+			if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
 				setImgSize(img_w, img_h);
 				setViewMargin(img, getScreenSize("width") - getScreenSize("width")/2, -1, -1, -1);
 				animation.stop();
-				animation = (player.getWeaponds()[player.getCurrentWeapon()]).target();
+				animation = (player.getWeapons()[player.getCurrentWeapon()]).target();
 			}
 
 			else{
 				animation.stop();
-				animation = (player.getWeaponds()[player.getCurrentWeapon()]).stand();
+				animation = (player.getWeapons()[player.getCurrentWeapon()]).stand();
 			}
 
 			sight_img.setVisibility(View.INVISIBLE);
@@ -345,17 +347,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		AnimationDrawable anim;
 
 		//if the weapon already on target state
-		if((player.getWeaponds()[player.getCurrentWeapon()]).getTargetState()){
-			anim = (player.getWeaponds()[player.getCurrentWeapon()]).normal();
-			(player.getWeaponds()[player.getCurrentWeapon()]).setTargetState();
+		if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
+			anim = (player.getWeapons()[player.getCurrentWeapon()]).normal();
+			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
 			animation.stop();
-			animation = (player.getWeaponds()[player.getCurrentWeapon()]).stand();
+			animation = (player.getWeapons()[player.getCurrentWeapon()]).stand();
 			executeAnimation(anim);
 		}
 
 		else{
-			anim = (player.getWeaponds()[player.getCurrentWeapon()]).target();
-			(player.getWeaponds()[player.getCurrentWeapon()]).setTargetState();
+			anim = (player.getWeapons()[player.getCurrentWeapon()]).target();
+			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
 			sight_img.setVisibility(View.INVISIBLE);
 			setAnimation(anim);
 		}		
