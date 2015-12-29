@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <animation-list xmlns:android="http://schemas.android.com/apk/res/android" android:oneshot="true" >
     
-    <item android:drawable="@drawable/ak12_reload1" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload2" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload3" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload4" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload5" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload6" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload7" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload8" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload9" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload10" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload11" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload12" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload13" android:duration="83" />
-    <item android:drawable="@drawable/ak12_reload14" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload1" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload2" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload3" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload4" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload5" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload6" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload7" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload8" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload9" android:duration="83" />
-    <item android:drawable="@drawable/ak12_full_reload10" android:duration="83" />
+    <item android:drawable="@drawable/ak12_reload1" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload2" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload3" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload4" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload5" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload6" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload7" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload8" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload9" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload10" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload11" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload12" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload13" android:duration="144" />
+    <item android:drawable="@drawable/ak12_reload14" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload1" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload2" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload3" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload4" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload5" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload6" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload7" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload8" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload9" android:duration="144" />
+    <item android:drawable="@drawable/ak12_full_reload10" android:duration="144" />
 
 </animation-list>
