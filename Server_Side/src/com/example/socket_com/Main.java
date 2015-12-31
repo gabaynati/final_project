@@ -20,17 +20,6 @@ public class Main {
 	public static void main(String[] args) {
 
 		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
-		serverLogs.add("server started");
 		JFrame j=new JFrame();
 		panel=new ServerInterface();
 	
@@ -39,7 +28,7 @@ public class Main {
 		j.setVisible(true);
 		j.show();
 		serverLogs.add("server started");
-/*
+
 		int registerPort = Integer.parseInt("9002");
 		
 		try
@@ -52,7 +41,7 @@ public class Main {
 			e.printStackTrace();
 		}
 
-*/
+
 		 
 		/*
 		try {
