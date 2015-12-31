@@ -66,7 +66,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
 		slesh = (TextView)findViewById(R.id.slesh);
-
+		
 		someAnimationRun = false;
 
 		Weapon ak12 = new Ak12(getApplicationContext(), "Ak12", 150);
