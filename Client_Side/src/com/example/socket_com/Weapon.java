@@ -6,14 +6,15 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 
 public abstract class Weapon {
-
+	
+	protected MediaPlayer sound;
 	protected String name;
 	protected Drawable sight;
 	protected int total_bullets;
 	protected int current_bullets;
 	protected boolean target_state;
 	protected Context actContext;
-	protected MediaPlayer sound;
+	
 
 	public Weapon(Context context, String n, int t_bullets){
 		
@@ -46,11 +47,6 @@ public abstract class Weapon {
 	
 	public int getTotalBullets(){
 		return total_bullets;
-	}
-	
-	public void setCurrentBullets(){
-		current_bullets--;
-		total_bullets--;
 	}
 	
 	public abstract int getMaxBullets();

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
+
 import com.example.hs.R;
+
 import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
@@ -23,6 +25,7 @@ import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
@@ -36,7 +39,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private ProgressBar player_life, bullets;
 	private ImageButton reload, target;
 	private ImageView img, sight_img, board_num1, board_num2;
-	private boolean pressed = false;
 	private int img_w,img_h;
 	private AnimationDrawable animation;
 	private Drawable sight;
@@ -157,33 +159,34 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			switch (event.getAction()){
 			//if the user still touch the screen
 			case MotionEvent.ACTION_DOWN:
-				pressed = true;
+
 				break;
 
 				//if the user left the screen
 			case MotionEvent.ACTION_UP:
-				pressed = false;
+
 				break;
 			}
 
 			int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
-			if(pressed & currentBullets > 0){
+			if(currentBullets > 0){
 				AnimationDrawable anim = (player.getWeapons()[player.getCurrentWeapon()]).shoot();
 
-				if(player.getWeapons()[player.getCurrentWeapon()].target_state)
-					setAnimation(anim);
-
-				else
-					executeAnimation(anim);
-
-				(player.getWeapons()[player.getCurrentWeapon()]).setCurrentBullets();
 				bullets.setProgress((player.getWeapons()[player.getCurrentWeapon()]).getTotalBullets());
 				setScreen();
+				
+				if(player.getWeapons()[player.getCurrentWeapon()].target_state){
+					setAnimation(anim);
+					if(setScreen())
+						reload();
+				}
+					
+				else
+					executeAnimation(anim);	
 			}
 		}
 
 		return false;
-		//return pressed;
 	}
 
 
@@ -206,12 +209,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 
 	//set the screen information - player life, bullets state etc
-	private void setScreen(){		
+	//if player need to reload return true, else return false
+	private boolean setScreen(){		
 
 		int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
 		int totalBullets = (player.getWeapons()[player.getCurrentWeapon()]).getTotalBullets();
-		if(currentBullets == 0 && totalBullets >0)
-			reload();
+		
 		String c_B = String.valueOf(currentBullets);
 		String t_B = String.valueOf(totalBullets);
 
@@ -241,6 +244,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		current_bulletsText.setText(c_B);
 		total_bulletsText.setText(t_B);
+		
+		if(currentBullets == 0 && totalBullets > 0)
+			return true;
+		
+		return false;
 	}
 
 	//operate the animation anim on img
@@ -272,20 +280,25 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//execute the animation anim once
 	private void executeAnimation(AnimationDrawable anim){
 
-		someAnimationRun = true;
-
 		CustomAnimationDrawable CustomAnimation = new CustomAnimationDrawable(anim) {
 			@Override
 			void onAnimationFinish() {
-
-				setScreen();
+				
 				animation.stop();
-				setAnimation(animation);
-
-				someAnimationRun = false;
+				
+				if(setScreen())
+					reload();
+				
+				else{
+					someAnimationRun = false;
+					setAnimation(animation);
+				}
 			}
 		};
+		
 		img.setBackgroundDrawable(CustomAnimation);
+		someAnimationRun = true;
+		
 		CustomAnimation.start();
 	}
 
@@ -330,15 +343,16 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 
 			sight_img.setVisibility(View.INVISIBLE);
+			
 			executeAnimation(anim);
 		}
 
 
 
 
-		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
+		/*GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
 		MyClientTask_SendPakcet  myClientTask = new MyClientTask_SendPakcet(packet);
-		myClientTask.execute(); 
+		myClientTask.execute(); */
 	}
 
 	//switch to target state and vice versa

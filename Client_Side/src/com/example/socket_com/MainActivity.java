@@ -32,12 +32,12 @@ public class MainActivity extends Activity {
 		
 		
 		//moving to connect to server
-	Intent connectToServer = new Intent("com.example.socket_com.CONNECTTOSERVERACTIVITY");
-		startActivity(connectToServer);
+	//Intent connectToServer = new Intent("com.example.socket_com.CONNECTTOSERVERACTIVITY");
+		//startActivity(connectToServer);
 		
 		//moving to gameinterface
-		//Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
-		//startActivity(gameInterface);
+		Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
+		startActivity(gameInterface);
 		
 		//moving to menu
 		//Intent menu= new Intent("com.example.socket_com.MENUACTIVITY");

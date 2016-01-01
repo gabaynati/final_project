@@ -1,11 +1,15 @@
 package com.example.socket_com;
 
+import java.io.IOException;
+
 import com.example.hs.R;
+
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 
-public class Ak12 extends Weapon {
+public class Ak12 extends Weapon implements OnCompletionListener {
 
 	private final int max_bullets = 10;
 	private AnimationDrawable reload_anim, fullReload_anim, target_anim, normal_anim, stand_anim, shoot_anim, target_shoot_anim;
@@ -14,7 +18,6 @@ public class Ak12 extends Weapon {
 		
 		super(context, name, total_bullets);
 
-		
 		current_bullets = max_bullets;
 		reload_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_reload);
 		fullReload_anim = (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.ak12_full_reload);
@@ -31,7 +34,19 @@ public class Ak12 extends Weapon {
 	@Override
 	public AnimationDrawable shoot(){
 		
+		current_bullets--;
+		total_bullets--;
+		
 		sound = MediaPlayer.create(actContext, R.raw.ak12_one_shoot);
+		try {
+			sound.prepare();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		sound.start();
 		
 		if(target_state)
@@ -92,5 +107,12 @@ public class Ak12 extends Weapon {
 	@Override
 	public int getMaxBullets() {
 		return max_bullets;
+	}
+
+
+	@Override
+	public void onCompletion(MediaPlayer mp) {
+		// TODO Auto-generated method stub
+		mp.release();
 	}
 }
