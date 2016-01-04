@@ -15,9 +15,8 @@
 
         <ImageView
             android:id="@+id/weaponView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
 
         <ImageButton
             android:id="@+id/target"
@@ -39,13 +38,6 @@
             android:background="@null"
             android:src="@drawable/button" />
 
-        <ImageView
-            android:id="@+id/sight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/weaponView"
-            android:layout_centerHorizontal="true" />
-
         <TableLayout
             android:id="@+id/tableLayout1"
             android:layout_width="wrap_content"
@@ -61,10 +53,10 @@
                 android:id="@+id/tableRow2"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="5dp"
                 android:paddingLeft="5dp"
-                android:paddingTop="5dp"
                 android:paddingRight="5dp"
-                android:paddingBottom="5dp" >
+                android:paddingTop="5dp" >
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -104,7 +96,7 @@
                         android:text="0"
                         android:textColor="#F5F5F5"
                         android:textSize="30dp" />
-                    
+
                     <TextView
                         android:id="@+id/slesh"
                         android:layout_width="wrap_content"
@@ -113,10 +105,6 @@
                         android:text="/"
                         android:textColor="#F5F5F5"
                         android:textSize="30dp" />
-                    
-                    
-                    
-
                 </RelativeLayout>
             </TableRow>
 
@@ -125,14 +113,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 
-                <ProgressBar
-                    android:id="@+id/bullets_progress"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:alpha="0.8"
-                    android:progressDrawable="@drawable/customprogressbar" />
             </TableRow>
 
             <TableRow
@@ -152,8 +132,14 @@
             </TableRow>
         </TableLayout>
 
+        <ImageView
+            android:id="@+id/sight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/sight" />
         
-
     </RelativeLayout>
 
 </FrameLayout>

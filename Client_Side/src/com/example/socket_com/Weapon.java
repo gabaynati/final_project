@@ -9,7 +9,6 @@ public abstract class Weapon {
 	
 	protected MediaPlayer sound;
 	protected String name;
-	protected Drawable sight;
 	protected int total_bullets;
 	protected int current_bullets;
 	protected boolean target_state;
@@ -22,10 +21,6 @@ public abstract class Weapon {
 		name = n;
 		total_bullets = t_bullets;
 		target_state = false;
-	}
-	
-	public Drawable getSight(){
-		return sight;
 	}
 	
 	public boolean getTargetState(){
@@ -51,14 +46,10 @@ public abstract class Weapon {
 	
 	public abstract int getMaxBullets();
 
-	public abstract AnimationDrawable shoot();
+	public abstract int[] reload();
 
-	public abstract AnimationDrawable reload();
-
-	public abstract AnimationDrawable stand();
-
-	public abstract AnimationDrawable target();
-
-	public abstract AnimationDrawable normal();	
+	public abstract AnimationDrawable getAnimation(String anim);
+	
+	public abstract void shoot();
 
 }

@@ -1,18 +1,24 @@
 package com.example.socket_com;
 
+import com.example.hs.R;
+
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 
 public abstract class CustomAnimationDrawable extends AnimationDrawable {
 
     /** Handles the animation callback. */
     Handler mAnimationHandler;
-
+    
     public CustomAnimationDrawable(AnimationDrawable aniDrawable) {
-        /* Add each frame to our animation drawable */
+
         for (int i = 0; i < aniDrawable.getNumberOfFrames(); i++) {
             this.addFrame(aniDrawable.getFrame(i), aniDrawable.getDuration(i));
         }
+    	
     }
 
     @Override
@@ -45,7 +51,7 @@ public abstract class CustomAnimationDrawable extends AnimationDrawable {
      * 
      * @return The total duration.
      */
-    public int getTotalDuration() {
+   public int getTotalDuration() {
 
         int iDuration = 0;
 
