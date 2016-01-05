@@ -44,13 +44,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private ProgressBar player_life;
 	private ImageButton reload, target;
 	private ImageView img, sight_img, board_num1, board_num2;
-	private int anim_index, state, unUsed;
+	private int anim_index, soundIndex, state, unUsed;
 	private AnimationDrawable shoot_animation, stand_animation;
 	private boolean someAnimationRun;
 	private Player player=MainActivity.player;
 	private MyClientTask_ListenToPakcets listener;
 	private Handler mAnimationHandler, DrawableHandler;
-	private int[] drawableResources;
+	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
 
 	@Override
@@ -136,7 +136,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		if(!someAnimationRun){
 
-			switch (event.getAction()){
+			/*	switch (event.getAction()){
 			//if the user still touch the screen
 			case MotionEvent.ACTION_DOWN:
 
@@ -146,25 +146,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			case MotionEvent.ACTION_UP:
 
 				break;
-			}
+			}*/
 
 			int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
 			if(currentBullets > 0){
-
+				someAnimationRun = true;
+				executeAnimation(shoot_animation);
+				player.getWeapons()[player.getCurrentWeapon()].shoot();
 				setScreen();
-
-				if(player.getWeapons()[player.getCurrentWeapon()].target_state){
-					setAnimation("shoot");
-					player.getWeapons()[player.getCurrentWeapon()].shoot();
-					if(setScreen())		
-						reload();
-
-				}
-
-				else{
-					player.getWeapons()[player.getCurrentWeapon()].shoot();
-					executeAnimation(shoot_animation);
-				}
 			}
 		}
 
@@ -269,16 +258,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			@Override
 			void onAnimationFinish() {
 
-				System.gc();
-				((AnimationDrawable)(img.getBackground())).stop();
+				someAnimationRun = false;
 
 				if(setScreen())
 					reload();
 
-				else{
-					someAnimationRun = false;
-					setAnimation("stand");
-				}
+				else
+					if(!player.getWeapons()[player.getCurrent_weapon()].target_state)
+						setAnimation("stand");
 			}
 		};
 
@@ -298,6 +285,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		state = ramBurden;
 		unUsed = 0;
 		anim_index = 0;
+		soundIndex = 0;
 		sight_img.setVisibility(View.INVISIBLE);
 
 		someAnimationRun = true;
@@ -310,18 +298,32 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
 
+			if(soundIndex < sounds_frames.length){
+				if(anim_index == sounds_frames[soundIndex]){
+					player.getWeapons()[player.getCurrent_weapon()].playSound(sounds_frames[soundIndex]);
+					soundIndex++;
+				}
+			}
+
 			img.setBackgroundDrawable(null);
-			System.gc();
 			img.setImageBitmap(segment_animation[anim_index]);
 			anim_index++;
 
 			if(anim_index == segment_animation.length){
 				segment_animation = null;
 				drawableResources = null;
+				sounds_frames = null;
 				System.gc();	
 				setAnimation("stand");	
 				setScreen();
 				sight_img.setVisibility(View.VISIBLE);
+				
+				if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
+					(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
+					shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
+					System.gc();
+				}
+				
 				someAnimationRun = false;
 				mAnimationHandler.removeCallbacks(mUpdateTimeTask);
 			}
@@ -342,6 +344,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				unUsed++;
 			}
 
+			System.gc();
+	
 			if(state < segment_animation.length){
 				segment_animation[state] = BitmapFactory.decodeResource(getResources(), drawableResources[state]);
 				state += 1;
@@ -373,20 +377,20 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//reload the weapon
 	private void reload(){
 
+
 		drawableResources = player.getWeapons()[player.getCurrent_weapon()].reload();
 
-		shoot_animation = null;
-		System.gc();
-		
 		if(drawableResources != null)
 			executeSegmentsAnimation();
 
-		if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
+		sounds_frames = (player.getWeapons()[player.getCurrentWeapon()]).framesToNeedToPlay();
+
+		/*if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
 			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
 			shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
 			System.gc();
-		}
-		
+		}*/
+
 		/*GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
 		MyClientTask_SendPakcet  myClientTask = new MyClientTask_SendPakcet(packet);
 		myClientTask.execute(); */

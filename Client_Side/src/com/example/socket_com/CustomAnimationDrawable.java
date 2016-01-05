@@ -1,22 +1,20 @@
 package com.example.socket_com;
 
-import com.example.hs.R;
-
-import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 
 public abstract class CustomAnimationDrawable extends AnimationDrawable {
 
     /** Handles the animation callback. */
     Handler mAnimationHandler;
+    int totalDuration;
     
     public CustomAnimationDrawable(AnimationDrawable aniDrawable) {
 
+    	totalDuration = 0;
         for (int i = 0; i < aniDrawable.getNumberOfFrames(); i++) {
             this.addFrame(aniDrawable.getFrame(i), aniDrawable.getDuration(i));
+            totalDuration += this.getDuration(i);
         }
     	
     }
@@ -39,27 +37,10 @@ public abstract class CustomAnimationDrawable extends AnimationDrawable {
         mAnimationHandler.postDelayed(new Runnable() {
 
             public void run() {
-            	stop();
                 onAnimationFinish();
             }
-        }, getTotalDuration());
+        }, totalDuration);
 
-    }
-
-    /**
-     * Gets the total duration of all frames.
-     * 
-     * @return The total duration.
-     */
-   public int getTotalDuration() {
-
-        int iDuration = 0;
-
-        for (int i = 0; i < this.getNumberOfFrames(); i++) {
-            iDuration += this.getDuration(i);
-        }
-
-        return iDuration;
     }
 
     /**

@@ -44,6 +44,13 @@ public abstract class Weapon {
 		return total_bullets;
 	}
 	
+	public int[] framesToNeedToPlay(){
+		
+		return null;
+	}
+	
+	public void playSound(int frameNum){}
+	
 	public abstract int getMaxBullets();
 
 	public abstract int[] reload();

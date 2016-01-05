@@ -16,7 +16,8 @@ public class Mp433 extends Weapon implements OnCompletionListener {
 	private final int max_bullets = 6;
 	private final int reload_anim_size = 61;
 	private final String reload_anim_name = "reload";
-	
+	private final int frameSound1 = 9, frameSound2 = 36, frameSound3 = 51;
+
 
 	public Mp433(Context context, String name, int total_bullets) {
 
@@ -61,28 +62,28 @@ public class Mp433 extends Weapon implements OnCompletionListener {
 
 		else 
 			current_bullets = total_bullets;
-		
+
 		return buildDrawables(reload_anim_size, reload_anim_name);
 	}
 
 	@Override
 	public AnimationDrawable getAnimation(String anim){
-		
+
 		if(anim.equals("stand"))
 			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp443_stand_animation);
-		
+
 		else if(anim.equals("target"))
 			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp433_target_animation);
-		
+
 		else if(anim.equals("normal"))
 			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp433_normal_animation);
-		
+
 		else if(anim.equals("shoot"))
 			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp433_shoot_animation);
-		
+
 		else if(anim.equals("targetshoot"))
 			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp433_target_shoot_animation);
-		
+
 		else
 			return null;
 	}
@@ -97,6 +98,33 @@ public class Mp433 extends Weapon implements OnCompletionListener {
 	public void onCompletion(MediaPlayer mp) {
 		// TODO Auto-generated method stub
 		mp.release();
+	}
+
+	@Override
+	public int[] framesToNeedToPlay(){
+
+		int[] frames = {frameSound1, frameSound2, frameSound3};
+		
+		return frames;
+	}
+	
+	@Override
+	public void playSound(int frameNum){
+		
+		if(frameNum == frameSound1){
+		    sound = MediaPlayer.create(actContext, R.raw.mp433_reload_sound1);
+			sound.start();
+		}
+		
+		else if(frameNum == frameSound2){
+			sound = MediaPlayer.create(actContext, R.raw.mp433_reload_sound2);
+			sound.start();
+		}
+		
+		else if(frameNum == frameSound3){
+			sound = MediaPlayer.create(actContext, R.raw.mp433_reload_sound3);
+			sound.start();
+		}
 	}
 
 	private int[] buildDrawables(final int animSize, final String animName){
