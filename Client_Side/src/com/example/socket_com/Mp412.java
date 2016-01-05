@@ -11,7 +11,7 @@ import android.media.ImageReader;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 
-public class Mp433 extends Weapon implements OnCompletionListener {
+public class Mp412 extends Weapon implements OnCompletionListener {
 
 	private final int max_bullets = 6;
 	private final int reload_anim_size = 61;
@@ -19,7 +19,7 @@ public class Mp433 extends Weapon implements OnCompletionListener {
 	private final int frameSound1 = 9, frameSound2 = 36, frameSound3 = 51;
 
 
-	public Mp433(Context context, String name, int total_bullets) {
+	public Mp412(Context context, String name, int total_bullets) {
 
 
 		super(context, name, total_bullets);
@@ -34,7 +34,7 @@ public class Mp433 extends Weapon implements OnCompletionListener {
 		current_bullets--;
 		total_bullets--;
 
-		sound = MediaPlayer.create(actContext, R.raw.mp433_shoot_sound);
+		sound = MediaPlayer.create(actContext, R.raw.mp412_shoot_sound);
 		try {
 			sound.prepare();
 		} catch (IllegalStateException e) {
@@ -70,19 +70,19 @@ public class Mp433 extends Weapon implements OnCompletionListener {
 	public AnimationDrawable getAnimation(String anim){
 
 		if(anim.equals("stand"))
-			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp443_stand_animation);
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp412_stand_animation);
 
 		else if(anim.equals("target"))
-			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp433_target_animation);
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp412_target_animation);
 
 		else if(anim.equals("normal"))
-			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp433_normal_animation);
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp412_normal_animation);
 
 		else if(anim.equals("shoot"))
-			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp433_shoot_animation);
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp412_shoot_animation);
 
 		else if(anim.equals("targetshoot"))
-			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp433_target_shoot_animation);
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp412_target_shoot_animation);
 
 		else
 			return null;
@@ -112,17 +112,17 @@ public class Mp433 extends Weapon implements OnCompletionListener {
 	public void playSound(int frameNum){
 		
 		if(frameNum == frameSound1){
-		    sound = MediaPlayer.create(actContext, R.raw.mp433_reload_sound1);
+		    sound = MediaPlayer.create(actContext, R.raw.mp412_reload_sound1);
 			sound.start();
 		}
 		
 		else if(frameNum == frameSound2){
-			sound = MediaPlayer.create(actContext, R.raw.mp433_reload_sound2);
+			sound = MediaPlayer.create(actContext, R.raw.mp412_reload_sound2);
 			sound.start();
 		}
 		
 		else if(frameNum == frameSound3){
-			sound = MediaPlayer.create(actContext, R.raw.mp433_reload_sound3);
+			sound = MediaPlayer.create(actContext, R.raw.mp412_reload_sound3);
 			sound.start();
 		}
 	}

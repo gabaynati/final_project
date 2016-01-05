@@ -26,6 +26,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -57,6 +58,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	
 		setContentView(R.layout.game_layout);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		cameraPreview = (SurfaceView)findViewById(R.id.cameraPreview);
 		previewHolder = cameraPreview.getHolder();
@@ -79,9 +81,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		someAnimationRun = false;
 
-		Weapon mp433 = new Mp433(getApplicationContext(), "mp443", 60);
+		Weapon mp412 = new Mp412(getApplicationContext(), "mp412", 60);
 		Weapon[] wl = new Weapon[1];
-		wl[0] = mp433;
+		wl[0] = mp412;
 		player.setWeapons(wl);
 
 		player_life.setMax(player.getMaxLife());

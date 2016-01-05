@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android" android:oneshot="false" >
+    
+	<item android:drawable="@drawable/mp412_stand1" android:duration="200" />
+    <item android:drawable="@drawable/mp412_stand2" android:duration="200" />
+    <item android:drawable="@drawable/mp412_stand3" android:duration="200" />
+    <item android:drawable="@drawable/mp412_stand4" android:duration="200" />
+    <item android:drawable="@drawable/mp412_stand5" android:duration="200" />
+    <item android:drawable="@drawable/mp412_stand6" android:duration="200" />
+    <item android:drawable="@drawable/mp412_stand7" android:duration="200" />
+	<item android:drawable="@drawable/mp412_stand8" android:duration="200" />
+  	<item android:drawable="@drawable/mp412_stand9" android:duration="200" />
+    
+</animation-list>
