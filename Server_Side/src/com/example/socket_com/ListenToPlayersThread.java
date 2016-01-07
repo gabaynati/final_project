@@ -9,12 +9,12 @@ import java.io.*;
 public class ListenToPlayersThread extends Thread
 {
 	private Socket player_socket;
-	
+	private Game game;
 
 	public  ListenToPlayersThread(Socket player_socket) throws IOException
 	{
 		this.player_socket=player_socket;
-	
+		game=new Game();
 	}
 
 	public void run()
@@ -39,7 +39,7 @@ public class ListenToPlayersThread extends Thread
 				System.out.println("Waiting for client on port " +
 						serverSocket.getLocalPort() + "...");
 				Socket socket = serverSocket.accept();//inf loop until client connects
-				
+
 
 				//printing the client IP address
 				System.out.println("Just connected to "+ socket.getRemoteSocketAddress());
@@ -52,30 +52,30 @@ public class ListenToPlayersThread extends Thread
 				//and the client's InputStream is connected to the server's OutputStream
 
 
-	
+
 /*
 				//writing hello to client
 				DataOutputStream out = new DataOutputStream(server.getOutputStream());
 				out.writeUTF("You are connected to the server: "+ ip);
-*/
+				 */
 
-				
-				
-				
+
+
+
 				GamePacket packet = null;
 
 
 				//reading "packet" object from client
 				ObjectInputStream inFromClient = new ObjectInputStream(player_socket.getInputStream());
 				try {
-		
+
 					packet=(GamePacket) inFromClient.readObject();
-			
+
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 				//adding new player
 				//if(packet.isConnect()){
 				//Main.game.addPlayer(new Player(player_socket,packet.getNickName()));
@@ -85,13 +85,21 @@ public class ListenToPlayersThread extends Thread
 				//}
 				//performing acts on hit event
 				//else 
-					if(packet.isHit()){
-					Main.game.Hit(packet.getNickName(), packet.getInjured_nickName());
+				if(packet.isHit()){
+					String hitter_nickName=packet.getNickName();
+					String injured_nickName=packet.getInjured_nickName();
+					Main.game.Hit(hitter_nickName, injured_nickName);
+					Socket injured_player_socket=game.getSocketByNickName(injured_nickName);
+					//writing object to the injured player
+					GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", true, false, injured_nickName);
+					System.out.println(injured_nickName);
+					ObjectOutputStream outToServer = new ObjectOutputStream(injured_player_socket.getOutputStream());
+					outToServer.writeObject(gotHitPacket);
 				}
-					
-			
+
+
 				//System.out.println(Main.game.toString());
-				
+
 				/*
 				/////////////////////////
 				String response="";
@@ -113,9 +121,9 @@ public class ListenToPlayersThread extends Thread
 				}
 				System.out.println(response);
 				//////////////////////////////
-				
-				*/
-				
+
+				 */
+
 				//server.close();
 			}catch(SocketTimeoutException s)
 			{

@@ -14,7 +14,7 @@ public class Main {
 	public static Game game=new Game();
 	public static ServerInterface panel;
 	public static  Vector<String> serverLogs= new Vector<String>();
-	private static int serverPort = Integer.parseInt("9000");
+	private static int serverPort = Integer.parseInt("9005");
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {

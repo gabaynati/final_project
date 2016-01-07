@@ -53,7 +53,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private final int ramBurden = 5;
 
 	private TextView current_bulletsText, total_bulletsText, slesh;
-	private ProgressBar player_life;
+	private static ProgressBar player_life;
 	private ImageButton reload, target;
 	private ImageView img, sight_img, board_num1, board_num2;
 	private int anim_index, soundIndex, state, unUsed;
@@ -202,7 +202,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		player.setWeapons(wl);
 
 		player_life.setMax(player.getMaxLife());
-
+		player_life.setProgress(player.getLife());
+		
 		stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");
 		shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
 		setAnimation("stand");
@@ -323,17 +324,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				executeAnimation(shoot_animation);
 				player.getWeapons()[player.getCurrentWeapon()].shoot();
 				
-				//if hit is detected
+				//if this player hits someone
 				if(isHit()){
 					Toast toast = Toast.makeText(getApplicationContext(), "HIT:"+player.getLife(), 1000);
 					toast.show();
 					//sending to server a GamePacket packet which contains information about the hit event
-					GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"nati");
+					GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
 					serverDataSender.setPacket(packet);
 					if(serverDataSender.getStatus()==Status.PENDING)
 						serverDataSender.execute();
 					else
 					serverDataSender.doInBackground();
+					
 					
 				}
 
@@ -345,6 +347,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		return false;
 	}
 
+	
+	public static void hitRecvied(){
+		player_life.setProgress(MainActivity.player.getLife());
+		
+	}
 
 	@Override
 	public void onClick(View v) {

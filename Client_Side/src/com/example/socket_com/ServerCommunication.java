@@ -44,6 +44,8 @@ public class ServerCommunication {
 
 			if(packet.isHit()){
 				MainActivity.player.Hit();
+				GameInterface.hitRecvied();
+				
 			}
 			/*finally
 			{
