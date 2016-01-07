@@ -18,19 +18,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,25 +34,20 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.CascadeClassifier;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, Runnable,CvCameraViewListener2 {
 
-	private final int ramBurden = 10;
-	//private SurfaceHolder previewHolder;
-	//private Camera camera = null;
-	//private SurfaceView cameraPreview;
+	private final int ramBurden = 5;
 
 	private TextView current_bulletsText, total_bulletsText, slesh;
 	private ProgressBar player_life;
@@ -73,6 +62,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
 
+	//OpenCV Object for handling the camera
+	private JavaCameraView mOpenCvCameraView;
 
 
 	///*************opencv configurations********************
@@ -85,8 +76,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private float                  mRelativeFaceSize   = 0.15f;
 	private int                    mAbsoluteFaceSize   = 0;
 	private static final Scalar    FACE_RECT_COLOR     = new Scalar(0, 255, 0, 255);
-
-
+	private Rect[]                 facesArray;
+	private Rect[]                 facesArrayWhileShoot;
 
 	//the following object is a listener object that keeps track to the binding process between the activity to the OpenCv service.
 	private BaseLoaderCallback mLoaderCallback=new BaseLoaderCallback(this) {
@@ -131,11 +122,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
 				}
 
-
-
-
-
-
 				break;
 			}
 			//if the binding failed
@@ -150,11 +136,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-	//OpenCV Object for handling the camera
-	private JavaCameraView mOpenCvCameraView;
-
 	//*********************************/////
-
 
 
 	@Override
@@ -178,13 +160,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mOpenCvCameraView.setOnTouchListener(this);
 		//***************************************///
 
-
-
-
-
-		//	previewHolder = cameraPreview.getHolder();
-		//previewHolder.addCallback(surfaceCallback);
-		//previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		img = (ImageView)findViewById(R.id.weaponView);
 		sight_img = (ImageView)findViewById(R.id.sight);
@@ -224,37 +199,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//listener.execute();
 	}
 
-
-
-	/*
-	SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
-
-		public void surfaceCreated(SurfaceHolder holder) {
-		//	JavaCameraView = Camera.open();
-		//	try {
-			//	JavaCameraView.setPreviewDisplay(previewHolder);
-			//} catch (IOException e) {
-				//e.printStackTrace();
-			//}
-		}
-
-
-		public void surfaceChanged(SurfaceHolder holder, int format, int width,	int height) {
-
-			//Camera.Parameters params = JavaCameraView.getParameters();
-			//params.setPreviewSize(width, height);
-			//JavaCameraView.setParameters(params);
-			//JavaCameraView.startPreview();
-		}
-
-
-		public void surfaceDestroyed(SurfaceHolder holder) {
-			//JavaCameraView.stopPreview();
-			//JavaCameraView = null;
-		}
-
-	};
-	 */
 
 	//the activity must connect to the opencv service at the onResume callback.
 	//onResume is called right after it is started but before it is available to the user.
@@ -308,10 +252,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 		}
 
-
-
-
-
 		//
 		MatOfRect faces = new MatOfRect();
 
@@ -326,12 +266,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
 
 
-
-
-
-
 		//drawing rectangles around each face in the frame.
-		Rect[] facesArray = faces.toArray();
+		facesArray = faces.toArray();
 		for (int i = 0; i < facesArray.length; i++)
 			Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
 
@@ -347,6 +283,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		if(!someAnimationRun){
 
+			facesArrayWhileShoot = new Rect[facesArray.length];
+
+			for(int i = 0; i < facesArray.length; i++)
+				facesArrayWhileShoot[i] = new Rect(facesArray[i].tl(), facesArray[i].br());
 			/*	switch (event.getAction()){
 			//if the user still touch the screen
 			case MotionEvent.ACTION_DOWN:
@@ -364,6 +304,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				someAnimationRun = true;
 				executeAnimation(shoot_animation);
 				player.getWeapons()[player.getCurrentWeapon()].shoot();
+
+				if(isHit()){
+					Toast toast = Toast.makeText(getApplicationContext(), "HIT", 1000);
+					toast.show();
+				}
+
+
 				setScreen();
 			}
 		}
@@ -629,6 +576,65 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			setAnimation("target");
 			sight_img.setVisibility(View.INVISIBLE);
 		}		
+	}
+
+	private org.opencv.core.Rect getSightRenge(){
+
+		double left, top, right, bottom;
+		Point screenSize = getScreenSize();
+
+		left = screenSize.x/2 - sight_img.getWidth()/2;
+		top = screenSize.y/2 - sight_img.getHeight()/2;
+		right = left + sight_img.getWidth();
+		bottom = top + sight_img.getHeight();
+
+		org.opencv.core.Point p1 = new org.opencv.core.Point(left, top); 
+		org.opencv.core.Point p2 = new org.opencv.core.Point(right, bottom);
+
+		return new org.opencv.core.Rect(p1, p2);
+	}
+
+	private Point getScreenSize(){
+
+		DisplayMetrics displaymetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+		int screenHeight = displaymetrics.heightPixels;
+		int screenWidth = displaymetrics.widthPixels;
+
+		return new Point(screenWidth, screenHeight);
+	}
+
+	private boolean isHit(){
+
+
+		for (int i = 0; i < facesArrayWhileShoot.length; i++){
+
+			if(player.getWeapons()[player.getCurrent_weapon()].target_state){
+
+				Point screenSize = getScreenSize();
+				Point sightPoint = new Point(screenSize.x/2, screenSize.y/2);
+
+				if(sightPoint.inside(facesArrayWhileShoot[i]))
+					return true;
+			}
+
+			else{
+
+				Rect sightRenge = getSightRenge();
+				Point tl, tr, bl, br;
+
+				tl = facesArrayWhileShoot[i].tl();
+				br = facesArrayWhileShoot[i].br();
+				tr = new org.opencv.core.Point(br.x, tl.y);
+				bl = new org.opencv.core.Point(tl.x, br.y);
+
+				if(tl.inside(sightRenge) || br.inside(sightRenge) || tr.inside(sightRenge) || bl.inside(sightRenge))
+					return true;
+			}
+
+		}
+
+		return false;
 	}
 
 
