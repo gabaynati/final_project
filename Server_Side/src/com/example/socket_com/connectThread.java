@@ -25,20 +25,12 @@ private Vector<String> serverLogs=Main.serverLogs;
 		{
 			try
 			{
-				//getting the public ip of the server
-				URL whatismyip = new URL("http://checkip.amazonaws.com");
-				BufferedReader in = new BufferedReader(new InputStreamReader(
-						whatismyip.openStream()));
-				String ip = in.readLine(); //you get the IP as a String
-
-
-				//printing the server ip address
-				serverLogs.add("server ip address:"+ip);        	 
+	     	 
 				
 
 				//waiting to connect from client
-				serverLogs.add("Waiting for client on port " +serverSocket.getLocalPort() + "...");
-				Main.panel.update();
+				//serverLogs.add("Waiting for client on port " +serverSocket.getLocalPort() + "...");
+			//	Main.panel.update();
 				Socket socket = serverSocket.accept();//inf loop until client connects
 				
 
@@ -77,9 +69,10 @@ private Vector<String> serverLogs=Main.serverLogs;
 				//adding new player
 				if(packet.isConnect()){
 				Main.game.addPlayer(new Player(socket,packet.getNickName()));
+				serverLogs.add(packet.getNickName()+"has just connected!");
 				Main.panel.update();
-				serverLogs.add(packet.getNickName());
-				serverLogs.add(packet.getPassword());
+				
+				//serverLogs.add(packet.getPassword());
 				}
 				else if(packet.isHit()){
 					Main.game.Hit(packet.getNickName(), packet.getInjured_nickName());

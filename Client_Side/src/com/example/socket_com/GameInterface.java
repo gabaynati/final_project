@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -324,13 +325,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				
 				//if hit is detected
 				if(isHit()){
-					Toast toast = Toast.makeText(getApplicationContext(), "HIT", 1000);
+					Toast toast = Toast.makeText(getApplicationContext(), "HIT:"+player.getLife(), 1000);
 					toast.show();
 					//sending to server a GamePacket packet which contains information about the hit event
-					GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
+					GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"nati");
 					serverDataSender.setPacket(packet);
-					serverDataSender.execute();
-					
+					if(serverDataSender.getStatus()==Status.PENDING)
+						serverDataSender.execute();
+					else
+					serverDataSender.doInBackground();
 					
 				}
 

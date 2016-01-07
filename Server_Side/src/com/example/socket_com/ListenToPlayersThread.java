@@ -77,13 +77,15 @@ public class ListenToPlayersThread extends Thread
 				}
 				
 				//adding new player
-				if(packet.isConnect()){
-				Main.game.addPlayer(new Player(player_socket,packet.getNickName()));
-				Main.panel.update();
-				System.out.println(packet.getNickName());
-				System.out.println(packet.getPassword());
-				}
-				else if(packet.isHit()){
+				//if(packet.isConnect()){
+				//Main.game.addPlayer(new Player(player_socket,packet.getNickName()));
+				//Main.panel.update();
+				//System.out.println(packet.getNickName()+"has just connected to the server");
+				//System.out.println(packet.getPassword());
+				//}
+				//performing acts on hit event
+				//else 
+					if(packet.isHit()){
 					Main.game.Hit(packet.getNickName(), packet.getInjured_nickName());
 				}
 					

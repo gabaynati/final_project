@@ -9,7 +9,10 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.Inet4Address;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Vector;
 
@@ -46,7 +49,7 @@ public class ServerInterface extends JPanel {
 		logo=new imgPanel("Images/logo.jpg");
 		layout=new BorderLayout();
 		serverMessages=new JLabel();
-		serverMessages.setFont (new Font("Courier", Font.BOLD,30));
+		serverMessages.setFont (new Font("Courier", Font.BOLD,10));
 		serverMessages.setForeground(Color.DARK_GRAY);
 		update();
 		
