@@ -23,109 +23,110 @@ import android.widget.TextView;
 
 
 
-	
-	public class ConnectToServerActivity extends Activity {
 
-		TextView textResponse;
-		EditText editTextAddress, editTextPort,editTextNickName,editTextPassword; 
-		Button buttonConnect;
-		
-		String nickname;
-		String password;
+public class ConnectToServerActivity extends Activity {
 
+	TextView textResponse;
+	EditText editTextAddress, editTextPort,editTextNickName,editTextPassword; 
+	Button buttonConnect;
+
+	String nickname;
+	String password;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+
+
+
+		setContentView(R.layout.activity_main);
+
+		editTextAddress = (EditText)findViewById(R.id.address);
+		editTextPort = (EditText)findViewById(R.id.port);
+		buttonConnect = (Button)findViewById(R.id.connect);
+		textResponse = (TextView)findViewById(R.id.response);
+		editTextNickName=(EditText)findViewById(R.id.nickname);
+		editTextPassword=(EditText)findViewById(R.id.password);
+
+		buttonConnect.setOnClickListener(buttonConnectOnClickListener);
+
+
+
+	}
+
+
+
+
+
+
+	//connect button onClick method
+	OnClickListener buttonConnectOnClickListener = new OnClickListener(){
 		@Override
-		protected void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
+		public void onClick(View arg0) {
+			//String address=editTextAddress.getText().toString();
+			//int port=Integer.parseInt(editTextPort.getText().toString());
+			String address=MainActivity.serverIP;
+			MainActivity.serverPort=Integer.parseInt(editTextPort.getText().toString());
+			int port=MainActivity.serverPort;
+			//nickname=editTextNickName.getText().toString();
+			//password=editTextPassword.getText().toString();
+			nickname=MainActivity.player.getNickName();
+			password=MainActivity.player.getPassword();
 
 
 
 
-			setContentView(R.layout.activity_main);
+			MyClientTask_Connect myClientTask = new MyClientTask_Connect(address,port);
+			myClientTask.execute();
 
-			editTextAddress = (EditText)findViewById(R.id.address);
-			editTextPort = (EditText)findViewById(R.id.port);
-			buttonConnect = (Button)findViewById(R.id.connect);
-			textResponse = (TextView)findViewById(R.id.response);
-			editTextNickName=(EditText)findViewById(R.id.nickname);
-			editTextPassword=(EditText)findViewById(R.id.password);
-
-			buttonConnect.setOnClickListener(buttonConnectOnClickListener);
-
-
-
-		}
+		}};
 
 
 
 
 
 
-		//connect button onClick method
-		OnClickListener buttonConnectOnClickListener = new OnClickListener(){
+
+
+
+
+
+		public class MyClientTask_Connect extends AsyncTask<Void, Void, Void> {
+
+			String dstAddress;
+			int dstPort;
+			String response = "";
+
+
+
+
+			public MyClientTask_Connect(String addr, int port){
+				this.dstAddress = addr;
+				this.dstPort = port;
+
+			}
+
 			@Override
-			public void onClick(View arg0) {
-				//String address=editTextAddress.getText().toString();
-				//int port=Integer.parseInt(editTextPort.getText().toString());
-				String address=MainActivity.serverIP;
-				int port=MainActivity.serverPort;
-				//nickname=editTextNickName.getText().toString();
-				//password=editTextPassword.getText().toString();
-				nickname=MainActivity.player.getNickName();
-				password=MainActivity.player.getPassword();
-					
-				
-			
-				
-				MyClientTask_Connect myClientTask = new MyClientTask_Connect(address,port);
-				myClientTask.execute();
-				
-			}};
+			protected Void doInBackground(Void... arg0) {
+
+				try {
+
+
+					String isExists=GameDB.isExists(nickname,password);
+					if(!isExists.equals("exists")){
+						textResponse.setText(isExists);
+					}
+
+
+					MainActivity.socket = new Socket(dstAddress, dstPort);
 
 
 
 
 
-
-
-
-
-
-
-			public class MyClientTask_Connect extends AsyncTask<Void, Void, Void> {
-
-				String dstAddress;
-				int dstPort;
-				String response = "";
-
-
-
-
-				public MyClientTask_Connect(String addr, int port){
-					this.dstAddress = addr;
-					this.dstPort = port;
-
-				}
-
-				@Override
-				protected Void doInBackground(Void... arg0) {
-
-					try {
-						
-						
-						String isExists=GameDB.isExists(nickname,password);
-						if(!isExists.equals("exists")){
-							textResponse.setText(isExists);
-						}
-						
-						
-						MainActivity.socket = new Socket(dstAddress, dstPort);
-
-						
-						
-						
-						
-						/*
- * 
+					/*
+					 * 
 						//reading hello
 						ByteArrayOutputStream byteArrayOutputStream = 
 								new ByteArrayOutputStream(1024);
@@ -142,27 +143,27 @@ import android.widget.TextView;
 						while ((bytesRead = inputStream.read(buffer)) != -1){
 							response += byteArrayOutputStream.toString("UTF-8");
 						}
-						*/
-						
-						
-						
-						
-						
-						ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-						outToServer.writeObject(new GamePacket(nickname, password,false,true,null));
-						
-						
+					 */
 
-					} catch (UnknownHostException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						response = "UnknownHostException: " + e.toString();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						response = "IOException: " + e.toString();
-					}
-					/*finally{
+
+
+
+
+					ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
+					outToServer.writeObject(new GamePacket(nickname, password,false,true,null));
+
+
+
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					response = "UnknownHostException: " + e.toString();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					response = "IOException: " + e.toString();
+				}
+				/*finally{
 						if(socket != null){
 							try {
 								socket.close();
@@ -173,23 +174,23 @@ import android.widget.TextView;
 						}
 
 					}
-					 */
+				 */
 				Intent gameEngine = new Intent("com.example.socket_com.GAMEINTERFACE");
 				startActivity(gameEngine);
-					return null;
-				}
-
-				@Override
-				protected void onPostExecute(Void result) {
-					textResponse.setText(response);
-					super.onPostExecute(result);
-				}
-
+				return null;
 			}
 
+			@Override
+			protected void onPostExecute(Void result) {
+				textResponse.setText(response);
+				super.onPostExecute(result);
+			}
+
+		}
 
 
 
 
-	}
+
+}
 

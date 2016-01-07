@@ -13,6 +13,8 @@ import org.opencv.core.Scalar;
 import org.opencv.objdetect.CascadeClassifier;
 
 import com.example.hs.R;
+import com.example.socket_com.ServerCommunication.MyClientTask_ListenToPakcets;
+import com.example.socket_com.ServerCommunication.MyClientTask_SendPakcet;
 
 import android.app.Activity;
 import android.content.Context;
@@ -57,19 +59,27 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private AnimationDrawable shoot_animation, stand_animation;
 	private boolean someAnimationRun;
 	private Player player=MainActivity.player;
-	private MyClientTask_ListenToPakcets listener;
 	private Handler mAnimationHandler, DrawableHandler;
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
 
-	//OpenCV Object for handling the camera
-	private JavaCameraView mOpenCvCameraView;
+
+	//****server communication configuration*********///
+	private ServerCommunication serverCom;
+	private MyClientTask_ListenToPakcets serverListener;
+	private MyClientTask_SendPakcet serverDataSender;
+	//**************************************************//
 
 
-	///*************opencv configurations********************
+
+
+
+
+	///*************OpenCV configurations********************//
 	protected static final String TAG = null;
 	private Mat mGray,mRgba;
-
+	//OpenCV Object for handling the camera
+	private JavaCameraView mOpenCvCameraView;
 	//files for face detection
 	private File                   mCascadeFile;
 	private CascadeClassifier      mJavaDetector;
@@ -133,10 +143,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 
 	};
-
-
-
-	//*********************************/////
+	//*********************************************************/////
 
 
 	@Override
@@ -148,9 +155,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-		//cameraPreview = (SurfaceView)findViewById(R.id.cameraPreview);
 
-		///*************opencv***********************///
+		///*************OpenCV***********************///
 		//binding the OpenCV camera object to the layout
 		mOpenCvCameraView=(JavaCameraView)findViewById(R.id.cameraPreview);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
@@ -159,6 +165,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.setOnTouchListener(this);
 		//***************************************///
+
+
+
+		//************Server Communication*************************//
+		serverCom=new ServerCommunication();
+		serverListener=serverCom.getServerListener();
+		serverDataSender=serverCom.getServerDataSender();
+		//initiate server listener
+		serverListener.execute();
+		//*************************************//
+
+
 
 
 		img = (ImageView)findViewById(R.id.weaponView);
@@ -195,8 +213,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-		//listener=new MyClientTask_ListenToPakcets();
-		//listener.execute();
+
 	}
 
 
@@ -304,10 +321,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				someAnimationRun = true;
 				executeAnimation(shoot_animation);
 				player.getWeapons()[player.getCurrentWeapon()].shoot();
-
+				
+				//if hit is detected
 				if(isHit()){
 					Toast toast = Toast.makeText(getApplicationContext(), "HIT", 1000);
 					toast.show();
+					//sending to server a GamePacket packet which contains information about the hit event
+					GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
+					serverDataSender.setPacket(packet);
+					serverDataSender.execute();
+					
+					
 				}
 
 
@@ -549,9 +573,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			System.gc();
 		}*/
 
-		/*GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
-		MyClientTask_SendPakcet  myClientTask = new MyClientTask_SendPakcet(packet);
-		myClientTask.execute(); */
+		
 	}
 
 	//switch to target state and vice versa
@@ -645,137 +667,4 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-	public class MyClientTask_ListenToPakcets extends AsyncTask<Void, Void, Void> {
-
-
-		String response = "";
-
-
-
-		MyClientTask_ListenToPakcets(){
-
-
-		}
-
-		@Override
-		protected Void doInBackground(Void... arg0) {
-
-			GamePacket packet = null;
-
-
-			//reading "packet" object from client
-			try {
-				ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
-				packet=(GamePacket) inFromClient.readObject();
-
-			} 
-			catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "UnknownHostException: " + e.toString();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "IOException: " + e.toString();
-			}
-
-
-
-			if(packet.isHit()){
-				MainActivity.player.Hit();
-			}
-			/*finally
-			{
-				if(MainActivity.socket != null){
-					try {
-						MainActivity.socket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}*/
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			//textResponse.setText(response);
-			super.onPostExecute(result);
-		}
-
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-	public class MyClientTask_SendPakcet extends AsyncTask<Void, Void, Void> {
-
-
-		String response = "";
-
-
-		GamePacket packet;
-
-		MyClientTask_SendPakcet(GamePacket packet){
-
-			this.packet=packet;
-		}
-
-		@Override
-		protected Void doInBackground(Void... arg0) {
-
-
-			try {
-
-				//writing object
-				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-				outToServer.writeObject(packet);
-				/*
-				//writing texts
-				DataOutputStream out = new DataOutputStream(MainActivity.socket.getOutputStream());
-				out.writeUTF("I am Client");
-				 */
-
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "UnknownHostException: " + e.toString();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "IOException: " + e.toString();
-			}
-			/*finally
-			{
-				if(MainActivity.socket != null){
-					try {
-						MainActivity.socket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}*/
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			//textResponse.setText(response);
-			super.onPostExecute(result);
-		}
-
-	}
 }

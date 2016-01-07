@@ -1,10 +1,5 @@
 package com.example.socket_com;
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.ServerSocket;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.nio.channels.NetworkChannel;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -29,11 +24,11 @@ public class Main {
 		j.show();
 		serverLogs.add("server started");
 
-		int registerPort = Integer.parseInt("9002");
+		int serverPort = Integer.parseInt("9005");
 		
 		try
 		{
-			Thread t = new  connectThread(registerPort);
+			Thread t = new  connectThread(serverPort);
 			t.start();
 
 		}catch(IOException e)
