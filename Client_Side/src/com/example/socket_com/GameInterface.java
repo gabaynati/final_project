@@ -25,7 +25,6 @@ import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -169,13 +168,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-		//************Server Communication*************************//
+		/************Server Communication*************************
 		serverCom=new ServerCommunication();
 		serverListener=serverCom.getServerListener();
 		serverDataSender=serverCom.getServerDataSender();
 		//initiate server listener
 		serverListener.execute();
-		//*************************************//
+		 *************************************/
 
 
 
@@ -203,7 +202,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		player_life.setMax(player.getMaxLife());
 		player_life.setProgress(player.getLife());
-		
+
 		stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");
 		shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
 		setAnimation("stand");
@@ -289,7 +288,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		facesArray = faces.toArray();
 		for (int i = 0; i < facesArray.length; i++)
 			Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
-
+		
 		return mRgba;
 
 
@@ -323,20 +322,20 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				someAnimationRun = true;
 				executeAnimation(shoot_animation);
 				player.getWeapons()[player.getCurrentWeapon()].shoot();
-				
+
 				//if this player hits someone
 				if(isHit()){
 					Toast toast = Toast.makeText(getApplicationContext(), "HIT:"+player.getLife(), 1000);
 					toast.show();
 					//sending to server a GamePacket packet which contains information about the hit event
-					GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
+					/*GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
 					serverDataSender.setPacket(packet);
 					if(serverDataSender.getStatus()==Status.PENDING)
 						serverDataSender.execute();
 					else
-					serverDataSender.doInBackground();
-					
-					
+					serverDataSender.doInBackground();*/
+
+
 				}
 
 
@@ -347,10 +346,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		return false;
 	}
 
-	
+
 	public static void hitRecvied(){
 		player_life.setProgress(MainActivity.player.getLife());
-		
+
 	}
 
 	@Override
@@ -583,7 +582,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			System.gc();
 		}*/
 
-		
+
 	}
 
 	//switch to target state and vice versa
@@ -610,13 +609,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}		
 	}
 
-	private org.opencv.core.Rect getSightRenge(){
+	private Rect getSightRenge(){
 
 		double left, top, right, bottom;
-		Point screenSize = getScreenSize();
 
-		left = screenSize.x/2 - sight_img.getWidth()/2;
-		top = screenSize.y/2 - sight_img.getHeight()/2;
+		left = mOpenCvCameraView.getWidth()/2 - sight_img.getWidth()/2 - getOffset("X");
+		top = mOpenCvCameraView.getHeight()/2 - sight_img.getHeight()/2 - getOffset("Y");
 		right = left + sight_img.getWidth();
 		bottom = top + sight_img.getHeight();
 
@@ -626,14 +624,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		return new org.opencv.core.Rect(p1, p2);
 	}
 
-	private Point getScreenSize(){
+	private double getOffset(String xy){
 
-		DisplayMetrics displaymetrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-		int screenHeight = displaymetrics.heightPixels;
-		int screenWidth = displaymetrics.widthPixels;
+		double w = mRgba.cols();
+		double h = mRgba.rows();				
 
-		return new Point(screenWidth, screenHeight);
+		if(xy.equals("X"))
+			return (mOpenCvCameraView.getWidth() - w) / 2;
+
+		else if(xy.equals("Y"))
+			return (mOpenCvCameraView.getHeight() - h) / 2;
+		
+		else 
+			return -1;
 	}
 
 	private boolean isHit(){
@@ -643,8 +646,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			if(player.getWeapons()[player.getCurrent_weapon()].target_state){
 
-				Point screenSize = getScreenSize();
-				Point sightPoint = new Point(screenSize.x/2, screenSize.y/2);
+				Point sightPoint = new Point(mOpenCvCameraView.getWidth()/2- getOffset("X"), mOpenCvCameraView.getHeight()/2- getOffset("Y"));
 
 				if(sightPoint.inside(facesArrayWhileShoot[i]))
 					return true;
@@ -652,9 +654,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			else{
 
-				Rect sightRenge = getSightRenge();
 				Point tl, tr, bl, br;
-
+				Rect sightRenge = getSightRenge();
+				
 				tl = facesArrayWhileShoot[i].tl();
 				br = facesArrayWhileShoot[i].br();
 				tr = new org.opencv.core.Point(br.x, tl.y);
