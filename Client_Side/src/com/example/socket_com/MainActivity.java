@@ -19,7 +19,7 @@ import android.view.MenuItem;
 public class MainActivity extends Activity {
 
 	public static Socket socket;
-	public static String serverIP="192.168.1.11";
+	public static String serverIP="192.168.1.12";
 	public static int serverPort=9003;
 	
 	
@@ -32,12 +32,12 @@ public class MainActivity extends Activity {
 		
 		
 		//moving to connect to server
-		//Intent connectToServer = new Intent("com.example.socket_com.CONNECTTOSERVERACTIVITY");
-		//startActivity(connectToServer);
+		Intent connectToServer = new Intent("com.example.socket_com.CONNECTTOSERVERACTIVITY");
+		startActivity(connectToServer);
 		
 		//moving to game interface
-		Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
-		startActivity(gameInterface);
+		//Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
+		//startActivity(gameInterface);
 		
 		//moving to menu
 		//Intent menu= new Intent("com.example.socket_com.MENUACTIVITY");

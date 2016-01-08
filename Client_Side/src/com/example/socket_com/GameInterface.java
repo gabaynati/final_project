@@ -168,13 +168,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-		/************Server Communication*************************
+		/************Server Communication*************************/
 		serverCom=new ServerCommunication();
 		serverListener=serverCom.getServerListener();
 		serverDataSender=serverCom.getServerDataSender();
 		//initiate server listener
 		serverListener.execute();
-		 *************************************/
+		/*************************************/
 
 
 
@@ -288,7 +288,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		facesArray = faces.toArray();
 		for (int i = 0; i < facesArray.length; i++)
 			Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
-		
+
 		return mRgba;
 
 
@@ -298,6 +298,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//call when the user touch the screen
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
+
+		//sending to server a GamePacket packet which contains information about the hit event
+		GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
+		serverDataSender.setPacket(packet);
+		if(serverDataSender.getStatus()==Status.RUNNING)
+			serverDataSender.doInBackground();
+		else
+			serverDataSender.execute();
+
+
+
 
 		if(!someAnimationRun){
 
@@ -327,13 +338,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				if(isHit()){
 					Toast toast = Toast.makeText(getApplicationContext(), "HIT:"+player.getLife(), 1000);
 					toast.show();
+
 					//sending to server a GamePacket packet which contains information about the hit event
-					/*GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(),true,false,"gili");
-					serverDataSender.setPacket(packet);
-					if(serverDataSender.getStatus()==Status.PENDING)
-						serverDataSender.execute();
-					else
-					serverDataSender.doInBackground();*/
+					//					GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
+					//					serverDataSender.setPacket(packet);
+					//					if(serverDataSender.getStatus()==Status.PENDING)
+					//						serverDataSender.execute();
+					//					else
+					//					serverDataSender.doInBackground();
 
 
 				}
@@ -634,7 +646,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		else if(xy.equals("Y"))
 			return (mOpenCvCameraView.getHeight() - h) / 2;
-		
+
 		else 
 			return -1;
 	}
@@ -656,7 +668,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 				Point tl, tr, bl, br;
 				Rect sightRenge = getSightRenge();
-				
+
 				tl = facesArrayWhileShoot[i].tl();
 				br = facesArrayWhileShoot[i].br();
 				tr = new org.opencv.core.Point(br.x, tl.y);

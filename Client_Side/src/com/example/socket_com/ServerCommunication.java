@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 import android.os.AsyncTask;
 
 public class ServerCommunication {
-	
+
 	public  class MyClientTask_ListenToPakcets extends AsyncTask<Void, Void, Void> {
 
 
@@ -19,35 +19,35 @@ public class ServerCommunication {
 		protected Void doInBackground(Void... arg0) {
 
 			GamePacket packet = null;
+			while(true){
+
+				//reading "packet" object from client
+				try {
+					ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
+					packet=(GamePacket) inFromClient.readObject();
+
+				} 
+				catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					response = "UnknownHostException: " + e.toString();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					response = "IOException: " + e.toString();
+				}
 
 
-			//reading "packet" object from client
-			try {
-				ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
-				packet=(GamePacket) inFromClient.readObject();
 
-			} 
-			catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "UnknownHostException: " + e.toString();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "IOException: " + e.toString();
-			}
+				if(packet.isHit()){
+					MainActivity.player.Hit();
+					GameInterface.hitRecvied();
 
-
-
-			if(packet.isHit()){
-				MainActivity.player.Hit();
-				GameInterface.hitRecvied();
-				
-			}
-			/*finally
+				}
+				/*finally
 			{
 				if(MainActivity.socket != null){
 					try {
@@ -58,7 +58,7 @@ public class ServerCommunication {
 					}
 				}
 			}*/
-			return null;
+			}
 		}
 
 		@Override
@@ -80,11 +80,11 @@ public class ServerCommunication {
 		String response = "";
 		GamePacket packet;
 
-		
+
 		public void setPacket(GamePacket packet){
 			this.packet=packet;
 		}
-		
+
 		@Override
 		protected Void doInBackground(Void... arg0) {
 
@@ -130,17 +130,17 @@ public class ServerCommunication {
 		}
 
 	}
-	
-	
-	
+
+
+
 
 	public MyClientTask_ListenToPakcets getServerListener(){
 		return new MyClientTask_ListenToPakcets();
 	}
 
-	
+
 	public MyClientTask_SendPakcet getServerDataSender(){
 		return new MyClientTask_SendPakcet();
 	}
-	
+
 }

@@ -75,4 +75,12 @@ public class Game {
 		}
 		return sockets;
 	}
+	public String printAllSockets(){
+		String str="";
+		Vector<Socket> sockets=getPlayersSockets();
+		for(int i=0;i<sockets.size();i++){
+			str+=sockets.elementAt(i).toString()+"\n";
+		}
+		return str;
+	}
 }

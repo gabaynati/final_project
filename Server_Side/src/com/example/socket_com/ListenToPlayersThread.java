@@ -14,7 +14,7 @@ public class ListenToPlayersThread extends Thread
 	public  ListenToPlayersThread(Socket player_socket) throws IOException
 	{
 		this.player_socket=player_socket;
-		game=new Game();
+		game=Main.game;
 	}
 
 	public void run()
@@ -83,16 +83,17 @@ public class ListenToPlayersThread extends Thread
 				//System.out.println(packet.getNickName()+"has just connected to the server");
 				//System.out.println(packet.getPassword());
 				//}
+				
+				
 				//performing acts on hit event
 				//else 
 				if(packet.isHit()){
 					String hitter_nickName=packet.getNickName();
 					String injured_nickName=packet.getInjured_nickName();
-					Main.game.Hit(hitter_nickName, injured_nickName);
+					game.Hit(hitter_nickName, injured_nickName);
 					Socket injured_player_socket=game.getSocketByNickName(injured_nickName);
 					//writing object to the injured player
 					GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", true, false, injured_nickName);
-					System.out.println(injured_nickName);
 					ObjectOutputStream outToServer = new ObjectOutputStream(injured_player_socket.getOutputStream());
 					outToServer.writeObject(gotHitPacket);
 				}
