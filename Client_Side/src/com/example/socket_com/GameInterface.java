@@ -324,7 +324,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		upperBodyArray = upperBodies.toArray();
 		for (int i = 0; i < upperBodyArray.length; i++)
 			Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), FACE_RECT_COLOR, 3);
-
+		
 		return mRgba;
 
 
