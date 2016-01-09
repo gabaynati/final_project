@@ -299,6 +299,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
+		
+		////*****server communication*******/
 		//sending to server a GamePacket packet which contains information about the hit event
 		GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
 		serverDataSender.setPacket(packet);
@@ -306,7 +308,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			serverDataSender.doInBackground();
 		else
 			serverDataSender.execute();
-
+		//**********************************/
 
 
 

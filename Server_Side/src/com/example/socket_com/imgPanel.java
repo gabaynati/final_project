@@ -13,11 +13,11 @@ public class imgPanel extends JPanel {
 	private Image img;
 	public imgPanel(String url){
 		this.img=new ImageIcon(url).getImage();
-		this.setPreferredSize(new Dimension(822, 937));
+		//this.setPreferredSize(new Dimension(822, 937));
 	}
 	public void paintComponent(Graphics g) {
 		//g.drawString("H&S", 40, 40);
-		g.drawImage(img, 0, 0, null);
+	//	g.drawImage(img, 0, 0, null);
 	}
 	public Image getLogo(){
 		return this.img;

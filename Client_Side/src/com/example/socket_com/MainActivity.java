@@ -19,7 +19,7 @@ import android.view.MenuItem;
 public class MainActivity extends Activity {
 
 	public static Socket socket;
-	public static String serverIP="192.168.1.12";
+	public static String serverIP="149.88.90.250";
 	public static int serverPort=9003;
 	
 	

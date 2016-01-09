@@ -30,7 +30,7 @@ public class ServerInterface extends JPanel {
 	
 	private JTable team1Players;
 	private JTable team2Players;
-	private LayoutManager layout;
+	private Image img;
 	public ServerInterface(){
 		
 //		team1Label=new JLabel("Team1 players");
@@ -46,8 +46,7 @@ public class ServerInterface extends JPanel {
 		team2Icon.setForeground(Color.LIGHT_GRAY);
 		
 		
-		logo=new imgPanel("Images/logo.jpg");
-		layout=new BorderLayout();
+		img=new ImageIcon("Images/logo.jpg").getImage();
 		serverMessages=new JLabel();
 		serverMessages.setFont (new Font("Courier", Font.BOLD,10));
 		serverMessages.setForeground(Color.DARK_GRAY);
@@ -58,7 +57,7 @@ public class ServerInterface extends JPanel {
 
 	public void paintComponent(Graphics g) {
 		super.paintComponents(g);
-		logo.paintComponent(g);
+		g.drawImage(img,0,0,null);
 
 	}
 
@@ -146,62 +145,59 @@ public class ServerInterface extends JPanel {
 		
 		
 		
-		logo.setLayout(new GridBagLayout());
-
-		
-		serverMessages.setText(getServerMessages(Main.serverLogs));
+		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		c.anchor=GridBagConstraints.PAGE_START;
-		c.gridx=2;
+		JPanel p1=new JPanel();
+		JPanel p2=new JPanel();
+		JPanel p3=new JPanel();
+		p1.setOpaque(false);
+		p2.setOpaque(false);
+		p3.setOpaque(false);
+		
+		
+		
+		//adding the server log
+		serverMessages.setText(getServerMessages(Main.serverLogs));
+		c.gridx=1;
 		c.gridy=0;
-		c.gridheight=3;
-		c.gridwidth=1;
-		c.ipadx = 0;  
-		logo.add(serverMessages,c);
+		p1.add(serverMessages);
+		this.add(p1,c);
 		
 		
 		
+		
+		//adding the teams
 		team1Players=getActivePlayers(Main.game, 1);
 		team2Players=getActivePlayers(Main.game, 2);
-		
-		
-		
-		c.anchor=GridBagConstraints.FIRST_LINE_START;
+		//team1
 		c.gridx=0;
 		c.gridy=0;
-		c.gridheight=1;
-		c.gridwidth=1;
-		//c.ipadx=111;
-		logo.add(team1Icon,c);
-		c.anchor=GridBagConstraints.LINE_START;
+		p2.setLayout(new GridBagLayout());
+		p2.add(team1Icon,c);
 		c.gridx=0;
 		c.gridy=1;
-		c.gridheight=GridBagConstraints.RELATIVE;
-		c.gridwidth=1;
-		//c.ipadx=;
-		logo.add(team1Players,c);
-		
-		
-		
-		
-		
-		c.anchor=GridBagConstraints.FIRST_LINE_END;
-		c.gridx=3;
+		c.fill=GridBagConstraints.BOTH;
+		p2.add(team1Players,c);
+		c.gridx=0;
 		c.gridy=0;
-		c.gridheight=1;
-		c.gridwidth=GridBagConstraints.REMAINDER;
-		//c.ipady = 0;  
-		logo.add(team2Icon,c);
-		c.anchor=GridBagConstraints.LINE_END;
-		c.gridx=3;
+		this.add(p2,c);
+		
+		
+		//team2
+		c.gridx=0;
+		c.gridy=0;
+		p3.setLayout(new GridBagLayout());
+		p3.add(team2Icon,c);
+		c.gridx=0;
 		c.gridy=1;
-		c.gridheight=GridBagConstraints.RELATIVE;
-		c.gridwidth=GridBagConstraints.REMAINDER;
-		c.ipadx=111;
-		logo.add(team2Players,c);
+		c.fill=GridBagConstraints.BOTH;
+		p3.add(team2Players,c);
+		c.gridx=2;
+		c.gridy=0;
+		this.add(p3,c);
 		
 		
-		this.add(logo);
+		//this.add(logo);
 		repaint();
 		revalidate();
 	}

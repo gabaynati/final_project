@@ -57,8 +57,7 @@ public class Game {
 		
 		String print="";
 		if(hitman_address!=null && injured_address!=null)
-		print="hit detected:\n"+Hitman_nickName +":"+hitman_address.toString()+"\n"
-		            +"shot "+injured_nickName+":"+injured_address.toString();
+		print="hit detected:\n"+Hitman_nickName +" shot "+injured_nickName;
 		else
 			print="hit detected";
 		Main.serverLogs.add(print);
