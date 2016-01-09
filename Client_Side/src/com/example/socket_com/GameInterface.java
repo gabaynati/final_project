@@ -76,6 +76,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 	///*************OpenCV configurations********************//
+	private final String face_xml_res = "lbpcascade_frontalface";
+	private final String upperBody_xml_res = "haarcascade_upperbody";
 	protected static final String TAG = null;
 	private Mat mGray,mRgba;
 	//OpenCV Object for handling the camera
@@ -83,11 +85,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//files for face detection
 	private File                   mCascadeFile;
 	private CascadeClassifier      mJavaDetector;
+	private File                   mCascadeFile2;
+	private CascadeClassifier      mJavaDetector2;
 	private float                  mRelativeFaceSize   = 0.15f;
 	private int                    mAbsoluteFaceSize   = 0;
 	private static final Scalar    FACE_RECT_COLOR     = new Scalar(0, 255, 0, 255);
-	private Rect[]                 facesArray;
-	private Rect[]                 facesArrayWhileShoot;
+	private Rect[]                 facesArray, facesArrayWhileShoot;
+	private Rect[]                 upperBodyArray, upperBodyArrayWhileShoot;
 
 	//the following object is a listener object that keeps track to the binding process between the activity to the OpenCv service.
 	private BaseLoaderCallback mLoaderCallback=new BaseLoaderCallback(this) {
@@ -103,34 +107,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				Log.i(TAG, "OpenCV loaded successfully");
 				mOpenCvCameraView.enableView();
 
-				//initialzing the java face detector
-				try {
-					// load cascade file from application resources
-					InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
-					File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-					mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
-					FileOutputStream os = new FileOutputStream(mCascadeFile);
-
-					byte[] buffer = new byte[4096];
-					int bytesRead;
-					while ((bytesRead = is.read(buffer)) != -1) {
-						os.write(buffer, 0, bytesRead);
-					}
-					is.close();
-					os.close();
-
-					mJavaDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
-					if (mJavaDetector.empty()) {
-						Log.e(TAG, "Failed to load cascade classifier");
-						mJavaDetector = null;
-					} else
-						Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
-					cascadeDir.delete();
-
-				} catch (IOException e) {
-					e.printStackTrace();
-					Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
-				}
+				initialDetector(face_xml_res);
+				initialDetector(upperBody_xml_res);
 
 				break;
 			}
@@ -141,6 +119,54 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 			}
 		}
+		
+		//initialzing the java detector
+				public void initialDetector(String xmlRes){
+
+					File CascadeFile;
+					CascadeClassifier JavaDetector;
+					
+					try {
+
+						// load cascade file from application resources
+						int resId = getResources().getIdentifier(xmlRes, "raw", "com.example.hs");
+						InputStream is = getResources().openRawResource(resId);
+						File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+						CascadeFile = new File(cascadeDir, xmlRes + ".xml");
+						FileOutputStream os = new FileOutputStream(CascadeFile);
+
+						byte[] buffer = new byte[4096];
+						int bytesRead;
+						while ((bytesRead = is.read(buffer)) != -1) {
+							os.write(buffer, 0, bytesRead);
+						}
+
+						is.close();
+						os.close();
+
+						JavaDetector = new CascadeClassifier(CascadeFile.getAbsolutePath());
+						if (JavaDetector.empty()) {
+							Log.e(TAG, "Failed to load cascade classifier");
+							JavaDetector = null;
+						} else
+							Log.i(TAG, "Loaded cascade classifier from " + CascadeFile.getAbsolutePath());
+						cascadeDir.delete();
+
+						if(xmlRes.equals(face_xml_res)){
+							mCascadeFile = CascadeFile;
+							mJavaDetector = JavaDetector;
+						}
+						
+						else if(xmlRes.equals(upperBody_xml_res)){
+							mCascadeFile2 = CascadeFile;
+							mJavaDetector2 = JavaDetector;
+						}
+						
+					} catch (IOException e) {
+						e.printStackTrace();
+						Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
+					}
+				}
 
 	};
 	//*********************************************************/////
@@ -169,11 +195,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 		/************Server Communication*************************/
-		serverCom=new ServerCommunication();
-		serverListener=serverCom.getServerListener();
-		serverDataSender=serverCom.getServerDataSender();
-		//initiate server listener
-		serverListener.execute();
+//		serverCom=new ServerCommunication();
+//		serverListener=serverCom.getServerListener();
+//		serverDataSender=serverCom.getServerDataSender();
+//		//initiate server listener
+//		serverListener.execute();
 		/*************************************/
 
 
@@ -272,7 +298,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		//
 		MatOfRect faces = new MatOfRect();
-
+		MatOfRect upperBodies = new MatOfRect();
 
 
 		//running face detecting on the frame:
@@ -282,12 +308,22 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			//that bound the faces (if any).
 			mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 					new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
+		
+		if (mJavaDetector2 != null)
+			//this function takes in a gray scale image and returns rectangles
+			//that bound the faces (if any).
+			mJavaDetector2.detectMultiScale(mGray, upperBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+					new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
 
 
 		//drawing rectangles around each face in the frame.
 		facesArray = faces.toArray();
 		for (int i = 0; i < facesArray.length; i++)
 			Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
+
+		upperBodyArray = upperBodies.toArray();
+		for (int i = 0; i < upperBodyArray.length; i++)
+			Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), FACE_RECT_COLOR, 3);
 
 		return mRgba;
 
@@ -302,12 +338,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		
 		////*****server communication*******/
 		//sending to server a GamePacket packet which contains information about the hit event
-		GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
-		serverDataSender.setPacket(packet);
-		if(serverDataSender.getStatus()==Status.RUNNING)
-			serverDataSender.doInBackground();
-		else
-			serverDataSender.execute();
+//		GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
+//		serverDataSender.setPacket(packet);
+//		if(serverDataSender.getStatus()==Status.RUNNING)
+//			serverDataSender.doInBackground();
+//		else
+//			serverDataSender.execute();
 		//**********************************/
 
 
