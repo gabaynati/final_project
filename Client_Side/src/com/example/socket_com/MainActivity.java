@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
 	public static int serverPort=9003;
 	
 	
-	public static Player player=new Player("nati","1234");
+	public static Player player=new Player("gili","1234");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
