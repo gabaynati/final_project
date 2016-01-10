@@ -335,16 +335,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		
-		////*****server communication*******/
-		//sending to server a GamePacket packet which contains information about the hit event
-//		GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
-//		serverDataSender.setPacket(packet);
-//		if(serverDataSender.getStatus()==Status.RUNNING)
-//			serverDataSender.doInBackground();
-//		else
-//			serverDataSender.execute();
-		//**********************************/
+
 
 
 
@@ -375,15 +366,16 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				//if this player hits someone
 				if(isHit()){
 					Toast toast = Toast.makeText(getApplicationContext(), "HIT:"+player.getLife(), 1000);
-					toast.show();
-
+					toast.show();					
+					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-					//					GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
-					//					serverDataSender.setPacket(packet);
-					//					if(serverDataSender.getStatus()==Status.PENDING)
-					//						serverDataSender.execute();
-					//					else
-					//					serverDataSender.doInBackground();
+//					GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
+//					serverDataSender.setPacket(packet);
+//					if(serverDataSender.getStatus()==Status.RUNNING)
+//						serverDataSender.doInBackground();
+//					else
+//						serverDataSender.execute();
+					//**********************************/
 
 
 				}

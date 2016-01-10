@@ -52,8 +52,8 @@ public class GameDB {
 
 
 	public static String addPlayer(String nickname,String password,String email){
-		//if(isExists(nickname,password))
-	//		return "Exists";
+		if(isExists(nickname,password).equals("exists"))
+			return "exists";
 		try {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 			StrictMode.setThreadPolicy(policy);
@@ -78,7 +78,7 @@ public class GameDB {
 			if (stmt != null) try { stmt.close(); } catch(Exception e) {}
 			if (con != null) try { con.close(); } catch(Exception e) {}
 		}
-		return "sucess";
+		return "success";
 
 	}
 
@@ -91,7 +91,7 @@ public class GameDB {
 			con = DriverManager.getConnection(dbConnectionString,"","");
 
 			// Create and execute an SQL statement that returns some data.
-			String SQL = "select * from Players where player_nickname='"+nickname+"' and player_password='"+password+"'";
+			String SQL = "select * from Players where player_nickname='"+nickname+"'";
 			stmt = con.createStatement();
 			rs=stmt.executeQuery(SQL);
 			if(rs.next())

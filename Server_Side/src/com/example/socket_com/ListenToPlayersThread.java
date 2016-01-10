@@ -11,10 +11,10 @@ public class ListenToPlayersThread extends Thread
 	private Socket player_socket;
 	private Game game;
 
-	public  ListenToPlayersThread(Socket player_socket) throws IOException
+	public  ListenToPlayersThread(Socket player_socket,Game game) throws IOException
 	{
 		this.player_socket=player_socket;
-		game=Main.game;
+		game=game;
 	}
 
 	public void run()
@@ -93,7 +93,7 @@ public class ListenToPlayersThread extends Thread
 					game.Hit(hitter_nickName, injured_nickName);
 					Socket injured_player_socket=game.getSocketByNickName(injured_nickName);
 					//writing object to the injured player
-					GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", true, false, injured_nickName);
+					GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit, injured_nickName,game.getGameName());
 					ObjectOutputStream outToServer = new ObjectOutputStream(injured_player_socket.getOutputStream());
 					outToServer.writeObject(gotHitPacket);
 				}

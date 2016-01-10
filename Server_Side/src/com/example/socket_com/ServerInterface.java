@@ -27,31 +27,33 @@ public class ServerInterface extends JPanel {
 	private imgPanel logo;
 	private JLabel team1Icon,team2Icon,serverMessages;
 
-	
+
 	private JTable team1Players;
 	private JTable team2Players;
+	private JTable gameList;
 	private Image img;
-	public ServerInterface(){
-		
-//		team1Label=new JLabel("Team1 players");
-//		team2Label=new JLabel("Team2 players");
-//		team1Label.setFont (new Font("", Font.BOLD,30));
-//		serverMessages.setFont (new Font("Courier", Font.BOLD,30));
-//		serverMessages.setForeground(Color.RED);
-//		team2Label.setForeground(Color.BLACK);
-		
+	Server server;
+	public ServerInterface(Server server){
+
+		//		team1Label=new JLabel("Team1 players");
+		//		team2Label=new JLabel("Team2 players");
+		//		team1Label.setFont (new Font("", Font.BOLD,30));
+		//		serverMessages.setFont (new Font("Courier", Font.BOLD,30));
+		//		serverMessages.setForeground(Color.RED);
+		//		team2Label.setForeground(Color.BLACK);
+		this.server=server;
 		team1Icon=new JLabel(new ImageIcon("Images/team1.jpg"));
 		team2Icon=new JLabel(new ImageIcon("Images/team2.jpg"));
 		team1Icon.setForeground(Color.LIGHT_GRAY);
 		team2Icon.setForeground(Color.LIGHT_GRAY);
-		
-		
+
+
 		img=new ImageIcon("Images/logo.jpg").getImage();
 		serverMessages=new JLabel();
 		serverMessages.setFont (new Font("Courier", Font.BOLD,10));
 		serverMessages.setForeground(Color.DARK_GRAY);
 		update();
-		
+
 		repaint();
 	}
 
@@ -80,7 +82,7 @@ public class ServerInterface extends JPanel {
 		firstRow.addElement("Nick Name");
 		firstRow.addElement("Socket Address");
 		rowData.addElement(firstRow);
-		
+
 		for(int i=0;i<team.size();i++){
 			Vector<String> row = new Vector<String>();
 			row.addElement(team.elementAt(i).getNickName().toString());
@@ -93,7 +95,37 @@ public class ServerInterface extends JPanel {
 		return tab;
 
 	}
-	
+
+
+	public JTable getActiveGames(Server server){
+		JTable tab = null;
+		Vector<String> columnNames = new Vector<String>();
+		columnNames.addElement("Game Name");
+
+
+
+		Vector<Vector> rowData = new Vector<Vector>();
+		Vector<Game> games=server.getGames();
+
+
+		///	
+		Vector<String> firstRow = new Vector<String>();
+		firstRow.addElement("Game Name");
+		rowData.addElement(firstRow);
+
+		for(int i=0;i<games.size();i++){
+			Vector<String> row = new Vector<String>();
+			row.addElement(games.elementAt(i).getGameName().toString());
+			rowData.addElement(row);
+		}
+
+		tab=new JTable(rowData,columnNames);
+
+		return tab;
+
+	}
+
+
 	public String getServerMessages(Vector<String> serverLogs){
 		String str="<html>";
 		for(int i=0;i<serverLogs.size();i++)
@@ -101,74 +133,54 @@ public class ServerInterface extends JPanel {
 		str+="</html>";
 		return str;
 	}
-	
-	
-	
-	
+
+
+
+
 	public void update(){
 		this.removeAll();
-	
-		
-		/*
-		
-		JPanel serverLogPanel=new JPanel();
-		serverLogPanel.setLayout(new BorderLayout());
-		serverMessages.setText(getServerMessages(Main.serverLogs));
-		serverLogPanel.add(serverMessages,BorderLayout.CENTER);
-		logo.add(serverLogPanel,BorderLayout.CENTER);
-		
-		
-		
-		team1Players=getActivePlayers(Main.game, 1);
-		team2Players=getActivePlayers(Main.game, 2);
-		
-		
-		
-		JPanel team1Panel=new JPanel();
-		team1Panel.setLayout(new BorderLayout());
-		team1Panel.add(team1Icon,BorderLayout.NORTH);
-		team1Panel.add(team1Players,BorderLayout.CENTER);
-		logo.add(team1Panel,BorderLayout.WEST);
-		
-		
-		
-		
-		JPanel team2Panel=new JPanel();
-		team2Panel.setLayout(new BorderLayout());
-		team2Panel.add(team2Icon,BorderLayout.NORTH);
-		team2Panel.add(team2Players,BorderLayout.CENTER);
-		logo.add(team2Panel,BorderLayout.EAST);
-		
-		*/
-		
-		
-		
-		
-		
+
+
+
+
+
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		JPanel p1=new JPanel();
 		JPanel p2=new JPanel();
 		JPanel p3=new JPanel();
+		JPanel p4=new JPanel();
 		p1.setOpaque(false);
 		p2.setOpaque(false);
 		p3.setOpaque(false);
-		
-		
-		
+		p4.setOpaque(false);
+
+
+
+		//adding the gameList
+		gameList=getActiveGames(server);
+		c.gridx=0;
+		c.gridy=0;
+		p4.add(gameList);
+		this.add(p4,c);
+
+
+
 		//adding the server log
-		serverMessages.setText(getServerMessages(Main.serverLogs));
-		c.gridx=1;
+		serverMessages.setText(getServerMessages(server.getServerLogs()));
+		c.gridx=2;
 		c.gridy=0;
 		p1.add(serverMessages);
 		this.add(p1,c);
-		
-		
-		
-		
+
+
+
+
 		//adding the teams
-		team1Players=getActivePlayers(Main.game, 1);
-		team2Players=getActivePlayers(Main.game, 2);
+
+		team1Players=getActivePlayers(server.getGames().elementAt(0), 1);
+		team2Players=getActivePlayers(server.getGames().elementAt(0), 2);
+
 		//team1
 		c.gridx=0;
 		c.gridy=0;
@@ -178,11 +190,11 @@ public class ServerInterface extends JPanel {
 		c.gridy=1;
 		c.fill=GridBagConstraints.BOTH;
 		p2.add(team1Players,c);
-		c.gridx=0;
+		c.gridx=1;
 		c.gridy=0;
 		this.add(p2,c);
-		
-		
+
+
 		//team2
 		c.gridx=0;
 		c.gridy=0;
@@ -192,11 +204,11 @@ public class ServerInterface extends JPanel {
 		c.gridy=1;
 		c.fill=GridBagConstraints.BOTH;
 		p3.add(team2Players,c);
-		c.gridx=2;
+		c.gridx=3;
 		c.gridy=0;
 		this.add(p3,c);
-		
-		
+
+
 		//this.add(logo);
 		repaint();
 		revalidate();

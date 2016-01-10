@@ -7,9 +7,15 @@ import java.util.Vector;
 public class Game {
 	private Team team1;
 	private Team team2;
-	public Game(){
+	private String gameName;
+	public Game(String gameName){
 		team1=new Team();
 		team2=new Team();
+		this.gameName=gameName;
+	}
+	
+	public String getGameName(){
+	return this.gameName;
 	}
 	public void addPlayerToTeam1(Player player){
 		team1.addPlayer(player);
@@ -51,7 +57,7 @@ public class Game {
 			return null;
 		
 	}
-	public void Hit(String Hitman_nickName,String injured_nickName){
+	public String Hit(String Hitman_nickName,String injured_nickName){
 		Socket hitman_address=getSocketByNickName(Hitman_nickName);
 		Socket injured_address=getSocketByNickName(injured_nickName);
 		
@@ -60,8 +66,7 @@ public class Game {
 		print="hit detected:\n"+Hitman_nickName +" shot "+injured_nickName;
 		else
 			print="hit detected";
-		Main.serverLogs.add(print);
-		Main.panel.update();
+		return print;
 
 	}
 	public Vector<Socket> getPlayersSockets(){

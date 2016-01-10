@@ -3,20 +3,30 @@ package com.example.socket_com;
 
 
 import java.io.Serializable;
+import java.util.Vector;
 public class GamePacket implements Serializable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	public static final int hit=0,connect=1,getGamesList=2;
 	private String nickName,password,injured_nickName;
-	private boolean hit,connect;
-	public GamePacket(String nickName,String password,boolean hit,boolean connect,String injured_nickName){
-		this.connect=connect;
-		this.hit=hit;
+	private int packetType;
+	private Vector<String> gamesList;
+	
+	
+	public GamePacket(String nickName,String password,final int packetType,String injured_nickName){
+		this.packetType=packetType;
 		this.injured_nickName=injured_nickName;
 		this.nickName=nickName;
 		this.password=password;
+	}
+	public void setGamesList(Vector<String> games){
+		this.gamesList=games;
+	}
+	public Vector<String> getGamesList(){
+		return this.gamesList;
 	}
 	public String getNickName() {
 		return nickName;
@@ -37,16 +47,14 @@ public class GamePacket implements Serializable{
 		this.injured_nickName = injured_nickName;
 	}
 	public boolean isHit() {
-		return hit;
+		return this.packetType==hit;
 	}
-	public void setHit(boolean hit) {
-		this.hit = hit;
-	}
+	
 	public boolean isConnect() {
-		return connect;
+		return this.packetType==connect;
 	}
-	public void setConnect(boolean connect) {
-		this.connect = connect;
+	public boolean isGetGamesList(){
+		return this.packetType==getGamesList;
 	}
-
+	
 }

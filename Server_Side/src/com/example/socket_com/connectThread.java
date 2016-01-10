@@ -10,13 +10,14 @@ import java.io.*;
 public class connectThread extends Thread
 {
 	private ServerSocket serverSocket;
-	
-private Vector<String> serverLogs=Main.serverLogs;
-	public  connectThread(int port) throws IOException
+
+	private Server server;
+	public  connectThread(Server server) throws IOException
 	{
-		serverSocket = new ServerSocket(port);
+		this.server=server;
+		serverSocket = new ServerSocket(server.getServerPort());
 		serverSocket.setSoTimeout(1000000);
-	
+
 	}
 
 	public void run()
@@ -25,18 +26,18 @@ private Vector<String> serverLogs=Main.serverLogs;
 		{
 			try
 			{
-	     	 
-				
+
+
 
 				//waiting to connect from client
 				//serverLogs.add("Waiting for client on port " +serverSocket.getLocalPort() + "...");
-			//	Main.panel.update();
+				//	Main.panel.update();
 				Socket socket = serverSocket.accept();//inf loop until client connects
-				
+
 
 				//printing the client IP address
-				serverLogs.add("Just connected to "+ socket.getRemoteSocketAddress());
-				Main.panel.update();
+				server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
+				server.getPanel().update();
 
 
 				//note:
@@ -45,12 +46,12 @@ private Vector<String> serverLogs=Main.serverLogs;
 				//and the client's InputStream is connected to the server's OutputStream
 
 
-	
-/*
+
+				/*
 				//writing hello to client
 				DataOutputStream out = new DataOutputStream(server.getOutputStream());
 				out.writeUTF("You are connected to the server: "+ ip);
-*/
+				 */
 
 				GamePacket packet = null;
 
@@ -58,39 +59,40 @@ private Vector<String> serverLogs=Main.serverLogs;
 				//reading "packet" object from client
 				ObjectInputStream inFromClient = new ObjectInputStream(socket.getInputStream());
 				try {
-		
+
 					packet=(GamePacket) inFromClient.readObject();
-			
+
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+				Game game=server.getGameByName(packet.getGameName());
 				//adding new player
 				if(packet.isConnect()){
-				Main.game.addPlayer(new Player(socket,packet.getNickName()));
-				serverLogs.add(packet.getNickName()+"has just connected!");
-				Main.panel.update();
-				
-				//serverLogs.add(packet.getPassword());
+
+					game.addPlayer(new Player(socket,packet.getNickName()));
+					server.getServerLogs().add(packet.getNickName()+"has just connected!");
+					server.getPanel().update();
+
+					//serverLogs.add(packet.getPassword());
 				}
 				else if(packet.isHit()){
-					Main.game.Hit(packet.getNickName(), packet.getInjured_nickName());
+					game.Hit(packet.getNickName(), packet.getInjured_nickName());
 				}
-			
-				
+
+
 				try
 				{
-					Thread t = new  ListenToPlayersThread(socket);
+					Thread t = new ListenToPlayersThread(socket,game);
 					t.start();
 
 				}catch(IOException e)
 				{
 					e.printStackTrace();
 				}	
-			
+
 				//System.out.println(Main.game.toString());
-				
+
 				/*
 				/////////////////////////
 				String response="";
@@ -112,14 +114,14 @@ private Vector<String> serverLogs=Main.serverLogs;
 				}
 				System.out.println(response);
 				//////////////////////////////
-				
-				*/
-				
+
+				 */
+
 				//server.close();
 			}catch(SocketTimeoutException s)
 			{
-				serverLogs.add("Socket timed out!");
-				Main.panel.update();
+				server.getServerLogs().add("Socket timed out!");
+				server.getPanel().update();
 				break;
 			}catch(IOException e)
 			{

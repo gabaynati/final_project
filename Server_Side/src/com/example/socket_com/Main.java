@@ -12,28 +12,29 @@ import javax.swing.JFrame;
 
 
 public class Main {
-	public static Game game=new Game();
-	public static ServerInterface panel;
-	public static  Vector<String> serverLogs= new Vector<String>();
+	
 	private static int serverPort = Integer.parseInt("9009");
+
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
+		Server server=new Server(serverPort);
 		
-		displayServerInformation(serverPort);
+		
+		
 		JFrame j=new JFrame();
-		panel=new ServerInterface();
+	
 
-		j.add(panel);
+		j.add(server.getPanel());
 		j.setSize(822, 973);
 		j.setVisible(true);
 		j.show();
 		//serverLogs.add("server started");
 
-
+/*
 		try
 		{
-			Thread t = new  connectThread(serverPort);
+			Thread t = new  connectThread(server);
 			t.start();
 
 		}catch(IOException e)
@@ -42,6 +43,9 @@ public class Main {
 		}
 
 
+		*/
+		
+		
 /*
 		Socket sock = new Socket();
 		game.addPlayer(new Player(sock,"nati"));
@@ -62,27 +66,6 @@ public class Main {
 		//System.out.println(gameDB.isExists("natdfdfgf"));
 	}
 	
-	public static void displayServerInformation(int port){
-		serverLogs.add("Server started!");
-		//serverLogs.add("server startedgffffffffffffffggfgfffffffffffffffffffffff");
 
-		
-		//getting the public ip of the server
-		URL whatismyip;
-		try {
-			whatismyip = new URL("http://checkip.amazonaws.com");
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					whatismyip.openStream()));
-			String ip = in.readLine(); //you get the IP as a String
-
-			//printing the server ip address
-			serverLogs.add("Server IP address:"+ip+", port number:"+port);   
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-	
 
 }

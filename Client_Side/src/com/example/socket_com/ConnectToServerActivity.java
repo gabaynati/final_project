@@ -150,7 +150,7 @@ public class ConnectToServerActivity extends Activity {
 
 
 					ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-					outToServer.writeObject(new GamePacket(nickname, password,false,true,null));
+					outToServer.writeObject(new GamePacket(nickname, password,GamePacket.connect,null));
 
 
 
