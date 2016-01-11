@@ -31,7 +31,7 @@ public class Main {
 		j.show();
 		//serverLogs.add("server started");
 
-/*
+
 		try
 		{
 			Thread t = new  connectThread(server);
@@ -43,7 +43,7 @@ public class Main {
 		}
 
 
-		*/
+		
 		
 		
 /*

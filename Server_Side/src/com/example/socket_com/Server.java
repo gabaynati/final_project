@@ -16,7 +16,6 @@ public class Server {
 		displayServerInformation(serverPort);
 		this.serverPort=serverPort;
 		addGame(new Game("game 1"));
-		addGame(new Game("game 2"));
 		this.panel=new ServerInterface(this);
 	}
 	public void addGame(Game game){
