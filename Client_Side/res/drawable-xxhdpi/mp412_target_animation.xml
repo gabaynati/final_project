@@ -5,7 +5,5 @@
     <item android:drawable="@drawable/mp412_target2" android:duration="40" />
     <item android:drawable="@drawable/mp412_target3" android:duration="40" />
     <item android:drawable="@drawable/mp412_target4" android:duration="40" />
-    <item android:drawable="@drawable/mp412_target5" android:duration="40" />
-    <item android:drawable="@drawable/mp412_target6" android:duration="40" />
 
 </animation-list>

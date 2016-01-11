@@ -1,3 +1,9 @@
+/*
+ * Player class
+ * 
+ * represent the player that correct play on this device
+ */
+
 package com.example.socket_com;
 
 public class Player {

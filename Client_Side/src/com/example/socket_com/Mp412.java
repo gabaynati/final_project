@@ -1,3 +1,7 @@
+/*
+ * Mp412 gun class
+ */
+
 package com.example.socket_com;
 
 import java.io.IOException;
@@ -6,28 +10,26 @@ import com.example.hs.R;
 
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.ImageReader;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 
 public class Mp412 extends Weapon implements OnCompletionListener {
 
-	private final int max_bullets = 6;
-	private final int reload_anim_size = 61;
+	private final int max_bullets = 6;                                       //max stack size of this weapon
+	private final int reload_anim_size = 61;                                 //reload animation size of this weapon
 	private final String reload_anim_name = "reload";
-	private final int frameSound1 = 9, frameSound2 = 36, frameSound3 = 51;
+	private final int frameSound1 = 9, frameSound2 = 36, frameSound3 = 51;   //frames number that need to play sound when displayed
 
 
+	//constructor, parameters: application context, weapon name, total bullets
 	public Mp412(Context context, String name, int total_bullets) {
 
-
 		super(context, name, total_bullets);
-
 		current_bullets = max_bullets;
 	} 
 
 
+	//called when the user shoot at this weapon
 	@Override
 	public void shoot(){
 
@@ -47,10 +49,12 @@ public class Mp412 extends Weapon implements OnCompletionListener {
 		sound.start();
 	}
 
+	//called when the user choose this weapon while the game
 	public void choose_this_weapon() {
 
 	}
 
+	//return resources id array of reload animation bitmaps
 	@Override
 	public int[] reload(){
 
@@ -66,6 +70,7 @@ public class Mp412 extends Weapon implements OnCompletionListener {
 		return buildDrawables(reload_anim_size, reload_anim_name);
 	}
 
+	//return animation according to anim parameter
 	@Override
 	public AnimationDrawable getAnimation(String anim){
 
@@ -88,18 +93,21 @@ public class Mp412 extends Weapon implements OnCompletionListener {
 			return null;
 	}
 
+	//get the max bullets that the weapon stack can receive
 	@Override
 	public int getMaxBullets() {
 		return max_bullets;
 	}
 
 
+	//called when the sound is ended, implementation of OnCompletionListener interface
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		// TODO Auto-generated method stub
 		mp.release();
 	}
 
+	//return the frames's number that need to accompanied with sound
 	@Override
 	public int[] framesToNeedToPlay(){
 
@@ -108,6 +116,7 @@ public class Mp412 extends Weapon implements OnCompletionListener {
 		return frames;
 	}
 	
+	//play sound according to frame's number
 	@Override
 	public void playSound(int frameNum){
 		
@@ -127,6 +136,7 @@ public class Mp412 extends Weapon implements OnCompletionListener {
 		}
 	}
 
+	//return resources id array of animation bitmaps according to parameters animSize and animName
 	private int[] buildDrawables(final int animSize, final String animName){
 
 		int[] drawables = new int[animSize];

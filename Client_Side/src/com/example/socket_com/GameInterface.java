@@ -1,3 +1,9 @@
+/*
+ * GameInterface - Activity
+ * 
+ * this activity is on foreground while the game ocure
+ */
+
 package com.example.socket_com;
 
 import java.io.File;
@@ -7,10 +13,13 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.video.BackgroundSubtractorMOG2;
 
 import com.example.hs.R;
 import com.example.socket_com.ServerCommunication.MyClientTask_ListenToPakcets;
@@ -41,16 +50,19 @@ import android.widget.TextView;
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-public class GameInterface extends Activity implements OnTouchListener, OnClickListener, Runnable,CvCameraViewListener2 {
+public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2 {
 
 	private final int ramBurden = 5;
-
+	private final int fACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
+	
 	private TextView current_bulletsText, total_bulletsText, slesh;
 	private static ProgressBar player_life;
 	private ImageButton reload, target;
@@ -59,9 +71,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private AnimationDrawable shoot_animation, stand_animation;
 	private boolean someAnimationRun;
 	private Player player=MainActivity.player;
-	private Handler mAnimationHandler, DrawableHandler;
+	private Handler AnimationHandler, DrawableHandler, changeAnimation;
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
+
 
 
 	//****server communication configuration*********///
@@ -72,113 +85,31 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-
-
-
 	///*************OpenCV configurations********************//
 	private final String face_xml_res = "lbpcascade_frontalface";
+	private final String lowerBody_xml_res = "haarcascade_lowerbody";
 	private final String upperBody_xml_res = "haarcascade_upperbody";
 	protected static final String TAG = null;
 	private Mat mGray,mRgba;
 	//OpenCV Object for handling the camera
 	private JavaCameraView mOpenCvCameraView;
 	//files for face detection
-	private File                   mCascadeFile;
-	private CascadeClassifier      mJavaDetector;
-	private File                   mCascadeFile2;
-	private CascadeClassifier      mJavaDetector2;
-	private float                  mRelativeFaceSize   = 0.15f;
-	private int                    mAbsoluteFaceSize   = 0;
-	private static final Scalar    FACE_RECT_COLOR     = new Scalar(0, 255, 0, 255);
+	private File                   faceCascadeFile, uBodyCascadeFile, lBodyCascadeFile;
+	private CascadeClassifier      faceDetector, uBodyDetector, lBodyDetector;
+	private float                  mRelativeDetectorSize   = 0.15f;
+	private int                    mAbsoluteDetectorSize   = 0;
+	private static final Scalar    RECT_COLOR     = new Scalar(0, 255, 0, 255);
 	private Rect[]                 facesArray, facesArrayWhileShoot;
 	private Rect[]                 upperBodyArray, upperBodyArrayWhileShoot;
+	private Rect[]                 lowerBodyArray, lowerBodyArrayWhileShoot;
 
-	//the following object is a listener object that keeps track to the binding process between the activity to the OpenCv service.
-	private BaseLoaderCallback mLoaderCallback=new BaseLoaderCallback(this) {
 
-		//this callback is called when the OpenCV service is successfully binded to the activity.
-		@Override
-		public void onManagerConnected(int status){
-			switch(status){
-
-			//if the binded is succeeded we will we enable the camera
-			case LoaderCallbackInterface.SUCCESS:
-			{
-				Log.i(TAG, "OpenCV loaded successfully");
-				mOpenCvCameraView.enableView();
-
-				initialDetector(face_xml_res);
-				initialDetector(upperBody_xml_res);
-
-				break;
-			}
-			//if the binding failed
-			default:
-			{
-				super.onManagerConnected(status);
-			}
-			}
-		}
-		
-		//initialzing the java detector
-				public void initialDetector(String xmlRes){
-
-					File CascadeFile;
-					CascadeClassifier JavaDetector;
-					
-					try {
-
-						// load cascade file from application resources
-						int resId = getResources().getIdentifier(xmlRes, "raw", "com.example.hs");
-						InputStream is = getResources().openRawResource(resId);
-						File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-						CascadeFile = new File(cascadeDir, xmlRes + ".xml");
-						FileOutputStream os = new FileOutputStream(CascadeFile);
-
-						byte[] buffer = new byte[4096];
-						int bytesRead;
-						while ((bytesRead = is.read(buffer)) != -1) {
-							os.write(buffer, 0, bytesRead);
-						}
-
-						is.close();
-						os.close();
-
-						JavaDetector = new CascadeClassifier(CascadeFile.getAbsolutePath());
-						if (JavaDetector.empty()) {
-							Log.e(TAG, "Failed to load cascade classifier");
-							JavaDetector = null;
-						} else
-							Log.i(TAG, "Loaded cascade classifier from " + CascadeFile.getAbsolutePath());
-						cascadeDir.delete();
-
-						if(xmlRes.equals(face_xml_res)){
-							mCascadeFile = CascadeFile;
-							mJavaDetector = JavaDetector;
-						}
-						
-						else if(xmlRes.equals(upperBody_xml_res)){
-							mCascadeFile2 = CascadeFile;
-							mJavaDetector2 = JavaDetector;
-						}
-						
-					} catch (IOException e) {
-						e.printStackTrace();
-						Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
-					}
-				}
-
-	};
 	//*********************************************************/////
-
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	
 		setContentView(R.layout.game_layout);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-
 
 
 
@@ -193,15 +124,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//***************************************///
 
 
-
 		/************Server Communication*************************/
-//		serverCom=new ServerCommunication();
-//		serverListener=serverCom.getServerListener();
-//		serverDataSender=serverCom.getServerDataSender();
-//		//initiate server listener
-//		serverListener.execute();
+		//		serverCom=new ServerCommunication();
+		//		serverListener=serverCom.getServerListener();
+		//		serverDataSender=serverCom.getServerDataSender();
+		//		//initiate server listener
+		//		serverListener.execute();
 		/*************************************/
-
 
 
 
@@ -216,8 +145,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
 		slesh = (TextView)findViewById(R.id.slesh);
 
-		mAnimationHandler = new Handler();
+		AnimationHandler = new Handler();
 		DrawableHandler = new Handler();
+		changeAnimation = new Handler();
 
 		someAnimationRun = false;
 
@@ -229,19 +159,102 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		player_life.setMax(player.getMaxLife());
 		player_life.setProgress(player.getLife());
 
+		//initialize the immediacy animations
 		stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");
 		shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
+
 		setAnimation("stand");
 		setScreen();
 
 
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
-
-
-
-
 	}
+
+
+	//the following object is a listener object that keeps track to the binding process between the activity to the OpenCV service.
+	private BaseLoaderCallback mLoaderCallback=new BaseLoaderCallback(this) {
+
+		//this callback is called when the OpenCV service is successfully binded to the activity.
+		@Override
+		public void onManagerConnected(int status){
+			switch(status){
+
+			//if the binded is succeeded we will we enable the camera
+			case LoaderCallbackInterface.SUCCESS:
+			{
+				Log.i(TAG, "OpenCV loaded successfully");
+				mOpenCvCameraView.enableView();
+
+				initialDetector(face_xml_res);
+				initialDetector(upperBody_xml_res);	
+				initialDetector(lowerBody_xml_res);
+
+				break;
+			}
+			//if the binding failed
+			default:
+			{
+				super.onManagerConnected(status);
+			}
+			}
+		}
+
+		//initialize the java detector
+		private void initialDetector(String xmlRes){
+
+			File CascadeFile;
+			CascadeClassifier JavaDetector;
+
+			try {
+
+				// load cascade file from application resources
+				int resId = getResources().getIdentifier(xmlRes, "raw", "com.example.hs");
+				InputStream is = getResources().openRawResource(resId);
+				File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+				CascadeFile = new File(cascadeDir, xmlRes + ".xml");
+				FileOutputStream os = new FileOutputStream(CascadeFile);
+
+				byte[] buffer = new byte[4096];
+				int bytesRead;
+				while ((bytesRead = is.read(buffer)) != -1) {
+					os.write(buffer, 0, bytesRead);
+				}
+
+				is.close();
+				os.close();
+
+				JavaDetector = new CascadeClassifier(CascadeFile.getAbsolutePath());
+				if (JavaDetector.empty()) {
+					Log.e(TAG, "Failed to load cascade classifier");
+					JavaDetector = null;
+				} else
+					Log.i(TAG, "Loaded cascade classifier from " + CascadeFile.getAbsolutePath());
+				cascadeDir.delete();
+
+				if(xmlRes.equals(face_xml_res)){
+					faceCascadeFile = CascadeFile;
+					faceDetector = JavaDetector;
+				}
+
+				else if(xmlRes.equals(upperBody_xml_res)){
+					uBodyCascadeFile = CascadeFile;
+					uBodyDetector = JavaDetector;
+				}
+
+				else if(xmlRes.equals(lowerBody_xml_res)){
+					lBodyCascadeFile = CascadeFile;
+					lBodyDetector = JavaDetector;
+				}
+
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
+			}
+		}
+
+	};
 
 
 	//the activity must connect to the opencv service at the onResume callback.
@@ -269,6 +282,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mGray = new Mat();
 		mRgba = new Mat();
 	}
+
 	@Override
 	public void onCameraViewStopped() {
 		//releasing them
@@ -285,66 +299,107 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//a Mat Object is just a 2d array containing the data of the frame in two color space : RGB or gray
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+
 		mRgba=inputFrame.rgba();
 		mGray=inputFrame.gray();
 
+		if(!someAnimationRun){
 
-		if (mAbsoluteFaceSize == 0) {
-			int height = mGray.rows();
-			if (Math.round(height * mRelativeFaceSize) > 0) {
-				mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
+			if (mAbsoluteDetectorSize == 0) {
+				int height = mGray.rows();
+				if (Math.round(height * mRelativeDetectorSize) > 0) {
+					mAbsoluteDetectorSize = Math.round(height * mRelativeDetectorSize);
+				}
 			}
+
+
+			MatOfRect faces = new MatOfRect();
+			MatOfRect upperBodies = new MatOfRect();
+			MatOfRect lowerBodies = new MatOfRect();
+
+			//running face detecting on the frame:
+			if (faceDetector != null)
+				//this function takes in a gray scale image and returns rectangles
+				//that bound the faces (if any).
+				faceDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+						new Size(mAbsoluteDetectorSize, mAbsoluteDetectorSize), new Size());
+
+
+			//running upper body detecting on the frame:
+			if (uBodyDetector != null)
+				//this function takes in a gray scale image and returns rectangles
+				//that bound the upper body (if any).
+				uBodyDetector.detectMultiScale(mGray, upperBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+						new Size(mAbsoluteDetectorSize, mAbsoluteDetectorSize), new Size());
+
+
+			//running lower body detecting on the frame:
+			if (lBodyDetector != null)
+				//this function takes in a gray scale image and returns rectangles
+				//that bound the lower body (if any).
+				lBodyDetector.detectMultiScale(mGray, lowerBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+						new Size(mAbsoluteDetectorSize, mAbsoluteDetectorSize), new Size());
+
+
+
+			//drawing rectangles around each face in the frame.
+			facesArray = faces.toArray();
+			for (int i = 0; i < facesArray.length; i++)
+				Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), RECT_COLOR, 3);
+
+
+			//drawing rectangles around each upper body in the frame.
+			upperBodyArray = upperBodies.toArray();
+			for (int i = 0; i < upperBodyArray.length; i++)
+				Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
+
+
+			//drawing rectangles around each lower body in the frame.
+			lowerBodyArray = upperBodies.toArray();
+			for (int i = 0; i < lowerBodyArray.length; i++)
+				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+
 		}
-
-		//
-		MatOfRect faces = new MatOfRect();
-		MatOfRect upperBodies = new MatOfRect();
-
-
-		//running face detecting on the frame:
-
-		if (mJavaDetector != null)
-			//this function takes in a gray scale image and returns rectangles
-			//that bound the faces (if any).
-			mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-					new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
-		
-		if (mJavaDetector2 != null)
-			//this function takes in a gray scale image and returns rectangles
-			//that bound the faces (if any).
-			mJavaDetector2.detectMultiScale(mGray, upperBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-					new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
-
-
-		//drawing rectangles around each face in the frame.
-		facesArray = faces.toArray();
-		for (int i = 0; i < facesArray.length; i++)
-			Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
-
-		upperBodyArray = upperBodies.toArray();
-		for (int i = 0; i < upperBodyArray.length; i++)
-			Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), FACE_RECT_COLOR, 3);
-		
 		return mRgba;
 
 
 	}
 	////############################################///
 
-	//call when the user touch the screen
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
+	//catch the detection rectangles on current time
+	private void catchRect(){
 
-
-
-
-
-		if(!someAnimationRun){
-
+		//for all faces, only if there is any faces in the current camera frame
+		if(facesArray != null){
 			facesArrayWhileShoot = new Rect[facesArray.length];
 
 			for(int i = 0; i < facesArray.length; i++)
 				facesArrayWhileShoot[i] = new Rect(facesArray[i].tl(), facesArray[i].br());
+		}
+
+		//for all upper bodies, only if there is any upper bodies in the current camera frame
+		if(upperBodyArray != null){
+			upperBodyArrayWhileShoot = new Rect[upperBodyArray.length];
+
+			for (int i = 0; i < upperBodyArray.length; i++)
+				upperBodyArrayWhileShoot[i] = new Rect(upperBodyArray[i].tl(), upperBodyArray[i].br());
+		}
+
+		//for all lower bodies, only if there is any upper bodies in the current camera frame
+		if(lowerBodyArray != null){
+			lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
+
+			for (int i = 0; i < lowerBodyArray.length; i++)
+				lowerBodyArrayWhileShoot[i] = new Rect(lowerBodyArray[i].tl(), lowerBodyArray[i].br());
+		}
+	}
+
+	//call when the user touch the screen, implementation of OnTouchListener interface
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+
+		if(!someAnimationRun){
+
 			/*	switch (event.getAction()){
 			//if the user still touch the screen
 			case MotionEvent.ACTION_DOWN:
@@ -363,18 +418,22 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				executeAnimation(shoot_animation);
 				player.getWeapons()[player.getCurrentWeapon()].shoot();
 
+				//catch the detection rectangles on shoot time
+				catchRect();
+
 				//if this player hits someone
-				if(isHit()){
-					Toast toast = Toast.makeText(getApplicationContext(), "HIT:"+player.getLife(), 1000);
+				int hit = isHit();
+				if(hit != -1){
+					Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit + " " + player.getLife(), 1000);
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-//					GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
-//					serverDataSender.setPacket(packet);
-//					if(serverDataSender.getStatus()==Status.RUNNING)
-//						serverDataSender.doInBackground();
-//					else
-//						serverDataSender.execute();
+					//					GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
+					//					serverDataSender.setPacket(packet);
+					//					if(serverDataSender.getStatus()==Status.RUNNING)
+					//						serverDataSender.doInBackground();
+					//					else
+					//						serverDataSender.execute();
 					//**********************************/
 
 
@@ -394,6 +453,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	}
 
+	//on button click, implementation of OnClickListener interface
 	@Override
 	public void onClick(View v) {
 
@@ -456,7 +516,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 
 
-	//operate the animation anim on img
+	//operate the animation parameter anim on img
 	private void setAnimation(String anim){
 
 		AnimationDrawable animation;
@@ -484,7 +544,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 	}
 
-	//execute the animation anim once
+	//execute the animation parameter anim once
 	private void executeAnimation(AnimationDrawable anim){
 
 		CustomAnimationDrawable CustomAnimation = new CustomAnimationDrawable(anim) {
@@ -522,11 +582,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		sight_img.setVisibility(View.INVISIBLE);
 
 		someAnimationRun = true;
-		mAnimationHandler.postDelayed(mUpdateTimeTask, 0);
+		AnimationHandler.postDelayed(animationDisplayTask, 0);
 		DrawableHandler.postDelayed(drawableTask, 0);
 	}
 
-	private Runnable mUpdateTimeTask = new Runnable() {
+	private Runnable animationDisplayTask = new Runnable() {
 		public void run() {          
 
 			android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
@@ -542,10 +602,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			img.setImageBitmap(segment_animation[anim_index]);
 			anim_index++;
 
+			//if the animation ended
 			if(anim_index == segment_animation.length){
 				segment_animation = null;
-				drawableResources = null;
-				sounds_frames = null;
+				drawableResources = null;      
+				sounds_frames = null;         
 				System.gc();	
 				setAnimation("stand");	
 				setScreen();
@@ -558,20 +619,23 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				}
 
 				someAnimationRun = false;
-				mAnimationHandler.removeCallbacks(mUpdateTimeTask);
+				AnimationHandler.removeCallbacks(animationDisplayTask);    //kill this thread
 			}
 
 			else
-				mAnimationHandler.postDelayed(mUpdateTimeTask, 60);
+				AnimationHandler.postDelayed(animationDisplayTask, 60);    //return on that task again after 60 milliseconds
 
 		}
 	};
 
+	//this runnable task is for keep update the current animation array that run
+	//and clean up the bitmaps that already displayed 
 	private Runnable drawableTask = new Runnable() {
 		public void run() {
 
 			android.os.Process.setThreadPriority(Thread.MIN_PRIORITY);
 
+			//clean up the bitmaps that already displayed
 			for(int i = unUsed; i < anim_index; i++){
 				segment_animation[i] = null;
 				unUsed++;
@@ -579,33 +643,38 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			System.gc();
 
+			//if there is more bitmaps to update
 			if(state < segment_animation.length){
+				//add one more bitmap to segment animation array
 				segment_animation[state] = BitmapFactory.decodeResource(getResources(), drawableResources[state]);
 				state += 1;
-				DrawableHandler.postDelayed(drawableTask, 0);
+				DrawableHandler.postDelayed(drawableTask, 0);         ////return on that task again immediately
 			}
 
 			else{
-				DrawableHandler.removeCallbacks(drawableTask);
+				DrawableHandler.removeCallbacks(drawableTask);        //kill this thread
 
 				System.gc();
 			}
 		}
 	};
 
+	//this runnable task is for change the animations references that need to execute immediacy
+	//this task on separate thread to not disturb the camera frames continuous
+	private Runnable changeAnimationTask = new Runnable() {
+		public void run() {
 
+			if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState())
+				shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
 
-	@Override
-	public void run() {
+			else
+				shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("targetshoot");
 
+			System.gc();
+			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
+		}
+	};
 
-		runOnUiThread(new Runnable() { 
-			public void run() 
-			{                          
-			} 
-		});
-
-	}
 
 	//reload the weapon
 	private void reload(){
@@ -630,42 +699,25 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//switch to target state and vice versa
 	private void targetState(){
 
-		AnimationDrawable anim;
 
 		//if the weapon already on target state
 		if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
-			shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
-			System.gc();
-			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
+			changeAnimation.post(changeAnimationTask);
 			((AnimationDrawable)(img.getBackground())).stop();
 			executeAnimation((player.getWeapons()[player.getCurrentWeapon()]).getAnimation("normal"));
 			sight_img.setVisibility(View.VISIBLE);
 		}
 
 		else{
-			shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("targetshoot");
-			System.gc();
-			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
+			changeAnimation.post(changeAnimationTask);
 			setAnimation("target");
 			sight_img.setVisibility(View.INVISIBLE);
 		}		
 	}
 
-	private Rect getSightRenge(){
 
-		double left, top, right, bottom;
-
-		left = mOpenCvCameraView.getWidth()/2 - sight_img.getWidth()/2 - getOffset("X");
-		top = mOpenCvCameraView.getHeight()/2 - sight_img.getHeight()/2 - getOffset("Y");
-		right = left + sight_img.getWidth();
-		bottom = top + sight_img.getHeight();
-
-		org.opencv.core.Point p1 = new org.opencv.core.Point(left, top); 
-		org.opencv.core.Point p2 = new org.opencv.core.Point(right, bottom);
-
-		return new org.opencv.core.Rect(p1, p2);
-	}
-
+	//return the offset of x and y between the openCV rectangle and the real screen
+	//parameter: if xy = X return the x offset, if xy = Y return the y offset, else return -1
 	private double getOffset(String xy){
 
 		double w = mRgba.cols();
@@ -681,44 +733,94 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			return -1;
 	}
 
-	private boolean isHit(){
+	//return the weapon sight point
+	private Point getSightPoint(){
+
+		return new Point(mOpenCvCameraView.getWidth()/2- getOffset("X"), mOpenCvCameraView.getHeight()/2- getOffset("Y"));
+	}
+
+	//check if hit, if yes return the integer that represent the hit area, else return -1
+	private int isHit(){
+
+		if(checkForFace()){
+			facesArrayWhileShoot = null;
+			upperBodyArrayWhileShoot = null;
+			lowerBodyArrayWhileShoot = null;
+			
+			return fACE_HIT;
+		}
+
+		if(checkForUpperBody()){
+			facesArrayWhileShoot = null;
+			upperBodyArrayWhileShoot = null;
+			lowerBodyArrayWhileShoot = null;
+			
+			return UPPER_BODY_HIT;
+		}
+
+		if(checkForLowerBody()){
+			facesArrayWhileShoot = null;
+			upperBodyArrayWhileShoot = null;
+			lowerBodyArrayWhileShoot = null;
+			
+			return LOWER_BODY_HIT;
+		}
 
 
-		for (int i = 0; i < facesArrayWhileShoot.length; i++){
+		return -1;
+	}
 
-			if(player.getWeapons()[player.getCurrent_weapon()].target_state){
+	//check if hit at some face in the frame, if yes return true, else return false
+	private boolean checkForFace(){
 
-				Point sightPoint = new Point(mOpenCvCameraView.getWidth()/2- getOffset("X"), mOpenCvCameraView.getHeight()/2- getOffset("Y"));
+		if(facesArrayWhileShoot != null){
 
+			Point sightPoint = getSightPoint();
+
+			for (int i = 0; i < facesArrayWhileShoot.length; i++){
 				if(sightPoint.inside(facesArrayWhileShoot[i]))
 					return true;
 			}
-
-			else{
-
-				Point tl, tr, bl, br;
-				Rect sightRenge = getSightRenge();
-
-				tl = facesArrayWhileShoot[i].tl();
-				br = facesArrayWhileShoot[i].br();
-				tr = new org.opencv.core.Point(br.x, tl.y);
-				bl = new org.opencv.core.Point(tl.x, br.y);
-
-				if(tl.inside(sightRenge) || br.inside(sightRenge) || tr.inside(sightRenge) || bl.inside(sightRenge))
-					return true;
-			}
-
 		}
 
 		return false;
 	}
 
+	//check if hit at some upper body in the frame, if yes return true, else return false
+	private boolean checkForUpperBody(){
 
+		if(upperBodyArrayWhileShoot != null){
 
+			Point sightPoint = getSightPoint();
 
+			for (int i = 0; i < upperBodyArrayWhileShoot.length; i++){
+				for (int j = 0; j < facesArrayWhileShoot.length; j++){
 
+					if(facesArrayWhileShoot[j].br().inside(upperBodyArrayWhileShoot[i]) && facesArrayWhileShoot[j].tl().inside(upperBodyArrayWhileShoot[i])){
+						if(sightPoint.y >= facesArrayWhileShoot[j].br().y && sightPoint.inside(upperBodyArrayWhileShoot[i]))
+							return true;
+					}
+				}
+			}
+		}
 
+		return false;
+	}
 
+	//check if hit at some lower body in the frame, if yes return true, else return false
+	private boolean checkForLowerBody(){
 
+		if(lowerBodyArrayWhileShoot != null){
+
+			Point sightPoint = getSightPoint();
+
+			for (int i = 0; i < lowerBodyArrayWhileShoot.length; i++){
+				if(sightPoint.inside(lowerBodyArrayWhileShoot[i]))
+					return true;
+			}
+		}
+
+		return false;
+	}
 
 }
