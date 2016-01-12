@@ -1,7 +1,7 @@
 /*
  * GameInterface - Activity
  * 
- * this activity is on foreground while the game ocure
+ * this activity is on foreground while the game occur
  */
 
 package com.example.socket_com;
@@ -13,8 +13,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -50,8 +48,6 @@ import android.widget.TextView;
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -62,14 +58,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	private final int ramBurden = 5;
 	private final int fACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
-	
+
 	private TextView current_bulletsText, total_bulletsText, slesh;
 	private static ProgressBar player_life;
 	private ImageButton reload, target;
 	private ImageView img, sight_img, board_num1, board_num2;
 	private int anim_index, soundIndex, state, unUsed;
 	private AnimationDrawable shoot_animation, stand_animation;
-	private boolean someAnimationRun;
+	private boolean someAnimationRun, pressed;
 	private Player player=MainActivity.player;
 	private Handler AnimationHandler, DrawableHandler, changeAnimation;
 	private int[] drawableResources, sounds_frames;
@@ -398,19 +394,23 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
+		pressed = false;
+		
 		if(!someAnimationRun){
-
-			/*	switch (event.getAction()){
-			//if the user still touch the screen
-			case MotionEvent.ACTION_DOWN:
-
+	
+			switch (event.getAction()){
+			case MotionEvent.ACTION_DOWN: 
+			{
+				pressed = true;
 				break;
-
-				//if the user left the screen
-			case MotionEvent.ACTION_UP:
-
+			}
+			
+			case MotionEvent.ACTION_UP: 
+			{
+				pressed = false;
 				break;
-			}*/
+			}
+			}
 
 			int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
 			if(currentBullets > 0){
@@ -444,7 +444,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 		}
 
-		return false;
+		return pressed;
 	}
 
 
@@ -746,7 +746,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			facesArrayWhileShoot = null;
 			upperBodyArrayWhileShoot = null;
 			lowerBodyArrayWhileShoot = null;
-			
+
 			return fACE_HIT;
 		}
 
@@ -754,7 +754,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			facesArrayWhileShoot = null;
 			upperBodyArrayWhileShoot = null;
 			lowerBodyArrayWhileShoot = null;
-			
+
 			return UPPER_BODY_HIT;
 		}
 
@@ -762,7 +762,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			facesArrayWhileShoot = null;
 			upperBodyArrayWhileShoot = null;
 			lowerBodyArrayWhileShoot = null;
-			
+
 			return LOWER_BODY_HIT;
 		}
 
