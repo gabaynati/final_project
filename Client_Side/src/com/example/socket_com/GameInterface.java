@@ -58,7 +58,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	private final int ramBurden = 5;
 	private final int fACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
-
 	private TextView current_bulletsText, total_bulletsText, slesh;
 	private static ProgressBar player_life;
 	private ImageButton reload, target;
@@ -92,7 +91,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//files for face detection
 	private File                   faceCascadeFile, uBodyCascadeFile, lBodyCascadeFile;
 	private CascadeClassifier      faceDetector, uBodyDetector, lBodyDetector;
-	private float                  mRelativeDetectorSize_face   = 0.3f;
+	private float                  mRelativeDetectorSize_face   = 0.2f;
 	private float                  mRelativeDetectorSize_upperBody   = 0.2f;
 	private int                    mAbsoluteDetectorSize_face   = 0;
 	private int                    mAbsoluteDetectorSize_upperBody   = 0;
@@ -123,11 +122,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 		/************Server Communication*************************/
-		//		serverCom=new ServerCommunication();
-		//		serverListener=serverCom.getServerListener();
-		//		serverDataSender=serverCom.getServerDataSender();
-		//		//initiate server listener
-		//		serverListener.execute();
+				serverCom=new ServerCommunication();
+				serverListener=serverCom.getServerListener();
+				serverDataSender=serverCom.getServerDataSender();
+				//initiate server listener
+				serverListener.execute();
 		/*************************************/
 
 
@@ -184,7 +183,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				Log.i(TAG, "OpenCV loaded successfully");
 				mOpenCvCameraView.enableView();
 
-				initialDetector(face_xml_res);
+				initialDetector(lowerBody_xml_res);
 				initialDetector(upperBody_xml_res);	
 				//initialDetector(lowerBody_xml_res);
 
@@ -230,7 +229,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					Log.i(TAG, "Loaded cascade classifier from " + CascadeFile.getAbsolutePath());
 				cascadeDir.delete();
 
-				if(xmlRes.equals(face_xml_res)){
+				if(xmlRes.equals(lowerBody_xml_res)){
 					faceCascadeFile = CascadeFile;
 					faceDetector = JavaDetector;
 				}
@@ -240,10 +239,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					uBodyDetector = JavaDetector;
 				}
 
-				else if(xmlRes.equals(lowerBody_xml_res)){
+				/*else if(xmlRes.equals(lowerBody_xml_res)){
 					lBodyCascadeFile = CascadeFile;
 					lBodyDetector = JavaDetector;
-				}
+				}*/
 
 
 			} catch (IOException e) {
@@ -309,6 +308,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					mAbsoluteDetectorSize_face = Math.round(height * mRelativeDetectorSize_face);
 				}
 			}
+			
 			if (mAbsoluteDetectorSize_upperBody == 0) {
 				int height = mGray.rows();
 				if (Math.round(height * mRelativeDetectorSize_upperBody) > 0) {
@@ -319,8 +319,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			MatOfRect faces = new MatOfRect();
 			MatOfRect upperBodies = new MatOfRect();
-			MatOfRect lowerBodies = new MatOfRect();
+			//MatOfRect lowerBodies = new MatOfRect();
 
+			
 			//running face detecting on the frame:
 			if (faceDetector != null)
 				//this function takes in a gray scale image and returns rectangles
@@ -334,15 +335,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the upper body (if any).
 				uBodyDetector.detectMultiScale(mGray, upperBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-						new Size(mAbsoluteDetectorSize_face, mAbsoluteDetectorSize_upperBody), new Size());
+						new Size(mAbsoluteDetectorSize_upperBody, mAbsoluteDetectorSize_upperBody), new Size());
 
 
 			//running lower body detecting on the frame:
-			//if (lBodyDetector != null)
+			/*if (lBodyDetector != null)
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the lower body (if any).
-			//	lBodyDetector.detectMultiScale(mGray, lowerBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-				//		new Size(mAbsoluteDetectorSize, mAbsoluteDetectorSize), new Size());
+				lBodyDetector.detectMultiScale(mGray, lowerBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+						new Size(mAbsoluteDetectorSize_upperBody, mAbsoluteDetectorSize_upperBody), new Size());*/
 
 
 
@@ -359,9 +360,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 			//drawing rectangles around each lower body in the frame.
-			//lowerBodyArray = upperBodies.toArray();
-			//for (int i = 0; i < lowerBodyArray.length; i++)
-			//	Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+			/*lowerBodyArray = upperBodies.toArray();
+			for (int i = 0; i < lowerBodyArray.length; i++)
+				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);*/
 
 		}
 		return mRgba;
@@ -390,12 +391,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 
 		//for all lower bodies, only if there is any upper bodies in the current camera frame
-	//	if(lowerBodyArray != null){
-		//	lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
+		/*if(lowerBodyArray != null){
+			lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
 
-		//	for (int i = 0; i < lowerBodyArray.length; i++)
-		//		lowerBodyArrayWhileShoot[i] = new Rect(lowerBodyArray[i].tl(), lowerBodyArray[i].br());
-		//}
+			for (int i = 0; i < lowerBodyArray.length; i++)
+				lowerBodyArrayWhileShoot[i] = new Rect(lowerBodyArray[i].tl(), lowerBodyArray[i].br());
+		}*/
 	}
 
 	//call when the user touch the screen, implementation of OnTouchListener interface
@@ -430,18 +431,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				catchRect();
 
 				//if this player hits someone
-				int hit = isHit();
-				if(hit != -1){
-					Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit + " " + player.getLife(), 1000);
+				int hitArea = isHit();
+				if(hitArea != -1){
+					Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hitArea + " " + player.getLife(), 1000);
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-					//					GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),true,false,"nati");
-					//					serverDataSender.setPacket(packet);
-					//					if(serverDataSender.getStatus()==Status.RUNNING)
-					//						serverDataSender.doInBackground();
-					//					else
-					//						serverDataSender.execute();
+										GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),serverCom.hit,"gili","game 1",hitArea);
+										serverDataSender.setPacket(packet);
+										if(serverDataSender.getStatus()==Status.RUNNING)
+											serverDataSender.doInBackground();
+										else
+											serverDataSender.execute();
 					//**********************************/
 
 
@@ -766,13 +767,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			return UPPER_BODY_HIT;
 		}
 
-		if(checkForLowerBody()){
+		/*if(checkForLowerBody()){
 			facesArrayWhileShoot = null;
 			upperBodyArrayWhileShoot = null;
 			lowerBodyArrayWhileShoot = null;
 
 			return LOWER_BODY_HIT;
-		}
+		}*/
 
 
 		return -1;
@@ -797,7 +798,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//check if hit at some upper body in the frame, if yes return true, else return false
 	private boolean checkForUpperBody(){
 
+		
 		if(upperBodyArrayWhileShoot != null){
+
+			Point sightPoint = getSightPoint();
+
+			for (int i = 0; i < upperBodyArrayWhileShoot.length; i++){
+				if(sightPoint.inside(upperBodyArrayWhileShoot[i]))
+					return true;
+			}
+		}
+		/*if(upperBodyArrayWhileShoot != null){
 
 			Point sightPoint = getSightPoint();
 
@@ -810,7 +821,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					}
 				}
 			}
-		}
+		}*/
 
 		return false;
 	}

@@ -13,14 +13,18 @@ public class GamePacket implements Serializable{
 	private int packetType;
 	private Vector<String> gamesList;
 	private String gameName;
+	private int hitArea;
 	
-	
-	public GamePacket(String nickName,String password,final int packetType,String injured_nickName,String gameName){
+	public GamePacket(String nickName,String password,final int packetType,String injured_nickName,String gameName,int hitArea){
 		this.packetType=packetType;
 		this.injured_nickName=injured_nickName;
 		this.nickName=nickName;
 		this.password=password;
 		this.gameName=gameName;
+		this.hitArea=hitArea;
+	}
+	public int getHitArea(){
+		return this.hitArea;
 	}
 	public String getGameName(){
 		return this.gameName;

@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 import android.os.AsyncTask;
 
 public class ServerCommunication {
-
+	public static final int hit=0,connect=1,getGamesList=2;
 	public  class MyClientTask_ListenToPakcets extends AsyncTask<Void, Void, Void> {
 
 
@@ -43,7 +43,7 @@ public class ServerCommunication {
 
 
 				if(packet.isHit()){
-					MainActivity.player.Hit();
+					MainActivity.player.Hit(packet.getHitArea());
 					GameInterface.hitRecvied();
 
 				}
