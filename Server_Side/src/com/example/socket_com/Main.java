@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 
 public class Main {
 	
-	private static int serverPort = Integer.parseInt("9009");
+	private static int serverPort = Integer.parseInt("9000");
 
 	
 	@SuppressWarnings("deprecation")

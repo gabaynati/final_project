@@ -23,8 +23,8 @@ public class MainActivity extends Activity {
 	
 	//*********server configurations****************/
 	public static Socket socket;
-	public static String serverIP="149.88.90.250";
-	public static int serverPort=9003;
+	public static String serverIP="84.109.200.21";
+	public static int serverPort=9000;
 	public static Player player=new Player("gili","1234");
 	//*************************************************/
 	

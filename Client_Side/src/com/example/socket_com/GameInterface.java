@@ -92,8 +92,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//files for face detection
 	private File                   faceCascadeFile, uBodyCascadeFile, lBodyCascadeFile;
 	private CascadeClassifier      faceDetector, uBodyDetector, lBodyDetector;
-	private float                  mRelativeDetectorSize   = 0.15f;
-	private int                    mAbsoluteDetectorSize   = 0;
+	private float                  mRelativeDetectorSize_face   = 0.3f;
+	private float                  mRelativeDetectorSize_upperBody   = 0.2f;
+	private int                    mAbsoluteDetectorSize_face   = 0;
+	private int                    mAbsoluteDetectorSize_upperBody   = 0;
 	private static final Scalar    RECT_COLOR     = new Scalar(0, 255, 0, 255);
 	private Rect[]                 facesArray, facesArrayWhileShoot;
 	private Rect[]                 upperBodyArray, upperBodyArrayWhileShoot;
@@ -184,7 +186,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 				initialDetector(face_xml_res);
 				initialDetector(upperBody_xml_res);	
-				initialDetector(lowerBody_xml_res);
+				//initialDetector(lowerBody_xml_res);
 
 				break;
 			}
@@ -301,10 +303,16 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		if(!someAnimationRun){
 
-			if (mAbsoluteDetectorSize == 0) {
+			if (mAbsoluteDetectorSize_face == 0) {
 				int height = mGray.rows();
-				if (Math.round(height * mRelativeDetectorSize) > 0) {
-					mAbsoluteDetectorSize = Math.round(height * mRelativeDetectorSize);
+				if (Math.round(height * mRelativeDetectorSize_face) > 0) {
+					mAbsoluteDetectorSize_face = Math.round(height * mRelativeDetectorSize_face);
+				}
+			}
+			if (mAbsoluteDetectorSize_upperBody == 0) {
+				int height = mGray.rows();
+				if (Math.round(height * mRelativeDetectorSize_upperBody) > 0) {
+					mAbsoluteDetectorSize_upperBody = Math.round(height * mRelativeDetectorSize_upperBody);
 				}
 			}
 
@@ -318,7 +326,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the faces (if any).
 				faceDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-						new Size(mAbsoluteDetectorSize, mAbsoluteDetectorSize), new Size());
+						new Size(mAbsoluteDetectorSize_face, mAbsoluteDetectorSize_upperBody), new Size());
 
 
 			//running upper body detecting on the frame:
@@ -326,15 +334,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the upper body (if any).
 				uBodyDetector.detectMultiScale(mGray, upperBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-						new Size(mAbsoluteDetectorSize, mAbsoluteDetectorSize), new Size());
+						new Size(mAbsoluteDetectorSize_face, mAbsoluteDetectorSize_upperBody), new Size());
 
 
 			//running lower body detecting on the frame:
-			if (lBodyDetector != null)
+			//if (lBodyDetector != null)
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the lower body (if any).
-				lBodyDetector.detectMultiScale(mGray, lowerBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-						new Size(mAbsoluteDetectorSize, mAbsoluteDetectorSize), new Size());
+			//	lBodyDetector.detectMultiScale(mGray, lowerBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+				//		new Size(mAbsoluteDetectorSize, mAbsoluteDetectorSize), new Size());
 
 
 
@@ -351,9 +359,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 			//drawing rectangles around each lower body in the frame.
-			lowerBodyArray = upperBodies.toArray();
-			for (int i = 0; i < lowerBodyArray.length; i++)
-				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+			//lowerBodyArray = upperBodies.toArray();
+			//for (int i = 0; i < lowerBodyArray.length; i++)
+			//	Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
 
 		}
 		return mRgba;
@@ -382,12 +390,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 
 		//for all lower bodies, only if there is any upper bodies in the current camera frame
-		if(lowerBodyArray != null){
-			lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
+	//	if(lowerBodyArray != null){
+		//	lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
 
-			for (int i = 0; i < lowerBodyArray.length; i++)
-				lowerBodyArrayWhileShoot[i] = new Rect(lowerBodyArray[i].tl(), lowerBodyArray[i].br());
-		}
+		//	for (int i = 0; i < lowerBodyArray.length; i++)
+		//		lowerBodyArrayWhileShoot[i] = new Rect(lowerBodyArray[i].tl(), lowerBodyArray[i].br());
+		//}
 	}
 
 	//call when the user touch the screen, implementation of OnTouchListener interface
