@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
 	public static String serverIP="84.109.200.21";
 	public static int serverPort=9000;
 	public static Player player=new Player("gili","1234");
+	public static String enemy="nati";
 	//*************************************************/
 	
 	Button buttonConnectToServer;

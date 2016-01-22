@@ -14,11 +14,11 @@ import javax.swing.JFrame;
 public class Main {
 	
 	private static int serverPort = Integer.parseInt("9000");
-
+	public static Server server=new Server(serverPort);
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
-		Server server=new Server(serverPort);
+	
 		
 		
 		

@@ -43,7 +43,10 @@ public class Server {
 	public Vector<String> getServerLogs() {
 		return serverLogs;
 	}
-
+	public void addToServer(String str){
+		this.serverLogs.addElement(str);
+		this.panel.update();
+	}
 	
 	
 	public void displayServerInformation(int port){

@@ -57,7 +57,7 @@ import org.opencv.imgproc.Imgproc;
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2 {
 
 	private final int ramBurden = 5;
-	private final int fACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
+	private final int FACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
 	private TextView current_bulletsText, total_bulletsText, slesh;
 	private static ProgressBar player_life;
 	private ImageButton reload, target;
@@ -92,7 +92,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private File                   faceCascadeFile, uBodyCascadeFile, lBodyCascadeFile;
 	private CascadeClassifier      faceDetector, uBodyDetector, lBodyDetector;
 	private float                  mRelativeDetectorSize_face   = 0.2f;
-	private float                  mRelativeDetectorSize_upperBody   = 0.2f;
+	private float                  mRelativeDetectorSize_upperBody   = 0.15f;
 	private int                    mAbsoluteDetectorSize_face   = 0;
 	private int                    mAbsoluteDetectorSize_upperBody   = 0;
 	private static final Scalar    RECT_COLOR     = new Scalar(0, 255, 0, 255);
@@ -238,13 +238,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					uBodyCascadeFile = CascadeFile;
 					uBodyDetector = JavaDetector;
 				}
-
-				/*else if(xmlRes.equals(lowerBody_xml_res)){
+/*
+				else if(xmlRes.equals(lowerBody_xml_res)){
 					lBodyCascadeFile = CascadeFile;
 					lBodyDetector = JavaDetector;
-				}*/
+				}
 
-
+*/
 			} catch (IOException e) {
 				e.printStackTrace();
 				Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
@@ -327,8 +327,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the faces (if any).
 				faceDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-						new Size(mAbsoluteDetectorSize_face, mAbsoluteDetectorSize_upperBody), new Size());
-
+					new Size(mAbsoluteDetectorSize_face, mAbsoluteDetectorSize_upperBody), new Size());
 
 			//running upper body detecting on the frame:
 			if (uBodyDetector != null)
@@ -337,15 +336,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				uBodyDetector.detectMultiScale(mGray, upperBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 						new Size(mAbsoluteDetectorSize_upperBody, mAbsoluteDetectorSize_upperBody), new Size());
 
-
+/*
 			//running lower body detecting on the frame:
-			/*if (lBodyDetector != null)
+			if (lBodyDetector != null)
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the lower body (if any).
 				lBodyDetector.detectMultiScale(mGray, lowerBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-						new Size(mAbsoluteDetectorSize_upperBody, mAbsoluteDetectorSize_upperBody), new Size());*/
+						new Size(mAbsoluteDetectorSize_upperBody, mAbsoluteDetectorSize_upperBody), new Size());
 
-
+*/
 
 			//drawing rectangles around each face in the frame.
 			facesArray = faces.toArray();
@@ -358,12 +357,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			for (int i = 0; i < upperBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
 
-
+/*
 			//drawing rectangles around each lower body in the frame.
-			/*lowerBodyArray = upperBodies.toArray();
+			lowerBodyArray = upperBodies.toArray();
 			for (int i = 0; i < lowerBodyArray.length; i++)
-				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);*/
-
+				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+*/
 		}
 		return mRgba;
 
@@ -389,9 +388,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			for (int i = 0; i < upperBodyArray.length; i++)
 				upperBodyArrayWhileShoot[i] = new Rect(upperBodyArray[i].tl(), upperBodyArray[i].br());
 		}
-
+/*
 		//for all lower bodies, only if there is any upper bodies in the current camera frame
-		/*if(lowerBodyArray != null){
+		if(lowerBodyArray != null){
 			lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
 
 			for (int i = 0; i < lowerBodyArray.length; i++)
@@ -432,12 +431,27 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 				//if this player hits someone
 				int hitArea = isHit();
+				String hit_area="";
+				switch(hitArea){
+				case UPPER_BODY_HIT:
+					hit_area="Upper body";
+					break;
+				case FACE_HIT:
+					hit_area="Head shot";
+					break;
+				case LOWER_BODY_HIT:
+					hit_area="Lower body";
+					break;
+					
+				
+				
+				}
 				if(hitArea != -1){
-					Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hitArea + " " + player.getLife(), 1000);
+					Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-										GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),serverCom.hit,"gili","game 1",hitArea);
+										GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),ServerCommunication.hit,MainActivity.enemy,"game 1",hitArea);
 										serverDataSender.setPacket(packet);
 										if(serverDataSender.getStatus()==Status.RUNNING)
 											serverDataSender.doInBackground();
@@ -756,7 +770,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			upperBodyArrayWhileShoot = null;
 			lowerBodyArrayWhileShoot = null;
 
-			return fACE_HIT;
+			return LOWER_BODY_HIT;////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!????>>///
 		}
 
 		if(checkForUpperBody()){
@@ -766,15 +780,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			return UPPER_BODY_HIT;
 		}
-
-		/*if(checkForLowerBody()){
+/*
+		if(checkForLowerBody()){
 			facesArrayWhileShoot = null;
 			upperBodyArrayWhileShoot = null;
 			lowerBodyArrayWhileShoot = null;
 
 			return LOWER_BODY_HIT;
-		}*/
-
+		}
+*/
 
 		return -1;
 	}

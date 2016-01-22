@@ -11,7 +11,7 @@ public class Player {
 	private final int maxLife = 100;
 	private final int upperBody_hit = 50;
 	private final int lowerBody_hit = 25;
-	private final int fACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
+	private final int FACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
 	private int life;
 	private String rank;
 	private int current_weapon;
@@ -43,7 +43,7 @@ public class Player {
 	public void Hit(int hitArea){
 		if(hitArea == UPPER_BODY_HIT)
 			this.life = this.life - this.upperBody_hit;
-		else if(hitArea == lowerBody_hit)
+		else if(hitArea == LOWER_BODY_HIT)
 			this.life = this.life - this.lowerBody_hit;
 	}
 
