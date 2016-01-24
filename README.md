@@ -1,4 +1,4 @@
-# final_project - Hide & Seek
+# Software Engineering final_project - Hide & Seek
 
 The files that this project includes:
 
