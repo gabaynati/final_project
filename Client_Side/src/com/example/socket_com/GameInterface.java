@@ -64,7 +64,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private ImageView img, sight_img, board_num1, board_num2;
 	private int anim_index, soundIndex, state, unUsed;
 	private AnimationDrawable shoot_animation, stand_animation;
-	private boolean someAnimationRun, pressed;
+	private boolean someAnimationRun, pressed, touched;
 	private Player player=MainActivity.player;
 	private Handler AnimationHandler, DrawableHandler, changeAnimation;
 	private int[] drawableResources, sounds_frames;
@@ -120,15 +120,16 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mOpenCvCameraView.setOnTouchListener(this);
 		//***************************************///
 
+//
+//		/************Server Communication*************************/
+//				serverCom=new ServerCommunication();
+//				serverListener=serverCom.getServerListener();
+//				serverDataSender=serverCom.getServerDataSender();
+//				//initiate server listener
+//				serverListener.execute();
+//		/*************************************/
 
-		/************Server Communication*************************/
-				serverCom=new ServerCommunication();
-				serverListener=serverCom.getServerListener();
-				serverDataSender=serverCom.getServerDataSender();
-				//initiate server listener
-				serverListener.execute();
-		/*************************************/
-
+		touched = false;
 
 
 		img = (ImageView)findViewById(R.id.weaponView);
@@ -300,7 +301,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mRgba=inputFrame.rgba();
 		mGray=inputFrame.gray();
 
-		if(!someAnimationRun){
+		if(!someAnimationRun && touched){
 
 			if (mAbsoluteDetectorSize_face == 0) {
 				int height = mGray.rows();
@@ -363,6 +364,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			for (int i = 0; i < lowerBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
 */
+			touched = false;
 		}
 		return mRgba;
 
@@ -403,6 +405,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	public boolean onTouch(View v, MotionEvent event) {
 
 		pressed = false;
+		touched = true;
 		
 		if(!someAnimationRun){
 	
@@ -451,12 +454,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-										GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),ServerCommunication.hit,MainActivity.enemy,"game 1",hitArea);
-										serverDataSender.setPacket(packet);
-										if(serverDataSender.getStatus()==Status.RUNNING)
-											serverDataSender.doInBackground();
-										else
-											serverDataSender.execute();
+//										GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),ServerCommunication.hit,MainActivity.enemy,"game 1",hitArea);
+//										serverDataSender.setPacket(packet);
+//										if(serverDataSender.getStatus()==Status.RUNNING)
+//											serverDataSender.doInBackground();
+//										else
+//											serverDataSender.execute();
 					//**********************************/
 
 
@@ -484,12 +487,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		case R.id.reload:
 
-			reload();
+			if(!someAnimationRun)
+				reload();
 			break;
 
 		case R.id.target:
 
-			targetState();
+			if(!someAnimationRun)
+				targetState();
 			break;
 		}
 
