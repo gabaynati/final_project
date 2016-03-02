@@ -26,7 +26,13 @@ public class Game {
 		team2.addPlayer(player);
 	}
 	public boolean isConnected(String playerNickname){
-		return players.contains(playerNickname);
+		for(int i=0;i<players.size();i++)
+			if(players.elementAt(i).getNickName().equals(playerNickname))
+				return true;
+		return false;	
+
+
+
 	}
 	public void playerDisconnected(String player_nickname){
 		Player player=getPlayerByNickName(player_nickname);

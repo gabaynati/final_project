@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.ExecutionException;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -249,14 +250,14 @@ public class ServerCommunication {
 
 	}
 
-
-	public class MyClientTask_Connect extends AsyncTask<Void, Void, Void> {
+//first argument is the parameters to execute() which is passed to doInBackground ,second doesn't matter and third is the return type of doInBackground
+	public class MyClientTask_Connect extends AsyncTask<Boolean, Void, String> {
 
 		private String dstAddress;
 		private int dstPort;
 		private String response = "true";
 		private String nickname,password;
-
+		private boolean isConnetionSucceded;
 
 
 		public  MyClientTask_Connect(String addr, int port,String nickname,String password){
@@ -267,8 +268,7 @@ public class ServerCommunication {
 		}
 
 		@Override
-		protected Void doInBackground(Void... arg0) {
-
+		protected String doInBackground(Boolean... arg0) {
 			try {
 
 /**
@@ -279,11 +279,9 @@ public class ServerCommunication {
 */
 
 				MainActivity.socket = new Socket(dstAddress, dstPort);
-
 				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
 				outToServer.writeObject(new GamePacket(nickname, password,GamePacket.connect,null,"game 1",-1));
-
-
+				
 
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -306,16 +304,23 @@ public class ServerCommunication {
 
 				}
 			 */
-			return null;
+		
+			return response;
 		}
 
+		//result is the return data from doInBackground()
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 		}
 		public String getResponse(){
 		return this.response;
 		}
+		public boolean isConnetionSucceded(){
+			return this.isConnetionSucceded;
+		}
+
+	
 
 	}
 
@@ -324,8 +329,18 @@ public class ServerCommunication {
 
 	public boolean ConnectToServer(String addr, int port,String nickname,String password){
 		MyClientTask_Connect connect=new MyClientTask_Connect(addr,port, nickname,password);
-		connect.execute();
-		return connect.getResponse().equals("true");
+		String result = "";
+		//connect returns the AsyncTask itself and get() returns the result from doInBackground()
+		try {
+			result=connect.execute().get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result.equals("true");
 	}
 
 	public  MyClientTask_ListenToPakcets getServerListener(){

@@ -84,8 +84,10 @@ public class connectThread extends Thread
 
 				try
 				{
+					if(!game.isConnected(packet.getNickName())){
 					Thread t = new ListenToPlayersThread(socket,game);
 					t.start();
+					}
 
 				}catch(IOException e)
 				{
