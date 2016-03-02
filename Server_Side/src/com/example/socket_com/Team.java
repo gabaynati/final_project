@@ -20,6 +20,11 @@ public class Team {
 		players=new Vector<Player>();
 		totalScore=0;
 	}
+	public void removePlayer(Player player){
+		for(int i=0;i<players.size();i++)
+			if(players.elementAt(i).getNickName().equals(player.getNickName()))
+				players.removeElementAt(i);
+	}
 	public void addPlayer(Player player){
 		players.add(player);
 	}

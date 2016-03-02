@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.example.hs.R;
+import com.example.socket_com.ServerCommunication.MyClientTask_Connect;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,11 +29,11 @@ public class ConnectToServerActivity extends Activity {
 
 	TextView textResponse;
 	EditText editTextAddress, editTextPort,editTextNickName,editTextPassword; 
-	Button buttonConnect;
-
+	Button buttonConnect,buttonJoinAGame;
 	String nickname;
 	String password;
-
+	ServerCommunication server_com;
+	boolean isConnectionSucceded;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,16 +42,18 @@ public class ConnectToServerActivity extends Activity {
 
 
 		setContentView(R.layout.activity_main);
-
+		server_com=new ServerCommunication();
 		editTextAddress = (EditText)findViewById(R.id.address);
 		editTextPort = (EditText)findViewById(R.id.port);
 		buttonConnect = (Button)findViewById(R.id.connect);
+		buttonJoinAGame=(Button)findViewById(R.id.joinAGame);
+		buttonJoinAGame.setVisibility(View.INVISIBLE);
 		textResponse = (TextView)findViewById(R.id.response);
 		editTextNickName=(EditText)findViewById(R.id.nickname);
 		editTextPassword=(EditText)findViewById(R.id.password);
 
 		buttonConnect.setOnClickListener(buttonConnectOnClickListener);
-
+		buttonJoinAGame.setOnClickListener(buttonJoinAGameOnClickListener);
 
 
 	}
@@ -66,8 +69,8 @@ public class ConnectToServerActivity extends Activity {
 		public void onClick(View arg0) {
 			//String address=editTextAddress.getText().toString();
 			//int port=Integer.parseInt(editTextPort.getText().toString());
-			String address=MainActivity.serverIP;
-			MainActivity.serverPort=Integer.parseInt(editTextPort.getText().toString());
+			String addr=MainActivity.serverIP;
+			//MainActivity.serverPort=Integer.parseInt(editTextPort.getText().toString());
 			int port=MainActivity.serverPort;
 			//nickname=editTextNickName.getText().toString();
 			//password=editTextPassword.getText().toString();
@@ -77,116 +80,46 @@ public class ConnectToServerActivity extends Activity {
 
 
 
-			MyClientTask_Connect myClientTask = new MyClientTask_Connect(address,port);
-			myClientTask.execute();
+			isConnectionSucceded=server_com.ConnectToServer(addr, port, nickname, password);
+
+			if(isConnectionSucceded){
+				textResponse.setText("You have successfully connected to server");
+				buttonJoinAGame.setVisibility(View.VISIBLE);
+				buttonConnect.setVisibility(View.GONE);
+				editTextPassword.setVisibility(View.GONE);
+				editTextNickName.setVisibility(View.GONE);
+				editTextPort.setVisibility(View.GONE);
+				editTextAddress.setVisibility(View.GONE);
+				MainActivity.player.setConnectedToServer(true);
+			}
+			else
+			{
+				textResponse.setText("You have faild to connected to server");
+			}
 
 		}};
 
 
 
 
-
-
-
-
-
-
-
-		public class MyClientTask_Connect extends AsyncTask<Void, Void, Void> {
-
-			String dstAddress;
-			int dstPort;
-			String response = "";
-
-
-
-
-			public MyClientTask_Connect(String addr, int port){
-				this.dstAddress = addr;
-				this.dstPort = port;
-
-			}
-
+		//join a game button onClick method
+		OnClickListener buttonJoinAGameOnClickListener = new OnClickListener(){
 			@Override
-			protected Void doInBackground(Void... arg0) {
-
-				try {
-
-
-					String isExists=GameDB.isExists(nickname,password);
-					if(!isExists.equals("exists")){
-						textResponse.setText(isExists);
-					}
+			public void onClick(View arg0) {
+				//moving to Game List activity
+				Intent gameList = new Intent("com.example.socket_com.GAMELIST");
+				startActivity(gameList);
 
 
-					MainActivity.socket = new Socket(dstAddress, dstPort);
+			}};
 
 
 
 
 
-					/*
-					 * 
-						//reading hello
-						ByteArrayOutputStream byteArrayOutputStream = 
-								new ByteArrayOutputStream(1024);
-						byte[] buffer = new byte[1024];
-
-						int bytesRead;
-						InputStream inputStream = MainActivity.socket.getInputStream();
-
-						//						
-						//						  notice:
-
-						//						 inputStream.read() will block if no data return
-						//						 
-						while ((bytesRead = inputStream.read(buffer)) != -1){
-							response += byteArrayOutputStream.toString("UTF-8");
-						}
-					 */
 
 
 
-
-
-					ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-					outToServer.writeObject(new GamePacket(nickname, password,GamePacket.connect,null,"game 1",-1));
-
-
-
-				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					response = "UnknownHostException: " + e.toString();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					response = "IOException: " + e.toString();
-				}
-				/*finally{
-						if(socket != null){
-							try {
-								socket.close();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-
-					}
-				 */
-				Intent gameEngine = new Intent("com.example.socket_com.GAMEINTERFACE");
-				startActivity(gameEngine);
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(Void result) {
-				textResponse.setText(response);
-				super.onPostExecute(result);
-			}
-
-		}
 
 
 

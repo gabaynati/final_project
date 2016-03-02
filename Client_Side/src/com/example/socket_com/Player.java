@@ -21,7 +21,7 @@ public class Player {
 	private int ammunition;
 	private String nickName;
 	private String password;
-
+	public boolean isConnectedToServer=false;
 
 	public Player(Weapon[] weaponsList){
 
@@ -39,6 +39,12 @@ public class Player {
 		this.nickName=nickName;
 		this.password=password;
 		ammunition=30;
+	}
+	public void setConnectedToServer(boolean bool){
+		isConnectedToServer=bool;
+	}
+	public boolean isConnectedToServer(){
+		return this.isConnectedToServer;
 	}
 	public void Hit(int hitArea){
 		if(hitArea == UPPER_BODY_HIT)

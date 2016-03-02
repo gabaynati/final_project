@@ -20,20 +20,20 @@ import android.widget.Button;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MainActivity extends Activity {
-	
+
 	//*********server configurations****************/
 	public static Socket socket;
-	public static String serverIP="84.109.200.21";
+	public static String serverIP="192.168.1.14";
 	public static int serverPort=9000;
 	public static Player player=new Player("gili","1234");
 	public static String enemy="nati";
 	//*************************************************/
-	
+
 	Button buttonConnectToServer;
 	Button buttonRegisterToSystem;
 	Button buttonToGame;
-	
-	
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -44,8 +44,8 @@ public class MainActivity extends Activity {
 		buttonToGame = (Button)findViewById(R.id.toGame);
 
 
-		
-		
+
+
 		buttonConnectToServer.setOnClickListener(buttonConnectToServerOnClickListener);
 		buttonRegisterToSystem.setOnClickListener(buttonRegisterToSystemOnClickListener);
 		buttonToGame.setOnClickListener(buttonToGameOnClickListener);
@@ -86,12 +86,12 @@ public class MainActivity extends Activity {
 	};
 	/*************************************/
 
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -109,5 +109,15 @@ public class MainActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onDestroy(){
+		super.onDestroy();
+		//disconnecting from server
+		if(player.isConnectedToServer){
+			ServerCommunication server_com=new ServerCommunication();
+			server_com.disconnectFromServer(this.player.getNickName(),this.player.getPassword());
+		}
 	}
 }

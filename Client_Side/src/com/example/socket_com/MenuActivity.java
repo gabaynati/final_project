@@ -1,7 +1,6 @@
 package com.example.socket_com;
 
 import com.example.hs.R;
-import com.example.socket_com.ConnectToServerActivity.MyClientTask_Connect;
 
 import android.app.Activity;
 import android.content.Intent;

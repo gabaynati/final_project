@@ -35,9 +35,7 @@ public class connectThread extends Thread
 				Socket socket = serverSocket.accept();//inf loop until client connects
 
 
-				//printing the client IP address
-				server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
-				server.getPanel().update();
+	
 
 
 				//note:
@@ -69,11 +67,14 @@ public class connectThread extends Thread
 				Game game=server.getGameByName(packet.getGameName());
 				//adding new player
 				if(packet.isConnect()){
-
-					game.addPlayer(new Player(socket,packet.getNickName()));
-					server.getServerLogs().add(packet.getNickName()+"has just connected!");
-					server.getPanel().update();
-
+					if(!game.isConnected(packet.getNickName())){
+						//printing the client IP address
+						server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
+						//adding to game
+						game.addPlayer(new Player(socket,packet.getNickName()));
+						server.getServerLogs().add(packet.getNickName()+"has just connected!");
+						server.getPanel().update();
+					}
 					//serverLogs.add(packet.getPassword());
 				}
 				else if(packet.isHit()){

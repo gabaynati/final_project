@@ -97,7 +97,13 @@ public class ListenToPlayersThread extends Thread
 					ObjectOutputStream outToServer = new ObjectOutputStream(injured_player_socket.getOutputStream());
 					outToServer.writeObject(gotHitPacket);
 				}
-
+				if(packet.isDisconnect()){
+					game.playerDisconnected(packet.getNickName());
+					Main.server.getServerLogs().add(packet.getNickName()+"has just disconnected!");
+					Main.server.getPanel().update();
+					return;
+				}
+					
 
 				//System.out.println(Main.game.toString());
 
