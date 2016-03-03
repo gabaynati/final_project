@@ -15,7 +15,10 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -55,10 +58,15 @@ public class ConnectToServerActivity extends Activity {
 		buttonConnect.setOnClickListener(buttonConnectOnClickListener);
 		buttonJoinAGame.setOnClickListener(buttonJoinAGameOnClickListener);
 
-
+	
 	}
 
-
+	private boolean isNetworkAvailable() {
+	    ConnectivityManager connectivityManager 
+	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
 
 
 
@@ -67,6 +75,13 @@ public class ConnectToServerActivity extends Activity {
 	OnClickListener buttonConnectOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
+			
+			if(!isNetworkAvailable()){
+				textResponse.setText("You dont have internet connection!\n Please connect to Internet");
+				return;
+			}
+			textResponse.setVisibility(View.VISIBLE);
+			textResponse.setText("trying to connect to server please wait...");
 			//String address=editTextAddress.getText().toString();
 			//int port=Integer.parseInt(editTextPort.getText().toString());
 			String addr=MainActivity.serverIP;
@@ -76,12 +91,11 @@ public class ConnectToServerActivity extends Activity {
 			//password=editTextPassword.getText().toString();
 			nickname=MainActivity.player.getNickName();
 			password=MainActivity.player.getPassword();
-
-
+			
 
 
 			isConnectionSucceded=server_com.ConnectToServer(addr, port, nickname, password);
-
+			
 			if(isConnectionSucceded){
 				textResponse.setText("You have successfully connected to server");
 				buttonJoinAGame.setVisibility(View.VISIBLE);
@@ -94,7 +108,7 @@ public class ConnectToServerActivity extends Activity {
 			}
 			else
 			{
-				textResponse.setText("You have faild to connected to server");
+				textResponse.setText("You have faild to connect to server");
 			}
 
 		}};

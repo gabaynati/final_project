@@ -68,4 +68,8 @@ public class GamePacket implements Serializable{
 	public boolean isDisconnect(){
 		return this.packetType==disconnect;
 	}
+	public int getType() {
+		// TODO Auto-generated method stub
+		return this.packetType;
+	}
 }

@@ -87,6 +87,7 @@ public class ListenToPlayersThread extends Thread
 				
 				//performing acts on hit event
 				//else 
+				System.out.println(packet.getType()+"");
 				if(packet.isHit()){
 					String hitter_nickName=packet.getNickName();
 					String injured_nickName=packet.getInjured_nickName();
@@ -98,6 +99,7 @@ public class ListenToPlayersThread extends Thread
 					outToServer.writeObject(gotHitPacket);
 				}
 				if(packet.isDisconnect()){
+					System.out.println("exit");
 					game.playerDisconnected(packet.getNickName());
 					Main.server.getServerLogs().add(packet.getNickName()+"has just disconnected!");
 					Main.server.getPanel().update();

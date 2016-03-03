@@ -10,13 +10,16 @@ import com.example.hs.R.menu;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MainActivity extends Activity {
@@ -32,8 +35,9 @@ public class MainActivity extends Activity {
 	Button buttonConnectToServer;
 	Button buttonRegisterToSystem;
 	Button buttonToGame;
-
-
+	Button buttonLogOut;
+	TextView textResponse;
+	private MediaPlayer mediaPlayer;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,18 +46,49 @@ public class MainActivity extends Activity {
 		buttonConnectToServer = (Button)findViewById(R.id.connectToServer);
 		buttonRegisterToSystem = (Button)findViewById(R.id.registerToSystem);
 		buttonToGame = (Button)findViewById(R.id.toGame);
-
-
+		buttonLogOut=(Button)findViewById(R.id.logOut);
+		textResponse = (TextView)findViewById(R.id.txtResponse);
 
 
 		buttonConnectToServer.setOnClickListener(buttonConnectToServerOnClickListener);
 		buttonRegisterToSystem.setOnClickListener(buttonRegisterToSystemOnClickListener);
 		buttonToGame.setOnClickListener(buttonToGameOnClickListener);
-
+		buttonLogOut.setOnClickListener(buttonLogOutOnClickListener);
+		
+		
+		//playing audio
+		mediaPlayer = MediaPlayer.create(getBaseContext(), R.raw.background_audio);
+		mediaPlayer.start(); 
 	}
 
 
 	//********buttons on clicks***********/
+
+
+	//connect button onClick method
+	OnClickListener buttonLogOutOnClickListener = new OnClickListener(){
+		@Override
+		public void onClick(View arg0) {
+			String result="";
+			//disconnecting from server
+			if(!MainActivity.player.isConnectedToServer()){
+				textResponse.setText("You have not logged in yet");
+				Log.d("DDDDDD:", "NOT CONNECTED");
+				return;
+
+			}
+			Log.d("DDDDDD:", "CONNECTED");
+
+
+			ServerCommunication server_com=new ServerCommunication();
+			result=server_com.disconnectFromServer();
+			textResponse.setText(result);
+
+		}
+	};
+
+
+
 	//connect button onClick method
 	OnClickListener buttonConnectToServerOnClickListener = new OnClickListener(){
 		@Override
@@ -114,10 +149,30 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
+
+
+	}
+	@Override
+	protected void onPause(){
+		super.onPause();
+		mediaPlayer.pause();
+/*
 		//disconnecting from server
-		if(player.isConnectedToServer){
+		if(player.isConnectedToServer()){
 			ServerCommunication server_com=new ServerCommunication();
-			server_com.disconnectFromServer(this.player.getNickName(),this.player.getPassword());
-		}
+			server_com.disconnectFromServer(MainActivity.player.getNickName(),MainActivity.player.getPassword());
+	
+	}*/
+	}
+	protected void onResume(){
+		super.onPause();
+		mediaPlayer.start();
+/*
+		//disconnecting from server
+		if(player.isConnectedToServer()){
+			ServerCommunication server_com=new ServerCommunication();
+			server_com.disconnectFromServer(MainActivity.player.getNickName(),MainActivity.player.getPassword());
+	
+	}*/
 	}
 }

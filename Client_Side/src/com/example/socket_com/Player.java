@@ -21,7 +21,7 @@ public class Player {
 	private int ammunition;
 	private String nickName;
 	private String password;
-	public boolean isConnectedToServer=false;
+	private boolean isConnectedToServer=false;
 
 	public Player(Weapon[] weaponsList){
 
