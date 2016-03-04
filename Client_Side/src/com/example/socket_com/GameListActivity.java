@@ -8,7 +8,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 
 
-public class GameList extends Activity{
+public class GameListActivity extends Activity{
 	
 	
 	

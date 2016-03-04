@@ -11,13 +11,14 @@
         android:layout_gravity="center_horizontal"
         android:autoLink="web"
         android:text="Menu"
+        android:textColor="@color/material_grey_100"
         android:textStyle="bold" />
 
     <Button
         android:id="@+id/connectToServer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Connect to Server" />
+        android:text="Log in" />
 
     <Button
         android:id="@+id/registerToSystem"
@@ -30,14 +31,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="to Game" />
-        <Button
+
+    <Button
+        android:id="@+id/joinAGame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Join A Game"
+        android:visibility="gone" />
+
+    <Button
         android:id="@+id/logOut"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="log Out" />
-         <TextView
+        android:text="log Out"
+        android:visibility="gone" />
+     <Button
+        android:id="@+id/exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="exit"
+         />
+
+    <TextView
         android:id="@+id/txtResponse"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/material_grey_100" />
+    
 
 </LinearLayout>

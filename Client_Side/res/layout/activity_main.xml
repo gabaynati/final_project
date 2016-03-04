@@ -7,15 +7,17 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity" 
+    android:background="@drawable/logo">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:autoLink="web"
-        android:text="Connect to Server"
-        android:textStyle="bold" />
+        android:text="Log in"
+        android:textStyle="bold"
+         android:textColor="@color/material_grey_100" />
 
     <EditText
         android:id="@+id/address"
@@ -48,15 +50,13 @@
         android:layout_height="wrap_content"
         android:text="Connect..." />
 
-    <Button
-        android:id="@+id/joinAGame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Join A Game" />
+   
 
     <TextView
         android:id="@+id/response"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content" 
+        android:textColor="@color/material_grey_100"
+        />
 
 </LinearLayout>

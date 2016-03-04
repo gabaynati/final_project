@@ -144,7 +144,7 @@ public class ServerCommunication {
 	public class MyClientTask_Disconnect extends AsyncTask<Void, Void, String> {
 
 
-		String response = "success",nickname,password;
+		String response = "You have logged out",nickname,password;
 		GamePacket packet;
 
 

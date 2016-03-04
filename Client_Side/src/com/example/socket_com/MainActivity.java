@@ -6,7 +6,7 @@ import com.example.hs.R;
 import com.example.hs.R.id;
 import com.example.hs.R.layout;
 import com.example.hs.R.menu;
-
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
@@ -35,8 +35,10 @@ public class MainActivity extends Activity {
 	Button buttonConnectToServer;
 	Button buttonRegisterToSystem;
 	Button buttonToGame;
+	Button buttonJoinAGame;
 	Button buttonLogOut;
-	TextView textResponse;
+	Button buttonExit;
+	TextView txtResponse;
 	private MediaPlayer mediaPlayer;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,16 +48,19 @@ public class MainActivity extends Activity {
 		buttonConnectToServer = (Button)findViewById(R.id.connectToServer);
 		buttonRegisterToSystem = (Button)findViewById(R.id.registerToSystem);
 		buttonToGame = (Button)findViewById(R.id.toGame);
+		buttonJoinAGame = (Button)findViewById(R.id.joinAGame);
 		buttonLogOut=(Button)findViewById(R.id.logOut);
-		textResponse = (TextView)findViewById(R.id.txtResponse);
+		buttonExit=(Button)findViewById(R.id.exit);
+		txtResponse = (TextView)findViewById(R.id.txtResponse);
 
 
 		buttonConnectToServer.setOnClickListener(buttonConnectToServerOnClickListener);
 		buttonRegisterToSystem.setOnClickListener(buttonRegisterToSystemOnClickListener);
 		buttonToGame.setOnClickListener(buttonToGameOnClickListener);
+		buttonJoinAGame.setOnClickListener(buttonJoinAGameOnClickListener);
 		buttonLogOut.setOnClickListener(buttonLogOutOnClickListener);
-		
-		
+		buttonExit.setOnClickListener(buttonExitOnClickListener);
+
 		//playing audio
 		mediaPlayer = MediaPlayer.create(getBaseContext(), R.raw.background_audio);
 		mediaPlayer.start(); 
@@ -65,29 +70,52 @@ public class MainActivity extends Activity {
 	//********buttons on clicks***********/
 
 
-	//connect button onClick method
+	//disconnect button onClick method
 	OnClickListener buttonLogOutOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
 			String result="";
 			//disconnecting from server
 			if(!MainActivity.player.isConnectedToServer()){
-				textResponse.setText("You have not logged in yet");
-				Log.d("DDDDDD:", "NOT CONNECTED");
+				txtResponse.setText("You have not logged in yet");
+				//Log.d("DDDDDD:", "NOT CONNECTED");
 				return;
 
 			}
-			Log.d("DDDDDD:", "CONNECTED");
+			//Log.d("DDDDDD:", "CONNECTED");
 
 
 			ServerCommunication server_com=new ServerCommunication();
 			result=server_com.disconnectFromServer();
-			textResponse.setText(result);
-
+			txtResponse.setText(result);
+			buttonJoinAGame.setVisibility(View.GONE);
+			buttonLogOut.setVisibility(View.GONE);
+			buttonConnectToServer.setVisibility(View.VISIBLE);
+			buttonRegisterToSystem.setVisibility(View.VISIBLE);
+			MainActivity.player.setConnectedToServer(false);
 		}
 	};
 
-
+	//exit button onClick method
+	OnClickListener buttonExitOnClickListener = new OnClickListener(){
+		@SuppressLint("NewApi")
+		@Override
+		public void onClick(View arg0) {
+			buttonLogOut.callOnClick();
+			finish();
+			System.exit(0);
+		}
+	};
+	
+	
+	//join a game button onClick method
+	OnClickListener buttonJoinAGameOnClickListener = new OnClickListener(){
+		@Override
+		public void onClick(View arg0) {
+			Intent connectToServer = new Intent("com.example.socket_com.GAMELISTACTIVITY");
+			startActivity(connectToServer);
+		}
+	};
 
 	//connect button onClick method
 	OnClickListener buttonConnectToServerOnClickListener = new OnClickListener(){
@@ -103,7 +131,7 @@ public class MainActivity extends Activity {
 	OnClickListener buttonRegisterToSystemOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
-			//moving to tegister to server
+			//moving to register to server
 			Intent RegistertoServer = new Intent("com.example.socket_com.REGISTERACTIVITY");
 			startActivity(RegistertoServer);
 
@@ -156,23 +184,18 @@ public class MainActivity extends Activity {
 	protected void onPause(){
 		super.onPause();
 		mediaPlayer.pause();
-/*
-		//disconnecting from server
-		if(player.isConnectedToServer()){
-			ServerCommunication server_com=new ServerCommunication();
-			server_com.disconnectFromServer(MainActivity.player.getNickName(),MainActivity.player.getPassword());
-	
-	}*/
+
 	}
 	protected void onResume(){
 		super.onPause();
 		mediaPlayer.start();
-/*
-		//disconnecting from server
-		if(player.isConnectedToServer()){
-			ServerCommunication server_com=new ServerCommunication();
-			server_com.disconnectFromServer(MainActivity.player.getNickName(),MainActivity.player.getPassword());
-	
-	}*/
+		if(MainActivity.player.isConnectedToServer()){
+			txtResponse.setText("Logged in as: "+MainActivity.player.getNickName());
+			buttonJoinAGame.setVisibility(View.VISIBLE);
+			buttonLogOut.setVisibility(View.VISIBLE);
+			buttonConnectToServer.setVisibility(View.GONE);
+			buttonRegisterToSystem.setVisibility(View.GONE);
+		}
+
 	}
 }

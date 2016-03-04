@@ -32,11 +32,12 @@ public class ConnectToServerActivity extends Activity {
 
 	TextView textResponse;
 	EditText editTextAddress, editTextPort,editTextNickName,editTextPassword; 
-	Button buttonConnect,buttonJoinAGame;
+	Button buttonConnect;
 	String nickname;
 	String password;
 	ServerCommunication server_com;
 	boolean isConnectionSucceded;
+	String buffer="";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,14 +50,12 @@ public class ConnectToServerActivity extends Activity {
 		editTextAddress = (EditText)findViewById(R.id.address);
 		editTextPort = (EditText)findViewById(R.id.port);
 		buttonConnect = (Button)findViewById(R.id.connect);
-		buttonJoinAGame=(Button)findViewById(R.id.joinAGame);
-		buttonJoinAGame.setVisibility(View.INVISIBLE);
+		
 		textResponse = (TextView)findViewById(R.id.response);
 		editTextNickName=(EditText)findViewById(R.id.nickname);
 		editTextPassword=(EditText)findViewById(R.id.password);
 
 		buttonConnect.setOnClickListener(buttonConnectOnClickListener);
-		buttonJoinAGame.setOnClickListener(buttonJoinAGameOnClickListener);
 
 	
 	}
@@ -77,11 +76,14 @@ public class ConnectToServerActivity extends Activity {
 		public void onClick(View arg0) {
 			
 			if(!isNetworkAvailable()){
-				textResponse.setText("You dont have internet connection!\n Please connect to Internet");
+				buffer="You dont have internet connection!\n Please connect to Internet";
+				textResponse.setText(buffer);
 				return;
 			}
-			textResponse.setVisibility(View.VISIBLE);
-			textResponse.setText("trying to connect to server please wait...");
+
+			
+			buffer="trying to connect to server please wait...";
+			textResponse.setText(buffer);
 			//String address=editTextAddress.getText().toString();
 			//int port=Integer.parseInt(editTextPort.getText().toString());
 			String addr=MainActivity.serverIP;
@@ -97,41 +99,31 @@ public class ConnectToServerActivity extends Activity {
 			isConnectionSucceded=server_com.ConnectToServer(addr, port, nickname, password);
 			
 			if(isConnectionSucceded){
-				textResponse.setText("You have successfully connected to server");
-				buttonJoinAGame.setVisibility(View.VISIBLE);
+				buffer="You have successfully connected to server";
+				textResponse.setText(buffer);
 				buttonConnect.setVisibility(View.GONE);
 				editTextPassword.setVisibility(View.GONE);
 				editTextNickName.setVisibility(View.GONE);
 				editTextPort.setVisibility(View.GONE);
 				editTextAddress.setVisibility(View.GONE);
 				MainActivity.player.setConnectedToServer(true);
+				finish();
 			}
 			else
 			{
-				textResponse.setText("You have faild to connect to server");
+				buffer="You have faild to connect to server";
+				textResponse.setText(buffer);
 			}
 
 		}};
 
 
 
-
-		//join a game button onClick method
-		OnClickListener buttonJoinAGameOnClickListener = new OnClickListener(){
-			@Override
-			public void onClick(View arg0) {
-				//moving to Game List activity
-				Intent gameList = new Intent("com.example.socket_com.GAMELIST");
-				startActivity(gameList);
-
-
-			}};
+	
 
 
 
-
-
-
+			
 
 
 
