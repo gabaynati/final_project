@@ -74,8 +74,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	//****server communication configuration*********///
 	private ServerCommunication serverCom;
-	private MyClientTask_ListenToPakcets serverListener;
-	private MyClientTask_SendPakcet serverDataSender;
 	//**************************************************//
 
 
@@ -120,14 +118,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mOpenCvCameraView.setOnTouchListener(this);
 		//***************************************///
 
-//
-//		/************Server Communication*************************/
-//				serverCom=new ServerCommunication();
-//				serverListener=serverCom.getServerListener();
-//				serverDataSender=serverCom.getServerDataSender();
-//				//initiate server listener
-//				serverListener.execute();
-//		/*************************************/
+
+		/************Server Communication*************************/
+				serverCom=new ServerCommunication();
+				//initiate server listener
+				serverCom.setServerListener();	
+				
+		/*************************************/
 
 		touched = false;
 
@@ -454,12 +451,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-//										GamePacket packet=new GamePacket(player.getNickName(), player.getPassword(),ServerCommunication.hit,MainActivity.enemy,"game 1",hitArea);
-//										serverDataSender.setPacket(packet);
-//										if(serverDataSender.getStatus()==Status.RUNNING)
-//											serverDataSender.doInBackground();
-//										else
-//											serverDataSender.execute();
+					serverCom.sentHitToServer(MainActivity.enemy, hitArea);
 					//**********************************/
 
 

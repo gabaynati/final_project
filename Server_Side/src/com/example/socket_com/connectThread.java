@@ -64,28 +64,24 @@ public class connectThread extends Thread
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				Game game=server.getGameByName(packet.getGameName());
 				//adding new player
 				if(packet.isConnect()){
-					if(!game.isConnected(packet.getNickName())){
+					if(!server.isPlayerConnected(packet.getNickName())){
 						//printing the client IP address
 						server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
-						//adding to game
-						game.addPlayer(new Player(socket,packet.getNickName()));
+						//adding to server
+						server.addPlayer(new Player(socket,packet.getNickName()));
 						server.getServerLogs().add(packet.getNickName()+"has just connected!");
 						server.getPanel().update();
 					}
 					//serverLogs.add(packet.getPassword());
 				}
-				else if(packet.isHit()){
-					game.Hit(packet.getNickName(), packet.getInjured_nickName());
-				}
-
+			
 
 				try
 				{
 					//if(!game.isConnected(packet.getNickName())){
-					Thread t = new ListenToPlayersThread(socket,game);
+					Thread t = new ListenToPlayersThread(socket,server);
 					t.start();
 					//}
 

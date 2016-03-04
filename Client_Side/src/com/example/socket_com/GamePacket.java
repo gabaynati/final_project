@@ -10,7 +10,7 @@ public class GamePacket implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
+	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4,joinGame=5;
 	private String nickName,password,injured_nickName;
 	private int packetType;
 	private Vector<String> gamesList;
@@ -24,6 +24,7 @@ public class GamePacket implements Serializable{
 		this.password=password;
 		this.gameName=gameName;
 		this.hitArea=hitArea;
+		
 	}
 	public int getHitArea(){
 		return this.hitArea;
@@ -67,6 +68,9 @@ public class GamePacket implements Serializable{
 	}
 	public boolean isDisconnect(){
 		return this.packetType==disconnect;
+	}
+	public boolean isJoinAGame(){
+		return this.packetType==joinGame;
 	}
 	public int getType() {
 		// TODO Auto-generated method stub

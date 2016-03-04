@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 
 @SuppressWarnings("serial")
-public class ServerInterface extends JPanel {
+public class ServerInterface extends JPanel implements Runnable {
 	private imgPanel logo;
 	private JLabel team1Icon,team2Icon,serverMessages;
 
@@ -32,16 +32,12 @@ public class ServerInterface extends JPanel {
 	private JTable team2Players;
 	private JTable gameList;
 	private Image img;
+	private Game currentGame;
 	Server server;
 	public ServerInterface(Server server){
 
-		//		team1Label=new JLabel("Team1 players");
-		//		team2Label=new JLabel("Team2 players");
-		//		team1Label.setFont (new Font("", Font.BOLD,30));
-		//		serverMessages.setFont (new Font("Courier", Font.BOLD,30));
-		//		serverMessages.setForeground(Color.RED);
-		//		team2Label.setForeground(Color.BLACK);
 		this.server=server;
+		currentGame=server.getGameByName("game 1");
 		team1Icon=new JLabel(new ImageIcon("Images/team1.jpg"));
 		team2Icon=new JLabel(new ImageIcon("Images/team2.jpg"));
 		team1Icon.setForeground(Color.LIGHT_GRAY);
@@ -53,8 +49,37 @@ public class ServerInterface extends JPanel {
 		serverMessages.setFont (new Font("Courier", Font.BOLD,10));
 		serverMessages.setForeground(Color.DARK_GRAY);
 		update();
-
 		repaint();
+		
+		
+	
+		/*
+		team1Players.addMouseListener(new java.awt.event.MouseAdapter() {
+		    @Override
+		    public void mouseClicked(java.awt.event.MouseEvent evt) {
+		        int row = gameList.rowAtPoint(evt.getPoint());
+		        int col = gameList.columnAtPoint(evt.getPoint());
+		        if (row >= 0 && col >= 0) {
+		            
+
+		        }
+		    }
+		});
+		team2Players.addMouseListener(new java.awt.event.MouseAdapter() {
+		    @Override
+		    public void mouseClicked(java.awt.event.MouseEvent evt) {
+		        int row = gameList.rowAtPoint(evt.getPoint());
+		        int col = gameList.columnAtPoint(evt.getPoint());
+		        if (row >= 0 && col >= 0) {
+		            
+
+		        }
+		    }
+		});
+		*/
+		
+		
+		//(new Thread(this)).start();
 	}
 
 	public void paintComponent(Graphics g) {
@@ -63,6 +88,7 @@ public class ServerInterface extends JPanel {
 
 	}
 
+	
 	public JTable getActivePlayers(Game game,int team_index){
 		JTable tab = null;
 		Vector<String> columnNames = new Vector<String>();
@@ -139,11 +165,6 @@ public class ServerInterface extends JPanel {
 
 	public void update(){
 		this.removeAll();
-
-
-
-
-
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		JPanel p1=new JPanel();
@@ -159,6 +180,21 @@ public class ServerInterface extends JPanel {
 
 		//adding the gameList
 		gameList=getActiveGames(server);
+		//adding mouse listerner to the tables
+		gameList.addMouseListener(new java.awt.event.MouseAdapter() {
+		    @Override
+		    public void mouseClicked(java.awt.event.MouseEvent evt) {
+		        int row = gameList.rowAtPoint(evt.getPoint());
+		        int col = gameList.columnAtPoint(evt.getPoint());
+		        if (row >= 1 && col >= 0 ) {
+		            String gameName=(String) gameList.getValueAt(row, col);
+		            currentGame=server.getGameByName(gameName);
+		           // System.out.println("kjhbjhbj");
+		           // System.out.println(currentGame.getGameName());
+		            update();
+		        }
+		    }
+		});
 		c.gridx=0;
 		c.gridy=0;
 		p4.add(gameList);
@@ -178,8 +214,8 @@ public class ServerInterface extends JPanel {
 
 		//adding the teams
 
-		team1Players=getActivePlayers(server.getGames().elementAt(0), 1);
-		team2Players=getActivePlayers(server.getGames().elementAt(0), 2);
+		team1Players=getActivePlayers(currentGame, 1);
+		team2Players=getActivePlayers(currentGame, 2);
 
 		//team1
 		c.gridx=0;
@@ -212,6 +248,21 @@ public class ServerInterface extends JPanel {
 		//this.add(logo);
 		repaint();
 		revalidate();
+	}
+
+	@Override
+	public void run() {
+		while(true){
+			update();
+			
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 }

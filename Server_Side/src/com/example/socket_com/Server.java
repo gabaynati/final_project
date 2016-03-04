@@ -2,6 +2,7 @@ package com.example.socket_com;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.Socket;
 import java.net.URL;
 import java.util.Vector;
 
@@ -9,25 +10,79 @@ public class Server {
 	private Vector<Game> games;
 	private ServerInterface panel;
 	private  Vector<String> serverLogs;
+	private Vector<Player> players;
 	private int serverPort;
 	public Server(int serverPort){
+		this.players=new Vector<Player>();
 		this.games=new Vector<Game>();
 		this.serverLogs=new Vector<String>();
 		displayServerInformation(serverPort);
 		this.serverPort=serverPort;
 		addGame(new Game("game 1"));
+		addGame(new Game("game 2"));
+		addGame(new Game("game 3"));
 		this.panel=new ServerInterface(this);
 	}
-	public void addGame(Game game){
-		this.games.add(game);
+	public boolean addPlayer(Player player){
+		for (int i=0;i<players.size();i++)
+			if(player.getNickName().equals(players.elementAt(i).getNickName()))
+				return false;
+		players.add(player);
+		return true;
+
 	}
-	
+	public boolean isPlayerConnected(String player){
+		for (int i=0;i<players.size();i++)
+			if(player.equals(players.elementAt(i).getNickName()))
+				return true;
+		return false;
+
+	}
+	public boolean addGame(Game game){
+		for(int i=0;i<games.size();i++)
+			if(games.elementAt(i).getGameName().equals(game.getGameName()))
+				return false;
+
+		this.games.add(game);
+		return true;
+	}
+	public void playerDisconnected(Player player){
+		for (int i=0;i<players.size();i++)
+			if(player.getNickName().equals(players.elementAt(i).getNickName())){
+				String gameName=player.getGame();
+				getGameByName(gameName).playerDisconnected(player.getNickName());
+				players.removeElementAt(i);
+			}
+
+
+	}
 	public int getServerPort(){
 		return this.serverPort;
 	}
 	//getters
 	public Vector<Game> getGames() {
 		return games;
+	}
+	public void addPlayerToGame(Player player,String gameName){
+		if(isPlayerJoinedAGame(player))
+			return;
+		Game game=getGameByName(gameName);
+		if(game!=null)
+			game.addPlayer(player);
+	}
+	public boolean isPlayerJoinedAGame(Player player){
+		for(int i=0;i<games.size();i++)
+			if(games.elementAt(i).getPlayerByNickName(player.getNickName())!=null)
+				return true;
+		return false;
+
+	}
+	public Vector<String> getGamesIDs(){
+		Vector<String> gamesIDs=new Vector<String>();
+		for(int i=0;i<games.size();i++)
+			gamesIDs.add(games.elementAt(i).getGameName());
+		return gamesIDs;
+
 	}
 	public Game getGameByName(String gameName){
 		for(int i=0;i<games.size();i++){
@@ -47,13 +102,13 @@ public class Server {
 		this.serverLogs.addElement(str);
 		this.panel.update();
 	}
-	
-	
+
+
 	public void displayServerInformation(int port){
 		serverLogs.add("Server started!");
 		//serverLogs.add("server startedgffffffffffffffggfgfffffffffffffffffffffff");
 
-		
+
 		//getting the public ip of the server
 		URL whatismyip;
 		try {
@@ -70,5 +125,17 @@ public class Server {
 		}
 
 	}
-	
+	public Socket getPlayerSocketByNickName(String nickName) {
+		for (int i=0;i<players.size();i++)
+			if(nickName.equals(players.elementAt(i).getNickName()))
+				return players.elementAt(i).getSocket();
+		return null;
+	}
+	public Player getPlayerBySocket(Socket player_socket) {
+		for (int i=0;i<players.size();i++)
+			if(player_socket.equals(players.elementAt(i).getSocket()))
+				return players.elementAt(i);
+		return null;
+	}
+
 }

@@ -9,21 +9,22 @@ import java.io.*;
 public class ListenToPlayersThread extends Thread
 {
 	private Socket player_socket;
+	private Server server;
 	private Game game;
 
-	public  ListenToPlayersThread(Socket player_socket,Game game) throws IOException
+	public  ListenToPlayersThread(Socket player_socket,Server server) throws IOException
 	{
 		this.player_socket=player_socket;
-		this.game=game;
+		this.server=server;
 	}
 
 	public void run()
 	{
+		Player res=null;
 		while(true)
 		{
-			try
-			{
-				/*
+
+			/*
 				//getting the public ip of the server
 				URL whatismyip = new URL("http://checkip.amazonaws.com");
 				BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -57,24 +58,19 @@ public class ListenToPlayersThread extends Thread
 				//writing hello to client
 				DataOutputStream out = new DataOutputStream(server.getOutputStream());
 				out.writeUTF("You are connected to the server: "+ ip);
-				 */
+			 */
 
 
 
-
+			try
+			{
 				GamePacket packet = null;
 
-
+				res=server.getPlayerBySocket(player_socket);
 				//reading "packet" object from client
 				ObjectInputStream inFromClient = new ObjectInputStream(player_socket.getInputStream());
-				try {
+				packet=(GamePacket) inFromClient.readObject();
 
-					packet=(GamePacket) inFromClient.readObject();
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
 				//adding new player
 				//if(packet.isConnect()){
@@ -83,11 +79,8 @@ public class ListenToPlayersThread extends Thread
 				//System.out.println(packet.getNickName()+"has just connected to the server");
 				//System.out.println(packet.getPassword());
 				//}
-				
-				
-				//performing acts on hit event
-				//else 
-				System.out.println(packet.getType()+"");
+				game=server.getGameByName(packet.getGameName());
+				//performing acts on hit event 
 				if(packet.isHit()){
 					String hitter_nickName=packet.getNickName();
 					String injured_nickName=packet.getInjured_nickName();
@@ -101,48 +94,53 @@ public class ListenToPlayersThread extends Thread
 				if(packet.isDisconnect()){
 					System.out.println("exit");
 					game.playerDisconnected(packet.getNickName());
-					Main.server.getServerLogs().add(packet.getNickName()+"has just disconnected!");
+					Main.server.getServerLogs().add(packet.getNickName()+" has just disconnected!");
 					Main.server.getPanel().update();
 					return;
 				}
-					
-
-				//System.out.println(Main.game.toString());
-
-				/*
-				/////////////////////////
-				String response="";
-				//reading hello
-				ByteArrayOutputStream byteArrayOutputStream = 
-						new ByteArrayOutputStream(1024);
-				byte[] buffer = new byte[1024];
-
-				int bytesRead;
-				InputStream inputStream = server.getInputStream();
-
-//				
-//				  notice:
-//				  inputStream.read() will block if no data return
-//				 
-				while ((bytesRead = inputStream.read(buffer)) != -1){
-					byteArrayOutputStream.write(buffer, 0, bytesRead);
-					response += byteArrayOutputStream.toString("UTF-8");
+				if(packet.isGetGamesList()){
+					Socket player=server.getPlayerSocketByNickName(packet.getNickName());
+					GamePacket gamesList=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
+					gamesList.setGamesList(Main.server.getGamesIDs());
+					System.out.println(Main.server.getGamesIDs().firstElement()+"fffff");
+					ObjectOutputStream outToServer = new ObjectOutputStream(player.getOutputStream());
+					outToServer.writeObject(gamesList);
 				}
-				System.out.println(response);
-				//////////////////////////////
+				if(packet.isJoinAGame()){
+					//System.out.println(packet.getGameName());
+					Socket player_socket=server.getPlayerSocketByNickName(packet.getNickName());
+					Player player=new Player(player_socket, packet.getNickName());
+					player.setGame(packet.getGameName());
+					server.addPlayerToGame(player, packet.getGameName());
 
-				 */
+					//System.out.println(server.getGameByName(packet.getGameName()).getPlayersSockets().firstElement().toString());
+				}
 
-				//server.close();
+
+
 			}catch(SocketTimeoutException s)
 			{
 				System.out.println("Socket timed out!");
-				break;
-			}catch(IOException e)
-			{
-				e.printStackTrace();
-				break;
+				return;
+			}catch (java.io.EOFException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+				server.playerDisconnected(res);
+				Main.server.getServerLogs().add(res.getNickName()+" has just disconnected!");
+				Main.server.getPanel().update();
+				return;
 			}
+			catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+	
+			
+			
 		}
 	}
 

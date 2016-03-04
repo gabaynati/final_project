@@ -10,6 +10,7 @@ public class Player {
 	@SuppressWarnings("unused")
 	private int ammunition;
 	private int team;
+	private String currentGame=null;
 	public Player(Socket socket,String nickName){
 		this.socket=socket;
 		life=100;
@@ -24,7 +25,12 @@ public class Player {
 //	}
 //	
 	
-	
+	public String getGame(){
+		return this.currentGame;
+	}
+	public void setGame(String gameName){
+		this.currentGame=gameName;
+	}
 	public String toString(){
 		String str="";
 		str+="address: "+this.socket.toString() +"\n"

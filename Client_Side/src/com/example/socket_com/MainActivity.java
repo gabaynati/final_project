@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
 	public static int serverPort=9000;
 	public static Player player=new Player("gili","1234");
 	public static String enemy="nati";
+	public static String currentGame="";
 	//*************************************************/
 
 	Button buttonConnectToServer;
@@ -112,7 +113,7 @@ public class MainActivity extends Activity {
 	OnClickListener buttonJoinAGameOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
-			Intent connectToServer = new Intent("com.example.socket_com.GAMELISTACTIVITY");
+			Intent connectToServer = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
 			startActivity(connectToServer);
 		}
 	};
