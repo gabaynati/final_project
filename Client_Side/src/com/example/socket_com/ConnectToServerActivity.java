@@ -24,6 +24,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 
@@ -31,7 +32,7 @@ import android.widget.TextView;
 public class ConnectToServerActivity extends Activity {
 
 	TextView textResponse;
-	EditText editTextAddress, editTextPort,editTextNickName,editTextPassword; 
+	EditText editTextNickName,editTextPassword; 
 	Button buttonConnect;
 	String nickname;
 	String password;
@@ -45,26 +46,23 @@ public class ConnectToServerActivity extends Activity {
 
 
 
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.connect_layout);
 		server_com=new ServerCommunication();
-		editTextAddress = (EditText)findViewById(R.id.address);
-		editTextPort = (EditText)findViewById(R.id.port);
 		buttonConnect = (Button)findViewById(R.id.connect);
-		
 		textResponse = (TextView)findViewById(R.id.response);
 		editTextNickName=(EditText)findViewById(R.id.nickname);
 		editTextPassword=(EditText)findViewById(R.id.password);
 
 		buttonConnect.setOnClickListener(buttonConnectOnClickListener);
 
-	
+
 	}
 
 	private boolean isNetworkAvailable() {
-	    ConnectivityManager connectivityManager 
-	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+		ConnectivityManager connectivityManager 
+		= (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 
 
@@ -74,56 +72,68 @@ public class ConnectToServerActivity extends Activity {
 	OnClickListener buttonConnectOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
-			
+			//checking for Internet connection
 			if(!isNetworkAvailable()){
 				buffer="You dont have internet connection!\n Please connect to Internet";
 				textResponse.setText(buffer);
 				return;
 			}
 
-			
-			buffer="trying to connect to server please wait...";
-			textResponse.setText(buffer);
-			//String address=editTextAddress.getText().toString();
-			//int port=Integer.parseInt(editTextPort.getText().toString());
+
+
 			String addr=MainActivity.serverIP;
-			//MainActivity.serverPort=Integer.parseInt(editTextPort.getText().toString());
 			int port=MainActivity.serverPort;
 			//nickname=editTextNickName.getText().toString();
 			//password=editTextPassword.getText().toString();
 			nickname=MainActivity.player.getNickName();
 			password=MainActivity.player.getPassword();
-			
 
 
-			isConnectionSucceded=server_com.ConnectToServer(addr, port, nickname, password);
-			
-			if(isConnectionSucceded){
-				buffer="You have successfully connected to server";
-				textResponse.setText(buffer);
-				buttonConnect.setVisibility(View.GONE);
-				editTextPassword.setVisibility(View.GONE);
-				editTextNickName.setVisibility(View.GONE);
-				editTextPort.setVisibility(View.GONE);
-				editTextAddress.setVisibility(View.GONE);
-				MainActivity.player.setConnectedToServer(true);
-				finish();
+
+			/*
+			//checking if the user name exists in DB
+			String isExists=GameDB.isExists(nickname,password);
+			if(!isExists.equals("exists")){
+				textResponse.setText("User name not registered!");
+				return;
+
 			}
-			else
-			{
-				buffer="You have faild to connect to server";
-				textResponse.setText(buffer);
+			 */
+
+			try{
+				String res="";
+				server_com=new ServerCommunication();
+				res=server_com.ConnectToServer(addr, port, nickname, password);
+
+				if(res.equals("true")){
+					buffer="You have successfully connected to server";
+					textResponse.setText(buffer);
+					buttonConnect.setVisibility(View.GONE);
+					editTextPassword.setVisibility(View.GONE);
+					editTextNickName.setVisibility(View.GONE);
+					MainActivity.player.setConnectedToServer(true);
+					finish();
+				}
+				else{
+					buffer="You have faild to connect to server";
+					textResponse.setText(buffer);
+				}
+			}catch(NullPointerException e){
+				Toast.makeText(getBaseContext(), "err", Toast.LENGTH_LONG).show();
+
 			}
+
+
 
 		}};
 
 
 
-	
 
 
 
-			
+
+
 
 
 

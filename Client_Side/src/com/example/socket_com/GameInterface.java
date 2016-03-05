@@ -74,6 +74,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	//****server communication configuration*********///
 	private ServerCommunication serverCom;
+	private AsyncTask<Void, Void, String> listener;
 	//**************************************************//
 
 
@@ -159,12 +160,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
 
-		/************Server Communication*************************/
-				serverCom=new ServerCommunication();
-				//initiate server listener
-				serverCom.setServerListener();	
-				
-		/*************************************/
+		/**Server Communication**********/
+		serverCom=new ServerCommunication();
+		/********************************/
 	}
 
 
@@ -237,13 +235,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					uBodyCascadeFile = CascadeFile;
 					uBodyDetector = JavaDetector;
 				}
-/*
+				/*
 				else if(xmlRes.equals(lowerBody_xml_res)){
 					lBodyCascadeFile = CascadeFile;
 					lBodyDetector = JavaDetector;
 				}
 
-*/
+				 */
 			} catch (IOException e) {
 				e.printStackTrace();
 				Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
@@ -255,11 +253,20 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	//the activity must connect to the opencv service at the onResume callback.
 	//onResume is called right after it is started but before it is available to the user.
+	@Override
 	public void onResume(){
 		super.onResume();
 		//the following call binds the activity with the opencv service.
 		//the third argument is a listener object that keeps track to the binding process.
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,this , mLoaderCallback);
+	
+		/************Server Communication*************************/
+		//initiate server listener
+		listener= serverCom.setServerListener();	
+
+		/*************************************/
+
+
 	}
 
 	//we are overriding the onDestroy callback of the activity ,because we want to disable the camera when the activity is destroyed.
@@ -268,8 +275,27 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		super.onDestroy();
 		if (mOpenCvCameraView!=null)
 			mOpenCvCameraView.disableView();
-	}
+		
+		/************Server Communication*************************/
+		//stopping the server listener
+		listener.cancel(true);
+		/*************************************/
 
+
+	}
+	@Override
+	public void onPause(){
+		super.onPause();
+		if (mOpenCvCameraView!=null)
+			mOpenCvCameraView.disableView();
+		
+		/************Server Communication*************************/
+		//stopping the server listener
+		listener.cancel(true);
+		/*************************************/
+
+
+	}
 	//##################CvCameraViewListener2 methods########################
 
 	@Override
@@ -307,7 +333,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					mAbsoluteDetectorSize_face = Math.round(height * mRelativeDetectorSize_face);
 				}
 			}
-			
+
 			if (mAbsoluteDetectorSize_upperBody == 0) {
 				int height = mGray.rows();
 				if (Math.round(height * mRelativeDetectorSize_upperBody) > 0) {
@@ -320,13 +346,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			MatOfRect upperBodies = new MatOfRect();
 			//MatOfRect lowerBodies = new MatOfRect();
 
-			
+
 			//running face detecting on the frame:
 			if (faceDetector != null)
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the faces (if any).
 				faceDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-					new Size(mAbsoluteDetectorSize_face, mAbsoluteDetectorSize_upperBody), new Size());
+						new Size(mAbsoluteDetectorSize_face, mAbsoluteDetectorSize_upperBody), new Size());
 
 			//running upper body detecting on the frame:
 			if (uBodyDetector != null)
@@ -335,7 +361,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				uBodyDetector.detectMultiScale(mGray, upperBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 						new Size(mAbsoluteDetectorSize_upperBody, mAbsoluteDetectorSize_upperBody), new Size());
 
-/*
+			/*
 			//running lower body detecting on the frame:
 			if (lBodyDetector != null)
 				//this function takes in a gray scale image and returns rectangles
@@ -343,7 +369,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				lBodyDetector.detectMultiScale(mGray, lowerBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 						new Size(mAbsoluteDetectorSize_upperBody, mAbsoluteDetectorSize_upperBody), new Size());
 
-*/
+			 */
 
 			//drawing rectangles around each face in the frame.
 			facesArray = faces.toArray();
@@ -356,12 +382,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			for (int i = 0; i < upperBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
 
-/*
+			/*
 			//drawing rectangles around each lower body in the frame.
 			lowerBodyArray = upperBodies.toArray();
 			for (int i = 0; i < lowerBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
-*/
+			 */
 			touched = false;
 		}
 		return mRgba;
@@ -388,7 +414,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			for (int i = 0; i < upperBodyArray.length; i++)
 				upperBodyArrayWhileShoot[i] = new Rect(upperBodyArray[i].tl(), upperBodyArray[i].br());
 		}
-/*
+		/*
 		//for all lower bodies, only if there is any upper bodies in the current camera frame
 		if(lowerBodyArray != null){
 			lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
@@ -404,16 +430,16 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		pressed = false;
 		touched = true;
-		
+
 		if(!someAnimationRun){
-	
+
 			switch (event.getAction()){
 			case MotionEvent.ACTION_DOWN: 
 			{
 				pressed = true;
 				break;
 			}
-			
+
 			case MotionEvent.ACTION_UP: 
 			{
 				pressed = false;
@@ -443,9 +469,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				case LOWER_BODY_HIT:
 					hit_area="Lower body";
 					break;
-					
-				
-				
+
+
+
 				}
 				if(hitArea != -1){
 					Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
@@ -778,7 +804,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			return UPPER_BODY_HIT;
 		}
-/*
+		/*
 		if(checkForLowerBody()){
 			facesArrayWhileShoot = null;
 			upperBodyArrayWhileShoot = null;
@@ -786,7 +812,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			return LOWER_BODY_HIT;
 		}
-*/
+		 */
 
 		return -1;
 	}
@@ -810,7 +836,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//check if hit at some upper body in the frame, if yes return true, else return false
 	private boolean checkForUpperBody(){
 
-		
+
 		if(upperBodyArrayWhileShoot != null){
 
 			Point sightPoint = getSightPoint();

@@ -48,78 +48,26 @@ public class registerActivity extends Activity {
 	OnClickListener buttonRegisterOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
-			AlertDialog alertDialog = new AlertDialog.Builder(registerActivity.this).create();
-			alertDialog.setTitle("Alert");
-
-			alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-					new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-				}
-			});
-
-
-
+	
 			String email=editTextEmail.getText().toString();
 			String nickname=editTextNickName.getText().toString();
 			String password=editTextPassword.getText().toString();
+			Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
+
 			if( email.isEmpty()||nickname.isEmpty()||password.isEmpty()){
-				textResponse.setText("You must fill all three fields!");
+				textResponse.setText("You must fill all fields!");
 				return;
 			}
-			registerToDBThread thread=new registerToDBThread(email, nickname, password);
-			thread.execute();
-
+			GameDB gameDB=new GameDB();
+			String res=gameDB.registerToDB(nickname, password, email);
+			textResponse.setText(res);
 		}};
 
 
 
 
 
-		public class registerToDBThread extends AsyncTask<Void, Void, Void> {
-
-			String email;
-			String nickname;
-			String password;
-			String res;
-
-
-
-			public registerToDBThread(String email,String nickname,String password){
-				this.email = email;
-				this.nickname = nickname;
-				this.password=password;
-
-			}
-
-			@Override
-			protected Void doInBackground(Void... arg0) {
-				String dbMessage="";
-				dbMessage=GameDB.addPlayer(nickname, password, email);
-				if(dbMessage.equals("success")){
-					res="Registration has completed successfully!\n You are now redirected to H&S Menu";
-					//going back to menu
-					finish();
-				}
-				else if(dbMessage.equals("exists"))
-					res="User name is already taken\n Please choose another one";
-				else
-					res="there was an error: "+dbMessage;
-
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(Void result) {
-				textResponse.setText(res);
-				super.onPostExecute(result);
-			}
-
-		}
-
-
-
-
+		
 
 
 

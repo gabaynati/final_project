@@ -21,6 +21,18 @@ public class Server {
 		addGame(new Game("game 1"));
 		addGame(new Game("game 2"));
 		addGame(new Game("game 3"));
+		addGame(new Game("game 4"));
+		addGame(new Game("game 5"));
+		addGame(new Game("game 6"));
+		addGame(new Game("game 7"));
+		addGame(new Game("game 8"));
+		addGame(new Game("game 9"));
+		addGame(new Game("game 10"));
+		addGame(new Game("game 11"));
+		addGame(new Game("game 12"));
+		addGame(new Game("game 13"));
+		addGame(new Game("game 14"));
+		addGame(new Game("game 15"));
 		this.panel=new ServerInterface(this);
 	}
 	public boolean addPlayer(Player player){
@@ -49,8 +61,8 @@ public class Server {
 	public void playerDisconnected(String player_nickname,String player_gameName){
 		for (int i=0;i<players.size();i++)
 			if(player_nickname.equals(players.elementAt(i).getNickName())){
-
-				players.elementAt(i).getGame().playerDisconnected(player_nickname);
+				if(getPlayerByNickName(player_nickname).getGame()!=null)
+					players.elementAt(i).getGame().playerDisconnected(player_nickname);
 				players.removeElementAt(i);
 			}
 

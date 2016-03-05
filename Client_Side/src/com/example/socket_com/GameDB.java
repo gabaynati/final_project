@@ -1,7 +1,11 @@
 package com.example.socket_com;
 
 import java.sql.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.util.Log;
 //you need to install JDBC: download it and then go to Properties, go to Java Build Path, select Libraries tab, and Add External JARs.
@@ -112,4 +116,60 @@ public class GameDB {
 		return "notExists";
 
 	}
+	
+	
+	
+	
+	
+	public class registerToDBThread extends AsyncTask<String, Void, String> {
+
+	
+		String res;
+
+
+
+
+
+		@Override
+		protected String doInBackground(String... arg0) {
+			String dbMessage="";
+			dbMessage=GameDB.addPlayer((String)arg0[0], (String)arg0[0], (String)arg0[0]);
+			if(dbMessage.equals("success")){
+				res="Registration has completed successfully!\n You are now redirected to H&S Menu";
+			}
+			else if(dbMessage.equals("exists"))
+				res="User name is already taken\n Please choose another one";
+			else
+				res="there was an error: "+dbMessage;
+
+			return res;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+		}
+
+	}
+
+public String registerToDB(String nickname,String password,String email){
+	registerToDBThread regDB=new registerToDBThread();
+	String res="";
+	try {
+		res = regDB.execute(nickname,password,email).get(4000, TimeUnit.MILLISECONDS);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		res="InterruptedException: "+e.toString();
+	} catch (ExecutionException e) {
+		// TODO Auto-generated catch block
+		res="ExecutionException: "+e.toString();
+	} catch (TimeoutException e) {
+		// TODO Auto-generated catch block
+		res="TimeoutException: "+e.toString();
+		}
+	return res;
+			
+}
+
+
 }

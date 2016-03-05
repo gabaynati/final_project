@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/logo"
+    android:foreground="@color/abc_primary_text_material_dark"
     android:orientation="vertical" >
 
     <TextView
@@ -18,45 +19,70 @@
         android:id="@+id/connectToServer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Log in" />
+        android:background="#88676767"
+        android:drawableLeft="@drawable/ic_account_circle_white_48dp"
+        android:text="Log in"
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/registerToSystem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Register to System" />
+        android:background="#88676767"
+        android:drawableLeft="@drawable/ic_group_work_white_48dp"
+        android:text="Register to System"
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/toGame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="to Game" />
+        android:background="#88676767"
+        android:drawableLeft="@drawable/ic_launch_white_48dp"
+        android:text="to Game"
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/joinAGame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#88676767"
+        android:drawableLeft="@drawable/ic_stars_white_48dp"
         android:text="Join A Game"
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold"
         android:visibility="gone" />
 
     <Button
         android:id="@+id/logOut"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#88676767"
+        android:drawableLeft="@drawable/ic_highlight_off_white_48dp"
         android:text="log Out"
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold"
         android:visibility="gone" />
-     <Button
+
+    <Button
         android:id="@+id/exit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#88676767"
+        android:drawableLeft="@drawable/ic_exit_to_app_white_48dp"
         android:text="exit"
-         />
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/txtResponse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/material_grey_100" />
-    
+        android:textColor="@color/material_grey_100"
+        android:textColorHint="@color/material_grey_100"
+        android:textStyle="bold" />
 
 </LinearLayout>

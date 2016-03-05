@@ -72,7 +72,7 @@ public class ServerCommunication {
 					GameInterface.hitRecvied();
 
 				}
-			
+
 				/*finally
 			{
 				if(MainActivity.socket != null){
@@ -105,7 +105,7 @@ public class ServerCommunication {
 
 
 		String response = "true";
-	
+
 
 		@Override
 		protected String doInBackground(GamePacket... arg0) {
@@ -184,7 +184,7 @@ public class ServerCommunication {
 				//ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
 				ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
 				gameListPacket=(GamePacket) inFromClient.readObject();
-				
+
 			}
 
 			catch (UnknownHostException e) {
@@ -238,9 +238,9 @@ public class ServerCommunication {
 
 
 			try {
-			//	if(!MainActivity.socket.isConnected()){
+				//	if(!MainActivity.socket.isConnected()){
 				//	return "Not connected to server";
-			//	}
+				//	}
 				packet =new GamePacket(this.nickname,this.password, disconnect, "", "game 1", -1);
 				//writing object
 				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
@@ -288,18 +288,11 @@ public class ServerCommunication {
 		@Override
 		protected String doInBackground(Boolean... arg0) {
 			try {
-
-				/**
-				String isExists=GameDB.isExists(nickname,password);
-				if(!isExists.equals("exists")){
-					//textResponse.setText(isExists);
-				}
-				 */
 				
 				MainActivity.socket = new Socket(dstAddress, dstPort);
-				
+
 				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-				outToServer.writeObject(new GamePacket(nickname, password,GamePacket.connect,null,"",-1));
+				outToServer.writeObject(new GamePacket(nickname, password,GamePacket.connect,"","",-1));
 
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -337,25 +330,17 @@ public class ServerCommunication {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 		}
-		public String getResponse(){
-			return this.response;
-		}
-		public boolean isConnetionSucceded(){
-			return this.isConnetionSucceded;
-		}
-
-
 
 	}
 
 
 
-	
+
 	public class MyClientTask_JoinGame extends AsyncTask<String, Void, String> {
 
 
 		String response = "true";
-		
+
 		@Override
 		protected String doInBackground(String... arg0) {
 
@@ -403,20 +388,20 @@ public class ServerCommunication {
 			super.onPostExecute(result);
 		}
 
-		
+
 
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
 	/**##########################################################################*/
-	
-	
+
+
 	public boolean JoinGame(String gameName){
 		MyClientTask_JoinGame joinGame_thread=new MyClientTask_JoinGame();
 		String result = "";
@@ -435,14 +420,14 @@ public class ServerCommunication {
 		}
 		return result.equals("true");
 	}
-	
-	
-	
-	
-	
-	
 
-	public boolean ConnectToServer(String addr, int port,String nickname,String password){
+
+
+
+
+
+
+	public String ConnectToServer(String addr, int port,String nickname,String password){
 		MyClientTask_Connect connect=new MyClientTask_Connect(addr,port, nickname,password);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
@@ -450,40 +435,25 @@ public class ServerCommunication {
 			result=connect.execute().get(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result="InterruptedException: "+e.toString();
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result="InterruptedException: "+e.toString();
 		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result="InterruptedException: "+e.toString();
 		}
-		/*
-		//means that 
-		if(result.equals("true")){
-			MyClientTask_ListenToPakcets listener=new MyClientTask_ListenToPakcets();
-			listener.execute();
-		}*/
-		return result.equals("true");
+	
+		return result;
 	}
 
-	public  MyClientTask_ListenToPakcets getServerListener(){
-		return new MyClientTask_ListenToPakcets();
-	}
 
-	public  MyClientTask_ListenToPakcets get(){
-		return new MyClientTask_ListenToPakcets();
-	}
-
-	public MyClientTask_SendPakcet getServerDataSender(){
-		return new MyClientTask_SendPakcet();
-	}
 	public String disconnectFromServer(){
 		MyClientTask_Disconnect disconnect=new MyClientTask_Disconnect();
 		String result = "";
 		try {
 			result=disconnect.execute().get(4000, TimeUnit.MILLISECONDS);
-			
+
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			result="InterruptedException:"+ e.toString();
@@ -498,8 +468,8 @@ public class ServerCommunication {
 
 		return result;
 	}
-	
-	
+
+
 	public Vector<String> getGameList(){
 		GamePacket res = null;
 		MyClientTask_getGamesList gameList_thread=new MyClientTask_getGamesList();
@@ -525,12 +495,11 @@ public class ServerCommunication {
 		return res.getGamesList();
 	}
 
-	public String setServerListener(){
+	public AsyncTask<Void, Void, String> setServerListener(){
 		MyClientTask_ListenToPakcets serverListener=new MyClientTask_ListenToPakcets();
 		String res="true";
-		serverListener.execute();
-		return res;
-		
+		return serverListener.execute();
+
 	}
 	public String sentHitToServer(String injured_nickname,int hitArea){
 		MyClientTask_SendPakcet sendHit=new MyClientTask_SendPakcet();
@@ -548,9 +517,9 @@ public class ServerCommunication {
 			res="ExecutionExceptionn: "+e.toString();
 		}
 		return res;
-		
+
 	}
-	
+
 	public String createNewGame(String newGameName){
 		MyClientTask_SendPakcet createNewGame=new MyClientTask_SendPakcet();
 		String res="true";
@@ -567,7 +536,7 @@ public class ServerCommunication {
 			res="ExecutionExceptionn: "+e.toString();
 		}
 		return res;
-		
+
 	}
-	
+
 }
