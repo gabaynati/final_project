@@ -72,6 +72,9 @@ public class GamePacket implements Serializable{
 	public boolean isJoinAGame(){
 		return this.packetType==joinGame;
 	}
+	public boolean isCreateNewGame(){
+		return this.packetType==createGame;
+	}
 	public int getType() {
 		// TODO Auto-generated method stub
 		return this.packetType;

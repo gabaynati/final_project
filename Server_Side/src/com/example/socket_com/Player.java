@@ -9,8 +9,8 @@ public class Player {
 	private int killCount;
 	@SuppressWarnings("unused")
 	private int ammunition;
-	private int team;
-	private String currentGame=null;
+	private Team team;
+	private Game currentGame=null;
 	public Player(Socket socket,String nickName){
 		this.socket=socket;
 		life=100;
@@ -25,11 +25,11 @@ public class Player {
 //	}
 //	
 	
-	public String getGame(){
+	public Game getGame(){
 		return this.currentGame;
 	}
-	public void setGame(String gameName){
-		this.currentGame=gameName;
+	public void setGame(Game game){
+		this.currentGame=game;
 	}
 	public String toString(){
 		String str="";
@@ -49,10 +49,10 @@ public class Player {
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
-	public int getTeam(){
+	public Team getTeam(){
 		return this.team;
 	}
-	public void setTeam(int team){
+	public void setTeam(Team team){
 		this.team=team;
 	}
 	public int getLife() {

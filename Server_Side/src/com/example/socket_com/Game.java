@@ -7,6 +7,7 @@ import java.util.Vector;
 public class Game {
 	private Team team1;
 	private Team team2;
+	private int team1_numOfPlayers=0,team2_numOfPlayers=0;
 	private String gameName;
 	private Vector<Player> players;
 	public Game(String gameName){
@@ -14,16 +15,19 @@ public class Game {
 		team1=new Team();
 		team2=new Team();
 		this.gameName=gameName;
+
 	}
 
 	public String getGameName(){
 		return this.gameName;
 	}
 	public void addPlayerToTeam1(Player player){
-		team1.addPlayer(player);
+		player.setTeam(team1);
+		team1_numOfPlayers++;
 	}
 	public void addPlayerToTeam2(Player player){
-		team2.addPlayer(player);
+		player.setTeam(team2);
+		team2_numOfPlayers++;
 	}
 	public boolean isConnected(String playerNickname){
 		for(int i=0;i<players.size();i++)
@@ -34,35 +38,36 @@ public class Game {
 
 
 	}
+	
+	
+	/*
+	public Player getPlayerByNickName(String player_nickname){
+		
+	}*/
 	public void playerDisconnected(String player_nickname){
-		Player player=getPlayerByNickName(player_nickname);
-		if(player==null)
-			return;
+		//removing player
 		for(int i=0;i<players.size();i++)
-			if(players.elementAt(i).getNickName().equals(player.getNickName())){
+			if(players.elementAt(i).getNickName().equals(player_nickname)){
+				if(players.elementAt(i).getTeam().equals(team1))
+					team1_numOfPlayers--;
+				else if(players.elementAt(i).getTeam().equals(team2))
+				team2_numOfPlayers--;
 				players.removeElementAt(i);
-				if(player.getTeam()==1)
-					this.team1.removePlayer(player);
-				else if(player.getTeam()==2)
-					this.team2.removePlayer(player);
 			}
 
 	}
 	public void addPlayer(Player player){
+		player.setGame(this);
 		if(!isConnected(player.getNickName())){
 			this.players.add(player);
-			int team1NumOfPlayers=team1.getNumOfPlayers();
-			int team2NumOfPlayers=team2.getNumOfPlayers();
-			if(team1NumOfPlayers==team2NumOfPlayers){
-				player.setTeam(1);
+
+			if(team1_numOfPlayers==team2_numOfPlayers){
 				addPlayerToTeam1(player);
 			}
-			else if(team1NumOfPlayers>team2NumOfPlayers){
-				player.setTeam(2);
+			else if(team1_numOfPlayers>team2_numOfPlayers){
 				addPlayerToTeam2(player);
 			}
-			else if(team2NumOfPlayers>team1NumOfPlayers){
-				player.setTeam(1);
+			else if(team2_numOfPlayers>team1_numOfPlayers){
 				addPlayerToTeam1(player);
 			}
 		}
@@ -74,11 +79,22 @@ public class Game {
 
 	}
 	public Vector<Player> getTeam1Players(){
-		return this.team1.getPlayers();
+		Vector<Player> team1Players=new Vector<Player>();
+		for(int i=0;i<players.size();i++)
+			if(players.elementAt(i).getTeam().equals(team1))
+				team1Players.add(players.elementAt(i));
+		return team1Players;
 	}
 	public Vector<Player> getTeam2Players(){
-		return this.team2.getPlayers();
+		Vector<Player> team2Players=new Vector<Player>();
+		for(int i=0;i<players.size();i++)
+			if(players.elementAt(i).getTeam().equals(team2))
+				team2Players.add(players.elementAt(i));
+		return team2Players;
+
+
 	}
+	/*
 	public Socket getSocketByNickName(String nickName){
 		if(team1.getSocketByNickName(nickName)!=null)
 			return team1.getSocketByNickName(nickName);
@@ -87,7 +103,7 @@ public class Game {
 		else
 			return null;
 
-	}
+	}*/
 	public String Hit(String Hitman_nickName,String injured_nickName){
 		Socket hitman_address=getSocketByNickName(Hitman_nickName);
 		Socket injured_address=getSocketByNickName(injured_nickName);
@@ -100,6 +116,7 @@ public class Game {
 		return print;
 
 	}
+	/*
 	public Vector<Socket> getPlayersSockets(){
 		Vector<Socket> sockets =new Vector<Socket>();
 		for(int i=0;i<team1.getPlayers().size();i++){
@@ -109,7 +126,8 @@ public class Game {
 			sockets.addElement(team2.getPlayers().elementAt(i).getSocket());
 		}
 		return sockets;
-	}
+	}*/
+	/*
 	public String printAllSockets(){
 		String str="";
 		Vector<Socket> sockets=getPlayersSockets();
@@ -117,12 +135,21 @@ public class Game {
 			str+=sockets.elementAt(i).toString()+"\n";
 		}
 		return str;
-	}
+	}*/
+	/*
 	public Player getPlayerByNickName(String player_nickname){
 		for(int i=0;i<players.size();i++)
 			if(players.elementAt(i).getNickName().equals(player_nickname)){
 				return players.elementAt(i);
 			}
+		return null;
+	}*/
+
+	private Socket getSocketByNickName(String player_nickName) {
+		for(int i=0;i<players.size();i++)
+			if(players.elementAt(i).getNickName().equals(player_nickName))
+				return players.elementAt(i).getSocket();
+
 		return null;
 	}
 }

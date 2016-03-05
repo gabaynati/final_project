@@ -44,13 +44,14 @@ public class FindGameActivity extends Activity {
 					MainActivity.currentGame=value;
 					boolean res= server_com.JoinGame(value);
 					if(res){
-					Toast.makeText(getBaseContext(), "true", Toast.LENGTH_LONG).show();
+				//	Toast.makeText(getBaseContext(), "true", Toast.LENGTH_LONG).show();
 					//moving to game interface
 					Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
 					startActivity(gameInterface);
+					finish();
 					}
-					else
-						Toast.makeText(getBaseContext(), "false", Toast.LENGTH_LONG).show();
+					//else
+						//Toast.makeText(getBaseContext(), "Err", Toast.LENGTH_LONG).show();
 
 
 				}

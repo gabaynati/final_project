@@ -22,13 +22,12 @@ public class ServerCommunication {
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
 
 
-
 	public  class MyClientTask_ListenToPakcets extends AsyncTask<Void, Void, String> {
 
 
 		String response = "";
 		boolean running=true;
-		private void setRunning(){
+		public void setRunning(){
 			running=!running;
 		}
 		@Override
@@ -73,10 +72,7 @@ public class ServerCommunication {
 					GameInterface.hitRecvied();
 
 				}
-				/*
-				if(packet.isGetGamesList()){
-					FindGameActivity.gameList=packet.getGamesList();
-				}*/
+			
 				/*finally
 			{
 				if(MainActivity.socket != null){
@@ -185,6 +181,7 @@ public class ServerCommunication {
 				out.writeUTF("I am Client");
 				 */
 				//reading the game list from server
+				//ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
 				ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
 				gameListPacket=(GamePacket) inFromClient.readObject();
 				
@@ -300,9 +297,9 @@ public class ServerCommunication {
 				 */
 				
 				MainActivity.socket = new Socket(dstAddress, dstPort);
+				
 				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
 				outToServer.writeObject(new GamePacket(nickname, password,GamePacket.connect,null,"",-1));
-
 
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -531,17 +528,7 @@ public class ServerCommunication {
 	public String setServerListener(){
 		MyClientTask_ListenToPakcets serverListener=new MyClientTask_ListenToPakcets();
 		String res="true";
-		try {
-			res = serverListener.execute().get();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			res="InterruptedException: "+e.toString();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			res="ExecutionExceptionn: "+e.toString();
-		}
+		serverListener.execute();
 		return res;
 		
 	}
@@ -564,5 +551,23 @@ public class ServerCommunication {
 		
 	}
 	
+	public String createNewGame(String newGameName){
+		MyClientTask_SendPakcet createNewGame=new MyClientTask_SendPakcet();
+		String res="true";
+		try {
+			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.createGame, "", newGameName, -1);
+			res = createNewGame.execute(packet).get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			res="InterruptedException: "+e.toString();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			res="ExecutionExceptionn: "+e.toString();
+		}
+		return res;
+		
+	}
 	
 }

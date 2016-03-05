@@ -119,12 +119,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//***************************************///
 
 
-		/************Server Communication*************************/
-				serverCom=new ServerCommunication();
-				//initiate server listener
-				serverCom.setServerListener();	
-				
-		/*************************************/
 
 		touched = false;
 
@@ -164,6 +158,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
+
+		/************Server Communication*************************/
+				serverCom=new ServerCommunication();
+				//initiate server listener
+				serverCom.setServerListener();	
+				
+		/*************************************/
 	}
 
 

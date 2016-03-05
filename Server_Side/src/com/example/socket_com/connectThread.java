@@ -16,7 +16,7 @@ public class connectThread extends Thread
 	{
 		this.server=server;
 		serverSocket = new ServerSocket(server.getServerPort());
-		serverSocket.setSoTimeout(1000000);
+		serverSocket.setSoTimeout(100000);
 
 	}
 

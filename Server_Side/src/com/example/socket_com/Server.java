@@ -46,11 +46,11 @@ public class Server {
 		this.games.add(game);
 		return true;
 	}
-	public void playerDisconnected(Player player){
+	public void playerDisconnected(String player_nickname,String player_gameName){
 		for (int i=0;i<players.size();i++)
-			if(player.getNickName().equals(players.elementAt(i).getNickName())){
-				String gameName=player.getGame();
-				getGameByName(gameName).playerDisconnected(player.getNickName());
+			if(player_nickname.equals(players.elementAt(i).getNickName())){
+
+				players.elementAt(i).getGame().playerDisconnected(player_nickname);
 				players.removeElementAt(i);
 			}
 
@@ -72,7 +72,7 @@ public class Server {
 	}
 	public boolean isPlayerJoinedAGame(Player player){
 		for(int i=0;i<games.size();i++)
-			if(games.elementAt(i).getPlayerByNickName(player.getNickName())!=null)
+			if(games.elementAt(i).equals(player.getGame()))
 				return true;
 		return false;
 
@@ -129,6 +129,12 @@ public class Server {
 		for (int i=0;i<players.size();i++)
 			if(nickName.equals(players.elementAt(i).getNickName()))
 				return players.elementAt(i).getSocket();
+		return null;
+	}
+	public Player getPlayerByNickName(String nickName) {
+		for (int i=0;i<players.size();i++)
+			if(nickName.equals(players.elementAt(i).getNickName()))
+				return players.elementAt(i);
 		return null;
 	}
 	public Player getPlayerBySocket(Socket player_socket) {

@@ -9,8 +9,10 @@ import java.io.*;
 public class ListenToPlayersThread extends Thread
 {
 	private Socket player_socket;
+	private String player_nickname;
+	private String player_gameName;
 	private Server server;
-	private Game game;
+	
 
 	public  ListenToPlayersThread(Socket player_socket,Server server) throws IOException
 	{
@@ -20,7 +22,6 @@ public class ListenToPlayersThread extends Thread
 
 	public void run()
 	{
-		Player res=null;
 		while(true)
 		{
 
@@ -66,26 +67,21 @@ public class ListenToPlayersThread extends Thread
 			{
 				GamePacket packet = null;
 
-				res=server.getPlayerBySocket(player_socket);
+				
 				//reading "packet" object from client
 				ObjectInputStream inFromClient = new ObjectInputStream(player_socket.getInputStream());
 				packet=(GamePacket) inFromClient.readObject();
+				player_nickname=packet.getNickName();
+				player_gameName=packet.getGameName();
+				
 
-
-				//adding new player
-				//if(packet.isConnect()){
-				//Main.game.addPlayer(new Player(player_socket,packet.getNickName()));
-				//Main.panel.update();
-				//System.out.println(packet.getNickName()+"has just connected to the server");
-				//System.out.println(packet.getPassword());
-				//}
-				game=server.getGameByName(packet.getGameName());
 				//performing acts on hit event 
 				if(packet.isHit()){
+					Game game=server.getGameByName(packet.getGameName());
 					String hitter_nickName=packet.getNickName();
 					String injured_nickName=packet.getInjured_nickName();
 					Main.server.addToServer(game.Hit(hitter_nickName, injured_nickName));
-					Socket injured_player_socket=game.getSocketByNickName(injured_nickName);
+					Socket injured_player_socket=server.getPlayerSocketByNickName(injured_nickName);
 					//writing object to the injured player
 					GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit, injured_nickName,game.getGameName(),packet.getHitArea());
 					ObjectOutputStream outToServer = new ObjectOutputStream(injured_player_socket.getOutputStream());
@@ -93,7 +89,7 @@ public class ListenToPlayersThread extends Thread
 				}
 				if(packet.isDisconnect()){
 					System.out.println("exit");
-					game.playerDisconnected(packet.getNickName());
+					server.playerDisconnected(player_nickname,player_gameName);
 					Main.server.getServerLogs().add(packet.getNickName()+" has just disconnected!");
 					Main.server.getPanel().update();
 					return;
@@ -108,14 +104,19 @@ public class ListenToPlayersThread extends Thread
 				}
 				if(packet.isJoinAGame()){
 					//System.out.println(packet.getGameName());
-					Socket player_socket=server.getPlayerSocketByNickName(packet.getNickName());
-					Player player=new Player(player_socket, packet.getNickName());
-					player.setGame(packet.getGameName());
+					Player player=server.getPlayerByNickName(player_nickname);
+					if(player==null)
+						return;
 					server.addPlayerToGame(player, packet.getGameName());
 
 					//System.out.println(server.getGameByName(packet.getGameName()).getPlayersSockets().firstElement().toString());
 				}
-
+				if(packet.isCreateNewGame()){
+					server.addGame(new Game(packet.getGameName()));
+					Main.server.getServerLogs().add("new game: "+packet.getGameName()+"has created by: "+packet.getNickName());
+					Main.server.getPanel().update();
+					
+				}
 
 
 			}catch(SocketTimeoutException s)
@@ -125,8 +126,11 @@ public class ListenToPlayersThread extends Thread
 			}catch (java.io.EOFException e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();
-				server.playerDisconnected(res);
-				Main.server.getServerLogs().add(res.getNickName()+" has just disconnected!");
+				System.out.println("disconnect: "+player_gameName);
+				System.out.println("disconnect: "+player_nickname);
+				System.out.println("disconnect: "+server.getGameByName(player_gameName).getGameName());
+				server.playerDisconnected(player_nickname,player_nickname);
+				Main.server.getServerLogs().add(player_nickname+" has just disconnected!");
 				Main.server.getPanel().update();
 				return;
 			}
