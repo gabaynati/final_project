@@ -39,6 +39,7 @@ public class MainActivity extends Activity {
 	Button buttonJoinAGame;
 	Button buttonLogOut;
 	Button buttonExit;
+	Button buttonMyAccount;
 	TextView txtResponse;
 	private MediaPlayer mediaPlayer;
 	@Override
@@ -52,6 +53,7 @@ public class MainActivity extends Activity {
 		buttonJoinAGame = (Button)findViewById(R.id.joinAGame);
 		buttonLogOut=(Button)findViewById(R.id.logOut);
 		buttonExit=(Button)findViewById(R.id.exit);
+		buttonMyAccount=(Button)findViewById(R.id.myAccount);
 		txtResponse = (TextView)findViewById(R.id.txtResponse);
 
 
@@ -60,8 +62,8 @@ public class MainActivity extends Activity {
 		buttonToGame.setOnClickListener(buttonToGameOnClickListener);
 		buttonJoinAGame.setOnClickListener(buttonJoinAGameOnClickListener);
 		buttonLogOut.setOnClickListener(buttonLogOutOnClickListener);
+		buttonMyAccount.setOnClickListener(buttonMyAccountOnClickListener);
 		buttonExit.setOnClickListener(buttonExitOnClickListener);
-
 		//playing audio
 		mediaPlayer = MediaPlayer.create(getBaseContext(), R.raw.background_audio);
 		mediaPlayer.start(); 
@@ -91,6 +93,7 @@ public class MainActivity extends Activity {
 			txtResponse.setText(result);
 			buttonJoinAGame.setVisibility(View.GONE);
 			buttonLogOut.setVisibility(View.GONE);
+			buttonMyAccount.setVisibility(View.GONE);
 			buttonConnectToServer.setVisibility(View.VISIBLE);
 			buttonRegisterToSystem.setVisibility(View.VISIBLE);
 			MainActivity.player.setConnectedToServer(false);
@@ -107,7 +110,15 @@ public class MainActivity extends Activity {
 			System.exit(0);
 		}
 	};
-	
+	//exit button onClick method
+	OnClickListener buttonMyAccountOnClickListener = new OnClickListener(){
+		
+		@Override
+		public void onClick(View arg0) {
+			Intent myAccount = new Intent("com.example.socket_com.MYACCOUNTACTIVITY");
+			startActivity(myAccount);
+		}
+	};
 	
 	//join a game button onClick method
 	OnClickListener buttonJoinAGameOnClickListener = new OnClickListener(){
@@ -196,6 +207,7 @@ public class MainActivity extends Activity {
 			buttonLogOut.setVisibility(View.VISIBLE);
 			buttonConnectToServer.setVisibility(View.GONE);
 			buttonRegisterToSystem.setVisibility(View.GONE);
+			buttonMyAccount.setVisibility(View.VISIBLE);
 		}
 
 	}

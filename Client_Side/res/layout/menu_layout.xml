@@ -20,11 +20,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#88676767"
-        android:drawableLeft="@drawable/ic_account_circle_white_48dp"
+        android:drawableLeft="@drawable/ic_polymer_white_48dp"
         android:text="Log in"
         android:textColor="@color/material_grey_100"
         android:textStyle="bold" />
-
+   <Button
+        android:id="@+id/myAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#88676767"
+        android:drawableLeft="@drawable/ic_account_circle_white_48dp"
+        android:text="My Account"
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold"
+        android:visibility="gone" />
     <Button
         android:id="@+id/registerToSystem"
         android:layout_width="match_parent"
@@ -67,6 +76,7 @@
         android:textStyle="bold"
         android:visibility="gone" />
 
+   
     <Button
         android:id="@+id/exit"
         android:layout_width="match_parent"

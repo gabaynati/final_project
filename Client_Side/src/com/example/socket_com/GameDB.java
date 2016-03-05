@@ -1,6 +1,7 @@
 package com.example.socket_com;
 
 import java.sql.*;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -52,6 +53,77 @@ public class GameDB {
 
 	} 
 
+	
+	
+	
+	
+	public static class getPlayerInfoFromDBThread extends AsyncTask<String, Void, Vector<Object>> {
+
+
+
+		@Override
+		protected Vector<Object> doInBackground(String... arg0) {
+			Vector<Object> res=null;
+			try {
+				
+				// Establish the connection.
+				Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
+				con = DriverManager.getConnection(dbConnectionString,"","");
+
+				// Create and execute an SQL statement that returns some data.
+				String SQL = "select * from Players where player_nickname='"+(String)arg0[0]+"'";
+				stmt = con.createStatement();
+				rs=stmt.executeQuery(SQL);
+				if(rs.next()){
+					res=new Vector<Object>();
+					res.add(rs.getString(1));
+					res.add(rs.getString(2));
+					res.add(rs.getString(3));
+					res.add(rs.getInt(4));
+					res.add(rs.getInt(5));
+				}
+
+			}
+			// Handle any errors that may have occurred.
+			catch (Exception e) {
+				e.printStackTrace();
+				Log.e("YOUR_APP_LOG_TAG", "I got an error", e);
+				return null;
+			}
+			finally {
+				if (rs != null) try { rs.close(); } catch(Exception e) {}
+				if (stmt != null) try { stmt.close(); } catch(Exception e) {}
+				if (con != null) try { con.close(); } catch(Exception e) {}
+			}
+			return res;
+
+		}
+
+		@Override
+		protected void onPostExecute(Vector<Object> result) {
+			super.onPostExecute(result);
+		}
+
+	}
+
+
+	public static Vector<Object> getPlayerInfo(String nickname){
+		Vector<Object> res=null;
+		getPlayerInfoFromDBThread getInfo=new getPlayerInfoFromDBThread();
+		try {
+			res=getInfo.execute(nickname).get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return res;
+
+	}
+
+
 
 
 
@@ -87,7 +159,6 @@ public class GameDB {
 	}
 
 
-
 	public static String isExists(String nickname,String password){
 		try {
 			// Establish the connection.
@@ -116,19 +187,15 @@ public class GameDB {
 		return "notExists";
 
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	public class registerToDBThread extends AsyncTask<String, Void, String> {
 
-	
+
 		String res;
-
-
-
-
 
 		@Override
 		protected String doInBackground(String... arg0) {
@@ -152,24 +219,24 @@ public class GameDB {
 
 	}
 
-public String registerToDB(String nickname,String password,String email){
-	registerToDBThread regDB=new registerToDBThread();
-	String res="";
-	try {
-		res = regDB.execute(nickname,password,email).get(4000, TimeUnit.MILLISECONDS);
-	} catch (InterruptedException e) {
-		// TODO Auto-generated catch block
-		res="InterruptedException: "+e.toString();
-	} catch (ExecutionException e) {
-		// TODO Auto-generated catch block
-		res="ExecutionException: "+e.toString();
-	} catch (TimeoutException e) {
-		// TODO Auto-generated catch block
-		res="TimeoutException: "+e.toString();
+	public String registerToDB(String nickname,String password,String email){
+		registerToDBThread regDB=new registerToDBThread();
+		String res="";
+		try {
+			res = regDB.execute(nickname,password,email).get(4000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			res="InterruptedException: "+e.toString();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			res="ExecutionException: "+e.toString();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			res="TimeoutException: "+e.toString();
 		}
-	return res;
-			
-}
+		return res;
+
+	}
 
 
 }

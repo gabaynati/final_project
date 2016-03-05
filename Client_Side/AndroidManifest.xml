@@ -79,8 +79,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MyAccountActivity"
+            android:name="com.example.socket_com.MyAccountActivity"
             android:label="@string/title_activity_my_account" >
+            <intent-filter>
+                <action android:name="com.example.socket_com.MYACCOUNTACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
     </application>
 
