@@ -45,7 +45,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/ic_settings_ethernet_white_48dp"
-        android:text="Connect..." />
+        android:text="Connect..." 
+         android:textColor="@color/material_grey_100"
+        android:textStyle="bold" 
+        android:background="#88676767"/>
+    
+ 
 
     <TextView
         android:id="@+id/response"

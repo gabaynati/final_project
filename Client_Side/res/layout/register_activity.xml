@@ -56,7 +56,8 @@
         android:drawableLeft="@drawable/ic_group_work_white_48dp"
         android:text="register..."
         android:textColor="@color/material_grey_100"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:background="#88676767" />
 
     <TextView
         android:id="@+id/response"
@@ -64,6 +65,8 @@
         android:layout_height="wrap_content"
         android:textColor="@color/material_grey_100"
         android:textColorHint="@color/material_grey_100"
-        android:textStyle="bold" />
+        android:textStyle="bold" 
+        
+        />
 
 </LinearLayout>

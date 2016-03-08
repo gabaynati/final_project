@@ -478,7 +478,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-					serverCom.sentHitToServer(MainActivity.enemy, hitArea);
+					serverCom.sendHitToServer(MainActivity.enemy, hitArea);
 					//**********************************/
 
 

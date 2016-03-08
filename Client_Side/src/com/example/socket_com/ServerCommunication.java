@@ -4,19 +4,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.example.socket_com.ServerCommunication.MyClientTask_ListenToPakcets;
 
-import android.content.Intent;
+
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
+
 
 public class ServerCommunication {
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
@@ -501,12 +499,12 @@ public class ServerCommunication {
 		return serverListener.execute();
 
 	}
-	public String sentHitToServer(String injured_nickname,int hitArea){
+	public String sendHitToServer(String injured_nickname,int hitArea){
 		MyClientTask_SendPakcet sendHit=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, injured_nickname, MainActivity.currentGame, hitArea);
-			res = sendHit.execute(packet).get();
+			res = sendHit.execute(packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -514,7 +512,11 @@ public class ServerCommunication {
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			res="ExecutionExceptionn: "+e.toString();
+			res="ExecutionException: "+e.toString();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			res="TimeoutException: "+e.toString();
 		}
 		return res;
 

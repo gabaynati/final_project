@@ -77,6 +77,7 @@ public class ListenToPlayersThread extends Thread
 
 				//performing acts on hit event 
 				if(packet.isHit()){
+					System.out.println("HITTTTT");
 					Game game=server.getGameByName(packet.getGameName());
 					String hitter_nickName=packet.getNickName();
 					String injured_nickName=packet.getInjured_nickName();
