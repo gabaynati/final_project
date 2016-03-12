@@ -111,11 +111,14 @@ public class GameDB {
 		Vector<Object> res=null;
 		getPlayerInfoFromDBThread getInfo=new getPlayerInfoFromDBThread();
 		try {
-			res=getInfo.execute(nickname).get();
+			res=getInfo.execute(nickname).get(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

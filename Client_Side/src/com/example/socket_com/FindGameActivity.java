@@ -21,14 +21,13 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class FindGameActivity extends Activity {
 
-	public static Vector<String> gameList=null;
+	private Vector<String> gameList=MainActivity.gameList;
 	ServerCommunication server_com=new ServerCommunication();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_list_layout);
-		gameList=server_com.getGameList();
 		if(gameList!=null){
 
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, gameList);
@@ -42,16 +41,16 @@ public class FindGameActivity extends Activity {
 				{
 					String value = (String)adapter.getItemAtPosition(position); 
 					MainActivity.currentGame=value;
-					boolean res= server_com.JoinGame(value);
-					if(res){
+					String res= server_com.JoinGame(value);
+					if(res.equals("true")){
 					Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
 					//moving to game interface
 					Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
 					startActivity(gameInterface);
 					finish();
 					}
-					//else
-						//Toast.makeText(getBaseContext(), "Err", Toast.LENGTH_LONG).show();
+					else
+						Toast.makeText(getBaseContext(), res, Toast.LENGTH_LONG).show();
 
 
 				}

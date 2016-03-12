@@ -20,10 +20,31 @@ public class ServerCommunication {
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
 
 
+	//this method is used to prevent two thread from writing to the socket simultaneously.
+	private synchronized String writePacket(GamePacket packet){
+		String response="true";
+		try{
+			ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
+			outToServer.writeObject(packet);
+		}catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			response = "UnknownHostException: " + e.toString();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			response = "IOException: " + e.toString();
+		}
+		return response;
+	}
+
+
+	//Threads:
+	/*****************************************************************/
 	public  class MyClientTask_ListenToPakcets extends AsyncTask<Void, Void, String> {
 
 
-		String response = "";
+		String response = "true";
 		boolean running=true;
 		public void setRunning(){
 			running=!running;
@@ -38,7 +59,6 @@ public class ServerCommunication {
 				try {
 					ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
 					packet=(GamePacket) inFromClient.readObject();
-
 				} 
 				catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -70,7 +90,9 @@ public class ServerCommunication {
 					GameInterface.hitRecvied();
 
 				}
-
+				if(packet.isGetGamesList()){
+					MainActivity.gameList=packet.getGamesList();
+				}
 				/*finally
 			{
 				if(MainActivity.socket != null){
@@ -90,15 +112,16 @@ public class ServerCommunication {
 		protected void onPostExecute(String result) {
 			//textResponse.setText(response);
 			super.onPostExecute(result);
+
 		}
 
 	}
+	/*****************************************************************/
 
 
 
 
-
-
+	/*****************************************************************/
 	public class MyClientTask_SendPakcet extends AsyncTask<GamePacket, Void, String> {
 
 
@@ -107,41 +130,8 @@ public class ServerCommunication {
 
 		@Override
 		protected String doInBackground(GamePacket... arg0) {
+			response=writePacket((GamePacket)arg0[0]);
 
-
-			try {
-
-				//writing object
-				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-				outToServer.writeObject((GamePacket)arg0[0]);
-				/*
-				//writing texts
-				DataOutputStream out = new DataOutputStream(MainActivity.socket.getOutputStream());
-				out.writeUTF("I am Client");
-				 */
-
-			}
-
-			catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "UnknownHostException: " + e.toString();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "IOException: " + e.toString();
-			}
-			/*finally
-			{
-				if(MainActivity.socket != null){
-					try {
-						MainActivity.socket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}*/
 			return response;
 		}
 
@@ -152,120 +142,13 @@ public class ServerCommunication {
 		}
 
 	}
-
-	public class MyClientTask_getGamesList extends AsyncTask<Void, Void, GamePacket> {
-
-
-		String response = "success";
-		GamePacket packet;
-		GamePacket gameListPacket=null;
-
-		public void setPacket(GamePacket packet){
-			this.packet=packet;
-		}
-
-		@Override
-		protected GamePacket doInBackground(Void... arg0) {
+	/*****************************************************************/
 
 
-			try {
-
-				//requesting game list from server
-				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-				outToServer.writeObject(packet);
-				/*
-				//writing texts
-				DataOutputStream out = new DataOutputStream(MainActivity.socket.getOutputStream());
-				out.writeUTF("I am Client");
-				 */
-				//reading the game list from server
-				//ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
-				ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
-				gameListPacket=(GamePacket) inFromClient.readObject();
-
-			}
-
-			catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "UnknownHostException: " + e.toString();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "IOException: " + e.toString();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			/*finally
-			{
-				if(MainActivity.socket != null){
-					try {
-						MainActivity.socket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}*/
-			return gameListPacket;
-		}
-
-		@Override
-		protected void onPostExecute(GamePacket result) {
-			//textResponse.setText(response);
-			super.onPostExecute(result);
-		}
-
-	}
-	public class MyClientTask_Disconnect extends AsyncTask<Void, Void, String> {
 
 
-		String response = "You have logged out",nickname,password;
-		GamePacket packet;
 
-
-		public MyClientTask_Disconnect(){
-			this.nickname=MainActivity.player.getNickName();
-			this.password=MainActivity.player.getPassword();
-
-
-		}
-		@Override
-		protected String doInBackground(Void... arg0) {
-
-
-			try {
-				//	if(!MainActivity.socket.isConnected()){
-				//	return "Not connected to server";
-				//	}
-				packet =new GamePacket(this.nickname,this.password, disconnect, "", "game 1", -1);
-				//writing object
-				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-				outToServer.writeObject(packet);
-			}
-
-			catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "UnknownHostException: " + e.toString();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "IOException: " + e.toString();
-			}
-
-			return response;
-		}
-		@Override
-		protected void onPostExecute(String result) {
-			//textResponse.setText(response);
-			super.onPostExecute(result);
-		}
-
-	}
-
-
+	/*****************************************************************/
 	//first argument is the parameters to execute() which is passed to doInBackground ,second doesn't matter and third is the return type of doInBackground
 	public class MyClientTask_Connect extends AsyncTask<Boolean, Void, String> {
 
@@ -273,7 +156,6 @@ public class ServerCommunication {
 		private int dstPort;
 		private String response = "true";
 		private String nickname,password;
-		private boolean isConnetionSucceded;
 
 
 		public MyClientTask_Connect(String addr, int port,String nickname,String password){
@@ -286,11 +168,10 @@ public class ServerCommunication {
 		@Override
 		protected String doInBackground(Boolean... arg0) {
 			try {
-				
-				MainActivity.socket = new Socket(dstAddress, dstPort);
 
-				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-				outToServer.writeObject(new GamePacket(nickname, password,GamePacket.connect,"","",-1));
+				MainActivity.socket = new Socket(dstAddress, dstPort);		
+				GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"","",-1);
+				response=writePacket(packet);
 
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -306,6 +187,11 @@ public class ServerCommunication {
 				e.printStackTrace();
 				response = "Exception: " + e.toString();
 			}
+
+			/************/
+			//setting serverListener
+			setlistener();
+			/************/
 
 			/*finally{
 					if(socket != null){
@@ -330,65 +216,7 @@ public class ServerCommunication {
 		}
 
 	}
-
-
-
-
-	public class MyClientTask_JoinGame extends AsyncTask<String, Void, String> {
-
-
-		String response = "true";
-
-		@Override
-		protected String doInBackground(String... arg0) {
-
-
-			try {
-
-				//writing object
-				ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
-				GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.joinGame, "", (String)arg0[0],-1);
-				outToServer.writeObject(packet);
-				/*
-				//writing texts
-				DataOutputStream out = new DataOutputStream(MainActivity.socket.getOutputStream());
-				out.writeUTF("I am Client");
-				 */
-
-			}
-
-			catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "UnknownHostException: " + e.toString();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "IOException: " + e.toString();
-			}
-			/*finally
-			{
-				if(MainActivity.socket != null){
-					try {
-						MainActivity.socket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}*/
-			return response;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			//textResponse.setText(response);
-			super.onPostExecute(result);
-		}
-
-
-
-	}
+	/*****************************************************************/
 
 
 
@@ -397,34 +225,49 @@ public class ServerCommunication {
 
 
 
-	/**##########################################################################*/
 
 
-	public boolean JoinGame(String gameName){
-		MyClientTask_JoinGame joinGame_thread=new MyClientTask_JoinGame();
+
+
+
+
+	//Methods which uses above threads to communicate server
+	/********M***************S*****************************************************/
+	/**********E************D*****************************************************/
+	/*************T*******O*******************************************************/
+	/*****************H***********************************************************/
+
+
+
+	/*****************************************************************/
+	public String JoinGame(String gameName){
+		MyClientTask_SendPakcet joinGame_thread=new MyClientTask_SendPakcet();
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.joinGame, "", gameName,-1);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
-			result=joinGame_thread.execute(gameName).get(3000, TimeUnit.MILLISECONDS);
+			result=joinGame_thread.execute(packet).get(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result="InterruptedException: "+e.toString();
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result="InterruptedException: "+e.toString();
 		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result="InterruptedException: "+e.toString();
 		}
-		return result.equals("true");
+
+		return result;
 	}
+	/*****************************************************************/
 
 
 
 
 
 
-
+	/*****************************************************************/
 	public String ConnectToServer(String addr, int port,String nickname,String password){
 		MyClientTask_Connect connect=new MyClientTask_Connect(addr,port, nickname,password);
 		String result = "";
@@ -441,16 +284,22 @@ public class ServerCommunication {
 			// TODO Auto-generated catch block
 			result="InterruptedException: "+e.toString();
 		}
-	
+
 		return result;
 	}
+	/*****************************************************************/
 
 
+
+
+
+	/*****************************************************************/
 	public String disconnectFromServer(){
-		MyClientTask_Disconnect disconnect=new MyClientTask_Disconnect();
+		MyClientTask_SendPakcet disconnect=new MyClientTask_SendPakcet();
+		GamePacket packet =new GamePacket(MainActivity.player.getNickName(),MainActivity.player.getPassword(), GamePacket.disconnect, "", MainActivity.currentGame, -1);
 		String result = "";
 		try {
-			result=disconnect.execute().get(4000, TimeUnit.MILLISECONDS);
+			result=disconnect.execute(packet).get(4000, TimeUnit.MILLISECONDS);
 
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -466,40 +315,40 @@ public class ServerCommunication {
 
 		return result;
 	}
+	/*****************************************************************/
 
 
-	public Vector<String> getGameList(){
-		GamePacket res = null;
-		MyClientTask_getGamesList gameList_thread=new MyClientTask_getGamesList();
-		gameList_thread.setPacket(new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), getGamesList,"", "", -1));
+
+
+	/*****************************************************************/
+	public String sendGameListRequest(){
+		String res = null;
+		MyClientTask_SendPakcet gameList_thread=new MyClientTask_SendPakcet();
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), getGamesList,"", "", -1);
 		try {
-			res=gameList_thread.execute().get(4000, TimeUnit.MILLISECONDS);
+			res=gameList_thread.execute(packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			//res="InterruptedException:"+ e.toString();
+			res="InterruptedException:"+ e.toString();
 			//Log.d("TAG:",res);
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
-			//res="ExecutionException:"+ e.toString();
+			res="ExecutionException:"+ e.toString();
 			//Log.d("TAG:",res);
 		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
-			//res="TimeoutException:"+ e.toString();
+			res="TimeoutException:"+ e.toString();
 			//Log.d("TAG:",res);
 		}
-		if(res==null){
-			return null;
-		}
-		return res.getGamesList();
+		return res;
 	}
+	/*****************************************************************/
 
-	public AsyncTask<Void, Void, String> setServerListener(){
-		MyClientTask_ListenToPakcets serverListener=new MyClientTask_ListenToPakcets();
-		String res="true";
-		return serverListener.execute();
 
-	}
-	public String sendHitToServer(String injured_nickname,int hitArea){
+
+
+	/*****************************************************************/
+	public String sendHitToServer(String injured_nickname,int hitArea) {
 		MyClientTask_SendPakcet sendHit=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
@@ -521,7 +370,12 @@ public class ServerCommunication {
 		return res;
 
 	}
+	/*****************************************************************/
 
+
+
+
+	/*****************************************************************/
 	public String createNewGame(String newGameName){
 		MyClientTask_SendPakcet createNewGame=new MyClientTask_SendPakcet();
 		String res="true";
@@ -540,5 +394,20 @@ public class ServerCommunication {
 		return res;
 
 	}
+	/*****************************************************************/
+
+
+
+
+	/*****************************************************************/
+	public void setlistener(){
+		(new MyClientTask_ListenToPakcets()).execute();
+		return;
+	}
+	/*****************************************************************/
+
+
+
+
 
 }

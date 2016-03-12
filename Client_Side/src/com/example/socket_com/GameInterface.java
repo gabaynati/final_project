@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -74,7 +76,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	//****server communication configuration*********///
 	private ServerCommunication serverCom;
-	private AsyncTask<Void, Void, String> listener;
+	private MyClientTask_ListenToPakcets serverListener;
 	//**************************************************//
 
 
@@ -162,6 +164,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		/**Server Communication**********/
 		serverCom=new ServerCommunication();
+
 		/********************************/
 	}
 
@@ -259,10 +262,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//the following call binds the activity with the opencv service.
 		//the third argument is a listener object that keeps track to the binding process.
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,this , mLoaderCallback);
-	
+
 		/************Server Communication*************************/
 		//initiate server listener
-		listener= serverCom.setServerListener();	
 
 		/*************************************/
 
@@ -275,12 +277,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		super.onDestroy();
 		if (mOpenCvCameraView!=null)
 			mOpenCvCameraView.disableView();
-		
+
 		/************Server Communication*************************/
 		//stopping the server listener
-		listener.cancel(true);
-		/*************************************/
+		serverListener.cancel(true);
 
+		/*************************************/
 
 	}
 	@Override
@@ -288,11 +290,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		super.onPause();
 		if (mOpenCvCameraView!=null)
 			mOpenCvCameraView.disableView();
-		
-		/************Server Communication*************************/
-		//stopping the server listener
-		listener.cancel(true);
-		/*************************************/
+
+
 
 
 	}
@@ -478,10 +477,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-					serverCom.sendHitToServer(MainActivity.enemy, hitArea);
+					String res="";
+					res=serverCom.sendHitToServer(MainActivity.enemy, hitArea);
+
 					//**********************************/
 
-
+					Toast toast1 = Toast.makeText(getApplicationContext(),res, 1000);
+					toast1.show();
 				}
 
 

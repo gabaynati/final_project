@@ -70,6 +70,7 @@ public class ConnectToServerActivity extends Activity {
 
 	//connect button onClick method
 	OnClickListener buttonConnectOnClickListener = new OnClickListener(){
+
 		@Override
 		public void onClick(View arg0) {
 			//checking for Internet connection

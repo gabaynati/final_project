@@ -3,7 +3,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 public class Player {
 	private Socket socket;
-	private String nickName;
+	private String nickName,password;
 	private int life;
 	private int gameScore;
 	private int killCount;
@@ -24,7 +24,12 @@ public class Player {
 //		SQLiteDatabse mydatabase = openOrCreateDatabase("your database name",MODE_PRIVATE,null);
 //	}
 //	
-	
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String newPassword) {
+		this.password=newPassword;
+	}
 	public Game getGame(){
 		return this.currentGame;
 	}

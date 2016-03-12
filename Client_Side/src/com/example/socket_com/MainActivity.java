@@ -1,6 +1,7 @@
 package com.example.socket_com;
 
 import java.net.Socket;
+import java.util.Vector;
 
 import com.example.hs.R;
 import com.example.hs.R.id;
@@ -31,6 +32,7 @@ public class MainActivity extends Activity {
 	public static Player player=new Player("nati","1234");
 	public static String enemy="gili";
 	public static String currentGame="";
+	public static Vector<String>gameList;
 	//*************************************************/
 
 	Button buttonConnectToServer;
@@ -149,7 +151,7 @@ public class MainActivity extends Activity {
 
 		}
 	};
-	//connect button onClick method
+	//toGame button onClick method
 	OnClickListener buttonToGameOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {

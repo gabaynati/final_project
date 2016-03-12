@@ -1,6 +1,7 @@
 package com.example.socket_com;
 import java.net.*;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
 
@@ -16,7 +17,7 @@ public class connectThread extends Thread
 	{
 		this.server=server;
 		serverSocket = new ServerSocket(server.getServerPort());
-		serverSocket.setSoTimeout(100000);
+		serverSocket.setSoTimeout(100000000);
 
 	}
 
@@ -29,35 +30,19 @@ public class connectThread extends Thread
 
 
 
-				//waiting to connect from client
-				//serverLogs.add("Waiting for client on port " +serverSocket.getLocalPort() + "...");
-				//	Main.panel.update();
+				//waiting to connect from clients
 				Socket socket = serverSocket.accept();//inf loop until client connects
-
-
-	
-
-
 				//note:
 				//Each socket has both an OutputStream and an InputStream.
 				//The client's OutputStream is connected to the server's InputStream,
 				//and the client's InputStream is connected to the server's OutputStream
 
-
-
-				/*
-				//writing hello to client
-				DataOutputStream out = new DataOutputStream(server.getOutputStream());
-				out.writeUTF("You are connected to the server: "+ ip);
-				 */
-
 				GamePacket packet = null;
 
 
 				//reading "packet" object from client
-				ObjectInputStream inFromClient = new ObjectInputStream(socket.getInputStream());
 				try {
-
+					ObjectInputStream inFromClient = new ObjectInputStream(socket.getInputStream());
 					packet=(GamePacket) inFromClient.readObject();
 
 				} catch (ClassNotFoundException e) {
@@ -68,53 +53,30 @@ public class connectThread extends Thread
 				if(packet.isConnect()){
 					if(!server.isPlayerConnected(packet.getNickName())){
 						//printing the client IP address
-						server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
+						//server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
+						
+						
+						
 						//adding to server
+						Player newPlayer=new Player(socket,packet.getNickName());
+						newPlayer.setPassword(packet.getPassword());
 						server.addPlayer(new Player(socket,packet.getNickName()));
-						server.getServerLogs().add(packet.getNickName()+"has just connected!");
+						server.getServerLogs().add(packet.getNickName()+" has just connected!");
 						server.getPanel().update();
+								
+						
+					
+						
+						//starting listener thread for the specific player which has just connected
+						Thread t = new ListenToPlayersThread(newPlayer,server);
+						t.start();
 					}
-					//serverLogs.add(packet.getPassword());
+					
 				}
 			
 
-				try
-				{
-					//if(!game.isConnected(packet.getNickName())){
-					Thread t = new ListenToPlayersThread(socket,server);
-					t.start();
-					//}
+			
 
-				}catch(IOException e)
-				{
-					e.printStackTrace();
-				}	
-
-				//System.out.println(Main.game.toString());
-
-				/*
-				/////////////////////////
-				String response="";
-				//reading hello
-				ByteArrayOutputStream byteArrayOutputStream = 
-						new ByteArrayOutputStream(1024);
-				byte[] buffer = new byte[1024];
-
-				int bytesRead;
-				InputStream inputStream = server.getInputStream();
-
-//				
-//				  notice:
-//				  inputStream.read() will block if no data return
-//				 
-				while ((bytesRead = inputStream.read(buffer)) != -1){
-					byteArrayOutputStream.write(buffer, 0, bytesRead);
-					response += byteArrayOutputStream.toString("UTF-8");
-				}
-				System.out.println(response);
-				//////////////////////////////
-
-				 */
 
 				//server.close();
 			}catch(SocketTimeoutException s)

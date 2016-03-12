@@ -8,18 +8,19 @@ import java.io.*;
 //your router.
 public class ListenToPlayersThread extends Thread
 {
-	private Socket player_socket;
-	private String player_nickname;
+	private Player player;
 	private String player_gameName;
 	private Server server;
-	
 
-	public  ListenToPlayersThread(Socket player_socket,Server server) throws IOException
+
+	public  ListenToPlayersThread(Player player,Server server) throws IOException
 	{
-		this.player_socket=player_socket;
+		this.player=player;
 		this.server=server;
 	}
 
+
+	@Override
 	public void run()
 	{
 		while(true)
@@ -65,16 +66,28 @@ public class ListenToPlayersThread extends Thread
 
 			try
 			{
+
+				
+				
+				//sending games list
+				GamePacket gamesList=new GamePacket(player.getNickName(),player.getPassword(), GamePacket.getGamesList, "","",-1);
+				gamesList.setGamesList(Main.server.getGamesIDs());
+				Thread sendGameList=new SendPacketThread(gamesList, player.getSocket());
+				sendGameList.start();
+
+
+
+
+
 				GamePacket packet = null;
 
-				
-				//reading "packet" object from client
-				ObjectInputStream inFromClient = new ObjectInputStream(player_socket.getInputStream());
-				packet=(GamePacket) inFromClient.readObject();
-				player_nickname=packet.getNickName();
-				player_gameName=packet.getGameName();
-				
 
+				//reading "packet" object from client
+				ObjectInputStream inFromClient = new ObjectInputStream(player.getSocket().getInputStream());
+				packet=(GamePacket) inFromClient.readObject();
+				player_gameName=packet.getGameName();
+
+				System.out.println(packet.getType()+"type packet");
 				//performing acts on hit event 
 				if(packet.isHit()){
 					System.out.println("HITTTTT");
@@ -83,29 +96,33 @@ public class ListenToPlayersThread extends Thread
 					String injured_nickName=packet.getInjured_nickName();
 					Main.server.addToServer(game.Hit(hitter_nickName, injured_nickName));
 					Socket injured_player_socket=server.getPlayerSocketByNickName(injured_nickName);
+
 					//writing object to the injured player
-					GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit, injured_nickName,game.getGameName(),packet.getHitArea());
-					ObjectOutputStream outToServer = new ObjectOutputStream(injured_player_socket.getOutputStream());
-					outToServer.writeObject(gotHitPacket);
+					if(injured_player_socket!=null){
+						GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit, injured_nickName,game.getGameName(),packet.getHitArea());
+						Thread sendHitPacket=new SendPacketThread(gotHitPacket,injured_player_socket);
+						sendHitPacket.start();
+						//ObjectOutputStream outToClient = new ObjectOutputStream(injured_player_socket.getOutputStream());
+						//outToClient.writeObject(gotHitPacket);
+					}
 				}
 				if(packet.isDisconnect()){
-					System.out.println("exit");
-					server.playerDisconnected(player_nickname,player_gameName);
+					server.playerDisconnected(player.getNickName(),player_gameName);
 					Main.server.getServerLogs().add(packet.getNickName()+" has just disconnected!");
 					Main.server.getPanel().update();
 					return;
 				}
 				if(packet.isGetGamesList()){
-					Socket player=server.getPlayerSocketByNickName(packet.getNickName());
-					GamePacket gamesList=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
-					gamesList.setGamesList(Main.server.getGamesIDs());
-					System.out.println(Main.server.getGamesIDs().firstElement()+"fffff");
-					ObjectOutputStream outToServer = new ObjectOutputStream(player.getOutputStream());
-					outToServer.writeObject(gamesList);
+					GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
+					gamesListPacket.setGamesList(Main.server.getGamesIDs());
+					//writing game List to client
+					Thread sendGameListPacket=new SendPacketThread(gamesListPacket,player.getSocket());
+					sendGameListPacket.start();
+					//ObjectOutputStream outToClient = new ObjectOutputStream(player_socket.getOutputStream());
+					//outToClient.writeObject(gamesList);
 				}
 				if(packet.isJoinAGame()){
 					//System.out.println(packet.getGameName());
-					Player player=server.getPlayerByNickName(player_nickname);
 					if(player==null)
 						return;
 					server.addPlayerToGame(player, packet.getGameName());
@@ -116,7 +133,7 @@ public class ListenToPlayersThread extends Thread
 					server.addGame(new Game(packet.getGameName()));
 					Main.server.getServerLogs().add("new game: "+packet.getGameName()+"has created by: "+packet.getNickName());
 					Main.server.getPanel().update();
-					
+
 				}
 
 
@@ -127,25 +144,26 @@ public class ListenToPlayersThread extends Thread
 			}catch (java.io.EOFException e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();
-				System.out.println("disconnect: "+player_gameName);
-				System.out.println("disconnect: "+player_nickname);
-				System.out.println("disconnect: "+server.getGameByName(player_gameName).getGameName());
-				server.playerDisconnected(player_nickname,player_nickname);
-				Main.server.getServerLogs().add(player_nickname+" has just disconnected!");
+//				System.out.println("disconnect: "+player_gameName);
+//				System.out.println("disconnect: "+player_nickname);
+				server.playerDisconnected(player.getNickName(),player_gameName);
+				Main.server.getServerLogs().add(player.getNickName()+" has just disconnected!");
 				Main.server.getPanel().update();
 				return;
 			}
 			catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return;
 			}
-			
-	
-			
-			
+
+
+
+
 		}
 	}
 
