@@ -61,8 +61,8 @@ public class Server {
 	public void playerDisconnected(String player_nickname,String player_gameName){
 		for (int i=0;i<players.size();i++)
 			if(player_nickname.equals(players.elementAt(i).getNickName())){
-				if(getPlayerByNickName(player_nickname).getGame()!=null)
-					players.elementAt(i).getGame().playerDisconnected(player_nickname);
+				if(getPlayerByNickName(player_nickname).getCurrentGame()!=null)
+					players.elementAt(i).getCurrentGame().playerDisconnected(player_nickname);
 				players.removeElementAt(i);
 			}
 
@@ -84,7 +84,7 @@ public class Server {
 	}
 	public boolean isPlayerJoinedAGame(Player player){
 		for(int i=0;i<games.size();i++)
-			if(games.elementAt(i).equals(player.getGame()))
+			if(games.elementAt(i).equals(player.getCurrentGame()))
 				return true;
 		return false;
 

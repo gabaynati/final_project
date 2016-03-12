@@ -38,12 +38,12 @@ public class connectThread extends Thread
 				//and the client's InputStream is connected to the server's OutputStream
 
 				GamePacket packet = null;
+				Player newPlayer=new Player(socket,"");
 
 
 				//reading "packet" object from client
 				try {
-					ObjectInputStream inFromClient = new ObjectInputStream(socket.getInputStream());
-					packet=(GamePacket) inFromClient.readObject();
+					packet=(GamePacket) newPlayer.getObjectInputStream().readObject();
 
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -58,7 +58,7 @@ public class connectThread extends Thread
 						
 						
 						//adding to server
-						Player newPlayer=new Player(socket,packet.getNickName());
+						newPlayer.setNickName(packet.getNickName());
 						newPlayer.setPassword(packet.getPassword());
 						server.addPlayer(new Player(socket,packet.getNickName()));
 						server.getServerLogs().add(packet.getNickName()+" has just connected!");

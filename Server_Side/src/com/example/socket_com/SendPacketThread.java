@@ -7,10 +7,10 @@ import java.net.UnknownHostException;
 
 public class SendPacketThread extends Thread  {
 	private GamePacket packet;
-	private Socket socket;
-	public SendPacketThread(GamePacket packet,Socket socket){
+	private Player player;
+	public SendPacketThread(GamePacket packet,Player player){
 		this.packet=packet;
-		this.socket=socket;
+		this.player=player;
 	}
 	@Override
 	public void run()
@@ -20,12 +20,15 @@ public class SendPacketThread extends Thread  {
 		System.out.println("sendddddd: "+res);
 	
 	}
+	
+	
 	//this method is used to prevent two thread from writing to the socket simultaneously.
 	private synchronized String writePacket(GamePacket packet){
 		String response="true";
 		try{
-			ObjectOutputStream outToClient = new ObjectOutputStream(socket.getOutputStream());
+			ObjectOutputStream outToClient = player.getObjectOutputStream();
 			outToClient.writeObject(packet);
+			outToClient.flush();
 		}catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

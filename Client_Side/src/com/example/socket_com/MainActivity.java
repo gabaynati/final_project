@@ -1,5 +1,7 @@
 package com.example.socket_com;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Vector;
 
@@ -27,6 +29,8 @@ public class MainActivity extends Activity {
 
 	//*********server configurations****************/
 	public static Socket socket;
+	public static InputStream in;
+	public static OutputStream out;
 	public static String serverIP="192.168.1.14";
 	public static int serverPort=9000;
 	public static Player player=new Player("nati","1234");

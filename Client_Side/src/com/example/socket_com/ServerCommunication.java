@@ -1,8 +1,10 @@
 package com.example.socket_com;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Vector;
@@ -19,12 +21,28 @@ import android.util.Log;
 public class ServerCommunication {
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
 
-
+	public static boolean isOutputStreamOpened=false,isInputStreamOpened=false;
+	public static ObjectOutputStream outToServer;
 	//this method is used to prevent two thread from writing to the socket simultaneously.
 	private synchronized String writePacket(GamePacket packet){
 		String response="true";
+
+
+		//Opening output stream
+		if(!isOutputStreamOpened){
+			try {
+				outToServer = new ObjectOutputStream(MainActivity.out);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			isOutputStreamOpened=true;
+		}
+
+
+
+
 		try{
-			ObjectOutputStream outToServer = new ObjectOutputStream(MainActivity.socket.getOutputStream());
 			outToServer.writeObject(packet);
 		}catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -37,6 +55,9 @@ public class ServerCommunication {
 		}
 		return response;
 	}
+
+
+
 
 
 	//Threads:
@@ -53,11 +74,24 @@ public class ServerCommunication {
 		protected String doInBackground(Void... arg0) {
 
 			GamePacket packet = null;
+
+			ObjectInputStream inFromClient = null;
+			//Opening input stream
+			if(!isInputStreamOpened){
+				try {
+					inFromClient= new ObjectInputStream(MainActivity.in);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				isInputStreamOpened=true;
+			}
+
+
 			while(running){
 
 				//reading "packet" object from client
 				try {
-					ObjectInputStream inFromClient = new ObjectInputStream(MainActivity.socket.getInputStream());
 					packet=(GamePacket) inFromClient.readObject();
 				} 
 				catch (ClassNotFoundException e) {
@@ -112,7 +146,6 @@ public class ServerCommunication {
 		protected void onPostExecute(String result) {
 			//textResponse.setText(response);
 			super.onPostExecute(result);
-
 		}
 
 	}
@@ -129,9 +162,8 @@ public class ServerCommunication {
 
 
 		@Override
-		protected String doInBackground(GamePacket... arg0) {
-			response=writePacket((GamePacket)arg0[0]);
-
+		protected String doInBackground(GamePacket... args) {
+			response=writePacket((GamePacket)args[0]);
 			return response;
 		}
 
@@ -168,9 +200,14 @@ public class ServerCommunication {
 		@Override
 		protected String doInBackground(Boolean... arg0) {
 			try {
+				//initializing socket properties
+				MainActivity.socket = new Socket(dstAddress, dstPort);
+				MainActivity.in=MainActivity.socket.getInputStream();
+				MainActivity.out=MainActivity.socket.getOutputStream();
 
-				MainActivity.socket = new Socket(dstAddress, dstPort);		
+
 				GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"","",-1);
+
 				response=writePacket(packet);
 
 			} catch (UnknownHostException e) {
@@ -188,10 +225,7 @@ public class ServerCommunication {
 				response = "Exception: " + e.toString();
 			}
 
-			/************/
-			//setting serverListener
-			setlistener();
-			/************/
+
 
 			/*finally{
 					if(socket != null){
@@ -213,6 +247,12 @@ public class ServerCommunication {
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
+			/************/
+			//setting serverListener
+			//setlistener();
+			/************/
+
+
 		}
 
 	}
@@ -296,10 +336,10 @@ public class ServerCommunication {
 	/*****************************************************************/
 	public String disconnectFromServer(){
 		MyClientTask_SendPakcet disconnect=new MyClientTask_SendPakcet();
-		GamePacket packet =new GamePacket(MainActivity.player.getNickName(),MainActivity.player.getPassword(), GamePacket.disconnect, "", MainActivity.currentGame, -1);
+		GamePacket packet =new GamePacket(MainActivity.player.getNickName(),MainActivity.player.getPassword(), GamePacket.disconnect, "", "game 1", -1);
 		String result = "";
 		try {
-			result=disconnect.execute(packet).get(4000, TimeUnit.MILLISECONDS);
+			result=disconnect.execute((GamePacket)packet).get(4000, TimeUnit.MILLISECONDS);
 
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -307,11 +347,12 @@ public class ServerCommunication {
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
 			result="ExecutionException:"+ e.toString();
-		} catch (TimeoutException e) {
+		}
+		catch (TimeoutException e) {
 			// TODO Auto-generated catch block
 			result="TimeoutException:"+ e.toString();
 		}
-		Log.d("DDDDDD:","in disconnected: "+result);
+		//Log.d("DDDDDD:","in disconnected: "+result);
 
 		return result;
 	}

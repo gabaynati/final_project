@@ -28,6 +28,10 @@ public class FindGameActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_list_layout);
+		
+		
+//		//getting gameList from server
+//		String res=server_com.sendGameListRequest();
 		if(gameList!=null){
 
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, gameList);
