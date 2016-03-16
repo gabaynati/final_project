@@ -15,12 +15,12 @@ import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
+import android.content.Intent;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.video.BackgroundSubtractorMOG2;
-
+import android.provider.Settings;
 import com.example.hs.R;
 import com.example.socket_com.ServerCommunication.MyClientTask_ListenToPakcets;
 import com.example.socket_com.ServerCommunication.MyClientTask_SendPakcet;
@@ -64,7 +64,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener {
+public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener, LocationListener {
 
 	private final int ramBurden = 5;
 	private final int FACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
@@ -127,17 +127,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		setContentView(R.layout.game_layout);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-
+		/***************************Sensors*************************************/
 		mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		/******************************************************************/
 		
-		
+		/******************************GPS*********************************/
 		location = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
-		criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
-		bestProvider = location.getBestProvider(criteria, true);
+		Criteria crit = new Criteria();
+		crit.setAccuracy(Criteria.ACCURACY_FINE);
+		bestProvider = location.getBestProvider(crit, false);
+		location.requestLocationUpdates(bestProvider, 0, 1, this);
+		/******************************************************************/
 		
 
 		///*************OpenCV***********************///
@@ -937,6 +939,34 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		// TODO Auto-generated method stub
+/*		String msg = "New Latitude: " + location.getLatitude()
+				+ ",New Longitude: " + location.getLongitude();
+ 
+		total_bulletsText.setText(msg);*/
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+		startActivity(intent);
 	}
 
 }
