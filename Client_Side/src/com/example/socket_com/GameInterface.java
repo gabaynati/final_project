@@ -30,6 +30,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
@@ -56,7 +64,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2 {
+public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener {
 
 	private final int ramBurden = 5;
 	private final int FACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
@@ -72,11 +80,21 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
 
-
-
+	/*************Sensors****************/
+	private SensorManager mSensorManager;
+	private Sensor mAccelerometer;
+	private Sensor mMagnetometer;
+	/********************************************/
+	
+	/*******************GPS********************/
+	private LocationManager location;
+	private String bestProvider;
+	/******************************************/
+	
+	
 	//****server communication configuration*********///
-	private ServerCommunication serverCom;
-	private MyClientTask_ListenToPakcets serverListener;
+	//private ServerCommunication serverCom;
+	//private MyClientTask_ListenToPakcets serverListener;
 	//**************************************************//
 
 
@@ -110,6 +128,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
+		mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		
+		
+		location = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
+		criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
+		bestProvider = location.getBestProvider(criteria, true);
+		
 
 		///*************OpenCV***********************///
 		//binding the OpenCV camera object to the layout
@@ -159,11 +188,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		setScreen();
 
 
+		
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
 
 		/**Server Communication**********/
-		serverCom=new ServerCommunication();
+		//serverCom=new ServerCommunication();
 
 		/********************************/
 	}
@@ -268,6 +298,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		/*************************************/
 
+		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
+        
 
 	}
 
@@ -280,7 +313,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		/************Server Communication*************************/
 		//stopping the server listener
-		serverListener.cancel(true);
+		//serverListener.cancel(true);
 
 		/*************************************/
 
@@ -292,6 +325,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			mOpenCvCameraView.disableView();
 
 
+		mSensorManager.unregisterListener(this, mAccelerometer);
+        mSensorManager.unregisterListener(this, mMagnetometer);
+        
 
 
 	}
@@ -477,13 +513,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-					String res="";
-					res=serverCom.sendHitToServer(MainActivity.enemy, hitArea);
+		//			String res="";
+		//			res=serverCom.sendHitToServer(MainActivity.enemy, hitArea);
 
 					//**********************************/
 
-					Toast toast1 = Toast.makeText(getApplicationContext(),res, 1000);
-					toast1.show();
+		//			Toast toast1 = Toast.makeText(getApplicationContext(),res, 1000);
+		//			toast1.show();
 				}
 
 
@@ -880,6 +916,27 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 
 		return false;
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		
+		if (event.sensor == mAccelerometer){
+			//total_bulletsText.setText(Float.toString(event.values[1]));
+		}
+		
+		else if (event.sensor == mMagnetometer) {
+            //System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
+           // mLastMagnetometerSet = true;
+			//total_bulletsText.setText(Float.toString(event.values[0]) + "," + Float.toString(event.values[1]) + "," + Float.toString(event.values[2]));
+        }
+		
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
