@@ -15,12 +15,16 @@ import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+
 import android.content.Intent;
+
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.video.BackgroundSubtractorMOG2;
+
 import android.provider.Settings;
+
 import com.example.hs.R;
 import com.example.socket_com.ServerCommunication.MyClientTask_ListenToPakcets;
 import com.example.socket_com.ServerCommunication.MyClientTask_SendPakcet;
@@ -29,7 +33,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -66,8 +72,8 @@ import org.opencv.imgproc.Imgproc;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener, LocationListener {
 
+	private Logic logic;
 	private final int ramBurden = 5;
-	private final int FACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
 	private TextView current_bulletsText, total_bulletsText, slesh;
 	private static ProgressBar player_life;
 	private ImageButton reload, target;
@@ -84,14 +90,23 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private Sensor mMagnetometer;
+
+	private float azimut = 0;
+	private TextView sensorTest;
 	/********************************************/
-	
+
 	/*******************GPS********************/
+	private TextView gpsTest;
 	private LocationManager location;
 	private String bestProvider;
+
+	private Location loc;
+	private Location tar;
+
+	private float degree;
 	/******************************************/
-	
-	
+
+
 	//****server communication configuration*********///
 	//private ServerCommunication serverCom;
 	//private MyClientTask_ListenToPakcets serverListener;
@@ -110,9 +125,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//files for face detection
 	private File                   faceCascadeFile, uBodyCascadeFile, lBodyCascadeFile;
 	private CascadeClassifier      faceDetector, uBodyDetector, lBodyDetector;
-	private float                  mRelativeDetectorSize_face   = 0.2f;
-	private float                  mRelativeDetectorSize_upperBody   = 0.15f;
-	private int                    mAbsoluteDetectorSize_face   = 0;
+	private float                  mRelativeDetectorSize_lower   = 0.1f;
+	private float                  mRelativeDetectorSize_upperBody   = 0.1f;
+	private int                    mAbsoluteDetectorSize_lower   = 0;
 	private int                    mAbsoluteDetectorSize_upperBody   = 0;
 	private static final Scalar    RECT_COLOR     = new Scalar(0, 255, 0, 255);
 	private Rect[]                 facesArray, facesArrayWhileShoot;
@@ -132,16 +147,33 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 		/******************************************************************/
-		
+
 		/******************************GPS*********************************/
 		location = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 		Criteria crit = new Criteria();
 		crit.setAccuracy(Criteria.ACCURACY_FINE);
 		bestProvider = location.getBestProvider(crit, false);
-		location.requestLocationUpdates(bestProvider, 0, 1, this);
+		location.requestLocationUpdates(bestProvider, 0, 0, this);
 		/******************************************************************/
+
+
+/*		
+		tar = new Location("dummyprovider");
+		//loc = new Location("dummyprovider");
+
+		tar.setLatitude(32.06977442847062);
+		tar.setLongitude(34.79713439941406);
+
+		loc.setLatitude(31.796983885889574);
+		loc.setLongitude(35.06264626979828);
+		
+        loc = location.getLastKnownLocation(bestProvider);
+		degree = loc.bearingTo(tar);
 		
 
+		gpsTest.setText(Float.toString(degree));
+
+		*/
 		///*************OpenCV***********************///
 		//binding the OpenCV camera object to the layout
 		mOpenCvCameraView=(JavaCameraView)findViewById(R.id.cameraPreview);
@@ -152,7 +184,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mOpenCvCameraView.setOnTouchListener(this);
 		//***************************************///
 
-
+		logic = new Logic(mOpenCvCameraView);
 
 		touched = false;
 
@@ -190,7 +222,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		setScreen();
 
 
-		
+
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
 
@@ -262,8 +294,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				cascadeDir.delete();
 
 				if(xmlRes.equals(lowerBody_xml_res)){
-					faceCascadeFile = CascadeFile;
-					faceDetector = JavaDetector;
+					lBodyCascadeFile = CascadeFile;
+					lBodyDetector = JavaDetector;
 				}
 
 				else if(xmlRes.equals(upperBody_xml_res)){
@@ -301,8 +333,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		/*************************************/
 
 		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
-        
+		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
+
 
 	}
 
@@ -328,8 +360,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 		mSensorManager.unregisterListener(this, mAccelerometer);
-        mSensorManager.unregisterListener(this, mMagnetometer);
-        
+		mSensorManager.unregisterListener(this, mMagnetometer);
+
 
 
 	}
@@ -340,6 +372,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//Initializing the intermediate Mat object which is in use for frame processing
 		mGray = new Mat();
 		mRgba = new Mat();
+		logic.setMats(mGray, mRgba);
 	}
 
 	@Override
@@ -362,12 +395,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mRgba=inputFrame.rgba();
 		mGray=inputFrame.gray();
 
+		logic.setMats(mGray, mRgba);
 		if(!someAnimationRun && touched){
 
-			if (mAbsoluteDetectorSize_face == 0) {
+			if (mAbsoluteDetectorSize_lower == 0) {
 				int height = mGray.rows();
-				if (Math.round(height * mRelativeDetectorSize_face) > 0) {
-					mAbsoluteDetectorSize_face = Math.round(height * mRelativeDetectorSize_face);
+				if (Math.round(height * mRelativeDetectorSize_lower) > 0) {
+					mAbsoluteDetectorSize_lower = Math.round(height * mRelativeDetectorSize_lower);
 				}
 			}
 
@@ -379,17 +413,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 
 
-			MatOfRect faces = new MatOfRect();
+			MatOfRect lowerBodies = new MatOfRect();
 			MatOfRect upperBodies = new MatOfRect();
 			//MatOfRect lowerBodies = new MatOfRect();
 
 
 			//running face detecting on the frame:
-			if (faceDetector != null)
+			if (lBodyDetector != null)
 				//this function takes in a gray scale image and returns rectangles
 				//that bound the faces (if any).
-				faceDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-						new Size(mAbsoluteDetectorSize_face, mAbsoluteDetectorSize_upperBody), new Size());
+				lBodyDetector.detectMultiScale(mGray, lowerBodies, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+						new Size(mAbsoluteDetectorSize_lower, mAbsoluteDetectorSize_lower), new Size());
 
 			//running upper body detecting on the frame:
 			if (uBodyDetector != null)
@@ -408,10 +442,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			 */
 
-			//drawing rectangles around each face in the frame.
-			facesArray = faces.toArray();
-			for (int i = 0; i < facesArray.length; i++)
-				Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), RECT_COLOR, 3);
+			//drawing rectangles around each lower body in the frame.
+			lowerBodyArray = lowerBodies.toArray();
+			for (int i = 0; i < lowerBodyArray.length; i++)
+				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
 
 
 			//drawing rectangles around each upper body in the frame.
@@ -432,34 +466,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	}
 	////############################################///
-
-	//catch the detection rectangles on current time
-	private void catchRect(){
-
-		//for all faces, only if there is any faces in the current camera frame
-		if(facesArray != null){
-			facesArrayWhileShoot = new Rect[facesArray.length];
-
-			for(int i = 0; i < facesArray.length; i++)
-				facesArrayWhileShoot[i] = new Rect(facesArray[i].tl(), facesArray[i].br());
-		}
-
-		//for all upper bodies, only if there is any upper bodies in the current camera frame
-		if(upperBodyArray != null){
-			upperBodyArrayWhileShoot = new Rect[upperBodyArray.length];
-
-			for (int i = 0; i < upperBodyArray.length; i++)
-				upperBodyArrayWhileShoot[i] = new Rect(upperBodyArray[i].tl(), upperBodyArray[i].br());
-		}
-		/*
-		//for all lower bodies, only if there is any upper bodies in the current camera frame
-		if(lowerBodyArray != null){
-			lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
-
-			for (int i = 0; i < lowerBodyArray.length; i++)
-				lowerBodyArrayWhileShoot[i] = new Rect(lowerBodyArray[i].tl(), lowerBodyArray[i].br());
-		}*/
-	}
 
 	//call when the user touch the screen, implementation of OnTouchListener interface
 	@Override
@@ -491,19 +497,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				player.getWeapons()[player.getCurrentWeapon()].shoot();
 
 				//catch the detection rectangles on shoot time
-				catchRect();
+				//logic.catchRect();
 
 				//if this player hits someone
-				int hitArea = isHit();
+				int hitArea = logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
 				String hit_area="";
 				switch(hitArea){
-				case UPPER_BODY_HIT:
+				case Logic.UPPER_BODY_HIT:
 					hit_area="Upper body";
 					break;
-				case FACE_HIT:
+				case Logic.FACE_HIT:
 					hit_area="Head shot";
 					break;
-				case LOWER_BODY_HIT:
+				case Logic.LOWER_BODY_HIT:
 					hit_area="Lower body";
 					break;
 
@@ -515,13 +521,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					toast.show();					
 					////*****server communication*******/
 					//sending to server a GamePacket packet which contains information about the hit event
-		//			String res="";
-		//			res=serverCom.sendHitToServer(MainActivity.enemy, hitArea);
+					//			String res="";
+					//			res=serverCom.sendHitToServer(MainActivity.enemy, hitArea);
 
 					//**********************************/
 
-		//			Toast toast1 = Toast.makeText(getApplicationContext(),res, 1000);
-		//			toast1.show();
+					//			Toast toast1 = Toast.makeText(getApplicationContext(),res, 1000);
+					//			toast1.show();
 				}
 
 
@@ -802,164 +808,106 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}		
 	}
 
-
-	//return the offset of x and y between the openCV rectangle and the real screen
-	//parameter: if xy = X return the x offset, if xy = Y return the y offset, else return -1
-	private double getOffset(String xy){
-
-		double w = mRgba.cols();
-		double h = mRgba.rows();				
-
-		if(xy.equals("X"))
-			return (mOpenCvCameraView.getWidth() - w) / 2;
-
-		else if(xy.equals("Y"))
-			return (mOpenCvCameraView.getHeight() - h) / 2;
-
-		else 
-			return -1;
-	}
-
-	//return the weapon sight point
-	private Point getSightPoint(){
-
-		return new Point(mOpenCvCameraView.getWidth()/2- getOffset("X"), mOpenCvCameraView.getHeight()/2- getOffset("Y"));
-	}
-
-	//check if hit, if yes return the integer that represent the hit area, else return -1
-	private int isHit(){
-
-		if(checkForFace()){
-			facesArrayWhileShoot = null;
-			upperBodyArrayWhileShoot = null;
-			lowerBodyArrayWhileShoot = null;
-
-			return LOWER_BODY_HIT;////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!????>>///
-		}
-
-		if(checkForUpperBody()){
-			facesArrayWhileShoot = null;
-			upperBodyArrayWhileShoot = null;
-			lowerBodyArrayWhileShoot = null;
-
-			return UPPER_BODY_HIT;
-		}
-		/*
-		if(checkForLowerBody()){
-			facesArrayWhileShoot = null;
-			upperBodyArrayWhileShoot = null;
-			lowerBodyArrayWhileShoot = null;
-
-			return LOWER_BODY_HIT;
-		}
-		 */
-
-		return -1;
-	}
-
-	//check if hit at some face in the frame, if yes return true, else return false
-	private boolean checkForFace(){
-
-		if(facesArrayWhileShoot != null){
-
-			Point sightPoint = getSightPoint();
-
-			for (int i = 0; i < facesArrayWhileShoot.length; i++){
-				if(sightPoint.inside(facesArrayWhileShoot[i]))
-					return true;
-			}
-		}
-
-		return false;
-	}
-
-	//check if hit at some upper body in the frame, if yes return true, else return false
-	private boolean checkForUpperBody(){
-
-
-		if(upperBodyArrayWhileShoot != null){
-
-			Point sightPoint = getSightPoint();
-
-			for (int i = 0; i < upperBodyArrayWhileShoot.length; i++){
-				if(sightPoint.inside(upperBodyArrayWhileShoot[i]))
-					return true;
-			}
-		}
-		/*if(upperBodyArrayWhileShoot != null){
-
-			Point sightPoint = getSightPoint();
-
-			for (int i = 0; i < upperBodyArrayWhileShoot.length; i++){
-				for (int j = 0; j < facesArrayWhileShoot.length; j++){
-
-					if(facesArrayWhileShoot[j].br().inside(upperBodyArrayWhileShoot[i]) && facesArrayWhileShoot[j].tl().inside(upperBodyArrayWhileShoot[i])){
-						if(sightPoint.y >= facesArrayWhileShoot[j].br().y && sightPoint.inside(upperBodyArrayWhileShoot[i]))
-							return true;
-					}
-				}
-			}
-		}*/
-
-		return false;
-	}
-
-	//check if hit at some lower body in the frame, if yes return true, else return false
-	private boolean checkForLowerBody(){
-
-		if(lowerBodyArrayWhileShoot != null){
-
-			Point sightPoint = getSightPoint();
-
-			for (int i = 0; i < lowerBodyArrayWhileShoot.length; i++){
-				if(sightPoint.inside(lowerBodyArrayWhileShoot[i]))
-					return true;
-			}
-		}
-
-		return false;
-	}
+	float[] mGravity;
+	float[] mGeomagnetic;
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
+
+
+/*
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+			mGravity = event.values;
+
+		if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+			mGeomagnetic = event.values;
+
+		if (mGravity != null && mGeomagnetic != null) {
+			float R[] = new float[9];
+			float I[] = new float[9];
+			boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+			if (success) {
+				float orientation[] = new float[3];
+				SensorManager.getOrientation(R, orientation);
+				azimut = orientation[0]; // orientation contains: azimut, pitch and roll
+
+			}
+		}
+		azimut = (float)Math.toDegrees(azimut);
+
+		if(azimut > 90 && azimut <= 180){
+			azimut += 90;
+			float offset = Math.abs(180 - azimut);
+			azimut = (180 - offset) * -1;
+		}
+
+		else
+			azimut += 90;
 		
-		if (event.sensor == mAccelerometer){
+		
+		sensorTest.setText(Float.toString(azimut));*/
+
+		/*azimut += geoField.getDeclination();
+
+		azimut = azimut - degree;*/
+
+		//		sensorTest.setText(Float.toString(azimut));
+		/*if (event.sensor == mAccelerometer){
 			//total_bulletsText.setText(Float.toString(event.values[1]));
 		}
-		
+
 		else if (event.sensor == mMagnetometer) {
             //System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
            // mLastMagnetometerSet = true;
 			//total_bulletsText.setText(Float.toString(event.values[0]) + "," + Float.toString(event.values[1]) + "," + Float.toString(event.values[2]));
-        }
-		
+        }*/
+
 	}
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
 		// TODO Auto-generated method stub
-/*		String msg = "New Latitude: " + location.getLatitude()
+
+
+		/*GeomagneticField geoField = new GeomagneticField(
+		             (float) location.getLatitude(),
+		             (float) location.getLongitude(),
+		             (float) location.getAltitude(),
+		             System.currentTimeMillis());
+
+			azimut += geoField.getDeclination();
+
+			tar.setLatitude(location.getLatitude()-1);
+			tar.setLongitude(location.getLongitude());
+
+			float bearing = location.bearingTo(tar);
+
+
+			gpsTest.setText(Float.toString(bearing));
+			sensorTest.setText(Float.toString(azimut));*/
+		
+		/*String msg = "New Latitude: " + location.getLatitude()
 				+ ",New Longitude: " + location.getLongitude();
- 
+
 		total_bulletsText.setText(msg);*/
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
