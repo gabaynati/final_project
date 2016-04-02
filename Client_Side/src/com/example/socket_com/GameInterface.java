@@ -76,13 +76,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private final int ramBurden = 5;
 	private TextView current_bulletsText, total_bulletsText, slesh;
 	private static ProgressBar player_life;
-	private ImageButton reload, target;
+	private ImageButton reload, target, shoot;
 	private ImageView img, sight_img, board_num1, board_num2;
-	private int anim_index, soundIndex, state, unUsed;
+	private int anim_index, soundIndex, state, unUsed, shootingTime;
+	private float x1, x2;
 	private AnimationDrawable shoot_animation, stand_animation;
 	private boolean someAnimationRun, pressed, touched;
 	private Player player=MainActivity.player;
-	private Handler AnimationHandler, DrawableHandler, changeAnimation;
+	private Handler AnimationHandler, DrawableHandler, changeAnimation, shootHandler;
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
 
@@ -135,6 +136,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Rect[]                 lowerBodyArray, lowerBodyArrayWhileShoot;
 
 
+
 	//*********************************************************/////
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +159,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		/******************************************************************/
 
 
-/*		
+		/*		
 		tar = new Location("dummyprovider");
 		//loc = new Location("dummyprovider");
 
@@ -166,14 +168,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		loc.setLatitude(31.796983885889574);
 		loc.setLongitude(35.06264626979828);
-		
+
         loc = location.getLastKnownLocation(bestProvider);
 		degree = loc.bearingTo(tar);
-		
+
 
 		gpsTest.setText(Float.toString(degree));
 
-		*/
+		 */
 		///*************OpenCV***********************///
 		//binding the OpenCV camera object to the layout
 		mOpenCvCameraView=(JavaCameraView)findViewById(R.id.cameraPreview);
@@ -195,6 +197,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		board_num2 = (ImageView)findViewById(R.id.board_num2);
 		reload = (ImageButton)findViewById(R.id.reload);
 		target = (ImageButton)findViewById(R.id.target);
+		shoot = (ImageButton)findViewById(R.id.shoot);
 		player_life = (ProgressBar)findViewById(R.id.life_progress);
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
@@ -212,7 +215,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		wl[0] = mp412;
 		wl[1] = srr61;
 		player.setWeapons(wl);
-
+		shootingTime = (player.getWeapons()[player.getCurrentWeapon()]).shootingTime();
 		player_life.setMax(player.getMaxLife());
 		player_life.setProgress(player.getLife());
 
@@ -227,6 +230,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
+		shoot.setOnTouchListener(this);
 
 		/**Server Communication**********/
 		//serverCom=new ServerCommunication();
@@ -467,77 +471,129 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 	}
+
 	////############################################///
 
 	//call when the user touch the screen, implementation of OnTouchListener interface
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		pressed = false;
-		touched = true;
-
-		if(!someAnimationRun){
+		if(v.getId() == mOpenCvCameraView.getId()){
 
 			switch (event.getAction()){
+			
 			case MotionEvent.ACTION_DOWN: 
 			{
-				pressed = true;
+				x1 = event.getX();
+
 				break;
 			}
 
 			case MotionEvent.ACTION_UP: 
 			{
-				pressed = false;
+				x2 = event.getX();
+
+				//Left to Right Swap Performed
+				//if (x1 < x2) 
+
+				
+				//Right to Left Swap Performed
+				//if (x1 > x2)
+
 				break;
 			}
 			}
+		}
 
-			int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
-			if(currentBullets > 0){
-				someAnimationRun = true;
-				executeAnimation(shoot_animation);
-				player.getWeapons()[player.getCurrentWeapon()].shoot();
+		else if(v.getId() == shoot.getId()){
 
-				//catch the detection rectangles on shoot time
-				//logic.catchRect();
+			switch (event.getAction()){
 
-				//if this player hits someone
-				int hitArea = logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
-				String hit_area="";
-				switch(hitArea){
-				case Logic.UPPER_BODY_HIT:
-					hit_area="Upper body";
-					break;
-				case Logic.FACE_HIT:
-					hit_area="Head shot";
-					break;
-				case Logic.LOWER_BODY_HIT:
-					hit_area="Lower body";
-					break;
+			case MotionEvent.ACTION_DOWN: 
+			{
+				if(!someAnimationRun){
 
-
-
+					shootHandler = new Handler();
+					shootHandler.postDelayed(shootAction, shootingTime);
+					shoot();
 				}
-				if(hitArea != -1){
-					Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
-					toast.show();					
-					////*****server communication*******/
-					//sending to server a GamePacket packet which contains information about the hit event
-					//			String res="";
-					//			res=serverCom.sendHitToServer(MainActivity.enemy, hitArea);
-
-					//**********************************/
-
-					//			Toast toast1 = Toast.makeText(getApplicationContext(),res, 1000);
-					//			toast1.show();
-				}
+				break;
+			}
 
 
-				setScreen();
+			case MotionEvent.ACTION_UP: 
+			{
+				if (shootHandler == null)
+					return true;
+				shootHandler.removeCallbacks(shootAction);
+				shootHandler = null;
+
+				break;
+			}
+
 			}
 		}
 
-		return pressed;
+
+		return true;
+	}
+
+	private Runnable shootAction = new Runnable() {
+		@Override
+		public void run() {
+
+			shoot();
+			shootHandler.postDelayed(this, shootingTime);
+		}
+	};
+
+	private void shoot(){
+
+		touched = true;
+
+		int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
+		if(currentBullets > 0){
+			someAnimationRun = true;
+			executeAnimation(shoot_animation);
+			player.getWeapons()[player.getCurrentWeapon()].shoot();
+
+			//catch the detection rectangles on shoot time
+			//logic.catchRect();
+
+			//if this player hits someone
+			int hitArea = logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
+			String hit_area="";
+			switch(hitArea){
+			case Logic.UPPER_BODY_HIT:
+				hit_area="Upper body";
+				break;
+			case Logic.FACE_HIT:
+				hit_area="Head shot";
+				break;
+			case Logic.LOWER_BODY_HIT:
+				hit_area="Lower body";
+				break;
+
+
+
+			}
+			if(hitArea != -1){
+				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
+				toast.show();					
+				////*****server communication*******/
+				//sending to server a GamePacket packet which contains information about the hit event
+				//			String res="";
+				//			res=serverCom.sendHitToServer(MainActivity.enemy, hitArea);
+
+				//**********************************/
+
+				//			Toast toast1 = Toast.makeText(getApplicationContext(),res, 1000);
+				//			toast1.show();
+			}
+
+
+			setScreen();
+		}
 	}
 
 
@@ -618,8 +674,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		if(anim.equals("stand"))
 			animation = stand_animation;
-		
-		
+
+
 
 		else if(anim.equals("shoot"))
 			animation = shoot_animation;
@@ -652,8 +708,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 				if(setScreen())
 					reload();
-				
-				
+
+
 
 				else
 					if(!player.getWeapons()[player.getCurrent_weapon()].target_state)
@@ -759,20 +815,20 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//this task on separate thread to not disturb the camera frames continuous
 	private Runnable changeAnimationTask = new Runnable() {
 		public void run() {	
-			
+
 			shoot_animation = null;
-			
+
 			System.gc();
-			
+
 			if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState())
 				shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
-			
+
 
 			else
 				shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("targetshoot");
-			
 
-			
+
+
 			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
 		}
 	};
@@ -785,7 +841,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			shoot_animation = null;
 			System.gc();
 		}
-		
+
 		drawableResources = player.getWeapons()[player.getCurrent_weapon()].reload();
 
 		if(drawableResources != null)
@@ -828,7 +884,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	public void onSensorChanged(SensorEvent event) {
 
 
-/*
+		/*
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
 			mGravity = event.values;
 
@@ -856,8 +912,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		else
 			azimut += 90;
-		
-		
+
+
 		sensorTest.setText(Float.toString(azimut));*/
 
 		/*azimut += geoField.getDeclination();
@@ -904,7 +960,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			gpsTest.setText(Float.toString(bearing));
 			sensorTest.setText(Float.toString(azimut));*/
-		
+
 		/*String msg = "New Latitude: " + location.getLatitude()
 				+ ",New Longitude: " + location.getLongitude();
 

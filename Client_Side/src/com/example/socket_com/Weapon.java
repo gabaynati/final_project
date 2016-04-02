@@ -69,5 +69,8 @@ public abstract class Weapon {
 	
 	//this methot called when the user shoot at this weapon
 	public abstract void shoot();
+	
+	//return the time of shooting this weapon at mili seconds
+	public abstract int shootingTime();
 
 }

@@ -17,6 +17,7 @@ public class Mp412 extends Weapon implements OnCompletionListener {
 
 	private final int max_bullets = 6;                                       //max stack size of this weapon
 	private final int reload_anim_size = 61;                                 //reload animation size of this weapon
+	private final int shootingTime = 500;                                    //shooting time at mili seconds
 	private final String reload_anim_name = "reload";
 	private final int frameSound1 = 9, frameSound2 = 36, frameSound3 = 51;   //frames number that need to play sound when displayed
 
@@ -147,5 +148,11 @@ public class Mp412 extends Weapon implements OnCompletionListener {
 			drawables[i-1] = imageResource;
 		}
 		return drawables;
+	}
+
+
+	@Override
+	public int shootingTime() {
+		return shootingTime;
 	}
 }

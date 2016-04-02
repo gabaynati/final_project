@@ -139,6 +139,16 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:src="@drawable/sight" />
+
+        <ImageButton
+            android:id="@+id/shoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/tableLayout1"
+            android:layout_alignParentRight="true"
+            android:background="@null"
+            android:alpha="0.5"
+            android:src="@drawable/shoot_button" />
         
     </RelativeLayout>
 
