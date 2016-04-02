@@ -206,7 +206,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		someAnimationRun = false;
 
-		Weapon mp412 = new Mp412(getApplicationContext(), "mp412", 60);
+		Weapon mp412 = new Srr61(getApplicationContext(), "srr61", 60);
 		Weapon[] wl = new Weapon[1];
 		wl[0] = mp412;
 		player.setWeapons(wl);
@@ -616,6 +616,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		if(anim.equals("stand"))
 			animation = stand_animation;
+		
+		
 
 		else if(anim.equals("shoot"))
 			animation = shoot_animation;
@@ -648,6 +650,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 				if(setScreen())
 					reload();
+				
+				
 
 				else
 					if(!player.getWeapons()[player.getCurrent_weapon()].target_state)
@@ -684,12 +688,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
 
-			if(soundIndex < sounds_frames.length){
+			/*if(soundIndex < sounds_frames.length){
 				if(anim_index == sounds_frames[soundIndex]){
 					player.getWeapons()[player.getCurrent_weapon()].playSound(sounds_frames[soundIndex]);
 					soundIndex++;
 				}
-			}
+			}*/
 
 			img.setBackgroundDrawable(null);
 			img.setImageBitmap(segment_animation[anim_index]);
@@ -705,11 +709,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				setScreen();
 				sight_img.setVisibility(View.VISIBLE);
 
-				if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
-					(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
-					shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
-					System.gc();
-				}
+				if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState())
+					changeAnimation.post(changeAnimationTask);		
 
 				someAnimationRun = false;
 				AnimationHandler.removeCallbacks(animationDisplayTask);    //kill this thread
@@ -755,15 +756,21 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//this runnable task is for change the animations references that need to execute immediacy
 	//this task on separate thread to not disturb the camera frames continuous
 	private Runnable changeAnimationTask = new Runnable() {
-		public void run() {
-
+		public void run() {	
+			
+			shoot_animation = null;
+			
+			System.gc();
+			
 			if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState())
 				shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
+			
 
 			else
 				shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("targetshoot");
+			
 
-			System.gc();
+			
 			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
 		}
 	};
@@ -772,7 +779,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//reload the weapon
 	private void reload(){
 
-
+		if(player.getWeapons()[player.getCurrent_weapon()].target_state){
+			shoot_animation = null;
+			System.gc();
+		}
+		
 		drawableResources = player.getWeapons()[player.getCurrent_weapon()].reload();
 
 		if(drawableResources != null)
@@ -805,7 +816,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			changeAnimation.post(changeAnimationTask);
 			setAnimation("target");
 			sight_img.setVisibility(View.INVISIBLE);
-		}		
+		}	
 	}
 
 	float[] mGravity;

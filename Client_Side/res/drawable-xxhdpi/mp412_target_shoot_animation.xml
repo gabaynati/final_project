@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <animation-list xmlns:android="http://schemas.android.com/apk/res/android" android:oneshot="true" >
     
-    <item android:drawable="@drawable/mp412_targetshoot1" android:duration="30" />
-    <item android:drawable="@drawable/mp412_targetshoot2" android:duration="30" />
-    <item android:drawable="@drawable/mp412_targetshoot3" android:duration="30" />
-    <item android:drawable="@drawable/mp412_targetshoot4" android:duration="30" />
-    <item android:drawable="@drawable/mp412_targetshoot5" android:duration="30" />
+    <item android:drawable="@drawable/mp412_targetshoot1" android:duration="60" />
+    <item android:drawable="@drawable/mp412_targetshoot2" android:duration="60" />
+    <item android:drawable="@drawable/mp412_targetshoot3" android:duration="60" />
+    <item android:drawable="@drawable/mp412_targetshoot4" android:duration="60" />
+    <item android:drawable="@drawable/mp412_targetshoot5" android:duration="60" />
     <item android:drawable="@drawable/mp412_target6" android:duration="30" />
 
 </animation-list>

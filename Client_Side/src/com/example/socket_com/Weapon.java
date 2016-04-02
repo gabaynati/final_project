@@ -39,11 +39,7 @@ public abstract class Weapon {
 	//set the target state
 	public void setTargetState(){
 		
-		if(target_state)
-			target_state = false;
-		
-		else
-			target_state = true;
+		target_state = !target_state;
 	}
 	
 	//get the current number of bullets
