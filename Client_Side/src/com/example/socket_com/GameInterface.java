@@ -206,9 +206,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		someAnimationRun = false;
 
-		Weapon mp412 = new Srr61(getApplicationContext(), "srr61", 60);
-		Weapon[] wl = new Weapon[1];
+		Weapon mp412 = new Mp412(getApplicationContext(), "mp412", 60);
+		Weapon srr61 = new Srr61(getApplicationContext(), "srr61", 60);
+		Weapon[] wl = new Weapon[2];
 		wl[0] = mp412;
+		wl[1] = srr61;
 		player.setWeapons(wl);
 
 		player_life.setMax(player.getMaxLife());
@@ -688,12 +690,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
 
-			/*if(soundIndex < sounds_frames.length){
+			if(soundIndex < sounds_frames.length){
 				if(anim_index == sounds_frames[soundIndex]){
 					player.getWeapons()[player.getCurrent_weapon()].playSound(sounds_frames[soundIndex]);
 					soundIndex++;
 				}
-			}*/
+			}
 
 			img.setBackgroundDrawable(null);
 			img.setImageBitmap(segment_animation[anim_index]);
