@@ -212,8 +212,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		Weapon mp412 = new Mp412(getApplicationContext(), "mp412", 60);
 		Weapon srr61 = new Srr61(getApplicationContext(), "srr61", 60);
 		Weapon[] wl = new Weapon[2];
-		wl[0] = mp412;
-		wl[1] = srr61;
+		wl[1] = mp412;
+		wl[0] = srr61;
 		player.setWeapons(wl);
 		shootingTime = (player.getWeapons()[player.getCurrentWeapon()]).shootingTime();
 		player_life.setMax(player.getMaxLife());

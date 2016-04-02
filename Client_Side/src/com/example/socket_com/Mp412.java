@@ -13,7 +13,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 
-public class Mp412 extends Weapon implements OnCompletionListener {
+public class Mp412 extends Weapon {
 
 	private final int max_bullets = 6;                                       //max stack size of this weapon
 	private final int reload_anim_size = 61;                                 //reload animation size of this weapon
@@ -98,14 +98,6 @@ public class Mp412 extends Weapon implements OnCompletionListener {
 	@Override
 	public int getMaxBullets() {
 		return max_bullets;
-	}
-
-
-	//called when the sound is ended, implementation of OnCompletionListener interface
-	@Override
-	public void onCompletion(MediaPlayer mp) {
-		// TODO Auto-generated method stub
-		mp.release();
 	}
 
 	//return the frames's number that need to accompanied with sound

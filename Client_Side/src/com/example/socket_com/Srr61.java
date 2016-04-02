@@ -1,15 +1,19 @@
 package com.example.socket_com;
 
+import java.io.IOException;
+
 import com.example.hs.R;
 
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
+import android.media.MediaPlayer;
 
 public class Srr61 extends Weapon {
 
 	private final int max_bullets = 10;                                       //max stack size of this weapon
-	private final int reload_anim_size = 21;                                 //reload animation size of this weapon
-	private final int shootingTime = 500;                                    //shooting time at mili seconds
+	private final int reload_anim_size = 21;                                  //reload animation size of this weapon
+	private final int shootingTime = 1700;                                    //shooting time at mili seconds
+	private final int frameSound1 = 6, frameSound2 = 14;                      //frames number that need to play sound when displayed
 	private final String reload_anim_name = "reload";
 
 	public Srr61(Context context, String name, int total_bullets) {
@@ -19,8 +23,25 @@ public class Srr61 extends Weapon {
 
 	@Override
 	public int[] framesToNeedToPlay() {
-		// TODO Auto-generated method stub
-		return null;
+
+		int[] frames = {frameSound1, frameSound2};
+
+		return frames;
+	}
+
+	//play sound according to frame's number
+	@Override
+	public void playSound(int frameNum){
+
+		if(frameNum == frameSound1){
+			sound = MediaPlayer.create(actContext, R.raw.ssr61_reload_sound1);
+			sound.start();
+		}
+
+		else if(frameNum == frameSound2){
+			sound = MediaPlayer.create(actContext, R.raw.ssr61_reload_sound2);
+			sound.start();
+		}
 	}
 
 	@Override
@@ -70,6 +91,18 @@ public class Srr61 extends Weapon {
 
 		current_bullets--;
 		total_bullets--;
+
+		sound = MediaPlayer.create(actContext, R.raw.srr61_shoot_sound);
+		try {
+			sound.prepare();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sound.start();
 	}
 
 	//return resources id array of animation bitmaps according to parameters animSize and animName
