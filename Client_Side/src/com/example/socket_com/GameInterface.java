@@ -212,21 +212,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		Weapon mp412 = new Mp412(getApplicationContext(), "mp412", 60);
 		Weapon srr61 = new Srr61(getApplicationContext(), "srr61", 60);
 		Weapon[] wl = new Weapon[2];
-		wl[1] = mp412;
-		wl[0] = srr61;
+		wl[0] = mp412;
+		wl[1] = srr61;
 		player.setWeapons(wl);
 		shootingTime = (player.getWeapons()[player.getCurrentWeapon()]).shootingTime();
 		player_life.setMax(player.getMaxLife());
 		player_life.setProgress(player.getLife());
 
-		//initialize the immediacy animations
-		stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");
-		shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
-
-		setAnimation("stand");
-		setScreen();
-
-
+		shoot_animation = (player.getWeapons()[player.getCurrent_weapon()].getAnimation("shoot"));
+		executeAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("choose"));
 
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
@@ -481,7 +475,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		if(v.getId() == mOpenCvCameraView.getId()){
 
 			switch (event.getAction()){
-			
+
 			case MotionEvent.ACTION_DOWN: 
 			{
 				x1 = event.getX();
@@ -491,16 +485,44 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			case MotionEvent.ACTION_UP: 
 			{
-				x2 = event.getX();
+				if(!someAnimationRun){
+					
+					x2 = event.getX();
 
-				//Left to Right Swap Performed
-				//if (x1 < x2) 
+					//Left to Right Swap Performed
+					if (x1 < x2){
 
-				
-				//Right to Left Swap Performed
-				//if (x1 > x2)
+						someAnimationRun = true;
+						shoot_animation = null;
+						System.gc();
 
-				break;
+						if((player.getWeapons()[player.getCurrent_weapon()]).target_state)
+							sight_img.setVisibility(View.VISIBLE);
+
+						executeReplaceAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("drop"));
+
+						player.chengeCurrentWeapon(-1);
+					}
+
+
+					//Right to Left Swap Performed
+					if (x1 > x2){
+
+						someAnimationRun = true;
+						shoot_animation = null;
+						System.gc();
+
+						if((player.getWeapons()[player.getCurrent_weapon()]).target_state)
+							sight_img.setVisibility(View.VISIBLE);
+
+						executeReplaceAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("drop"));
+
+						player.chengeCurrentWeapon(1);
+					}
+
+					break;
+
+				}
 			}
 			}
 		}
@@ -672,16 +694,21 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		AnimationDrawable animation;
 
-		if(anim.equals("stand"))
+		if(anim.equals("stand")){
+
+			if(stand_animation == null)
+				stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");
+
 			animation = stand_animation;
-
-
+		}
 
 		else if(anim.equals("shoot"))
 			animation = shoot_animation;
 
+
 		else
 			animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation(anim);
+
 
 		if(animation != null){
 
@@ -704,18 +731,41 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			@Override
 			void onAnimationFinish() {
 
-				someAnimationRun = false;
-
+				
 				if(setScreen())
 					reload();
-
-
 
 				else
 					if(!player.getWeapons()[player.getCurrent_weapon()].target_state)
 						setAnimation("stand");
+
+				someAnimationRun = false;
 			}
 		};
+
+
+
+		img.setBackgroundDrawable(CustomAnimation);
+		someAnimationRun = true;
+
+		CustomAnimation.start();
+	}
+
+	//execute the animation parameter anim once
+	private void executeReplaceAnimation(AnimationDrawable anim){
+
+		CustomAnimationDrawable CustomAnimation = new CustomAnimationDrawable(anim) {
+			@Override
+			void onAnimationFinish() {
+
+				stand_animation = null;
+
+				executeAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("choose"));
+				shoot_animation = (player.getWeapons()[player.getCurrent_weapon()].getAnimation("shoot"));
+			}
+		};
+
+
 
 		img.setBackgroundDrawable(CustomAnimation);
 		someAnimationRun = true;
@@ -848,14 +898,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			executeSegmentsAnimation();
 
 		sounds_frames = (player.getWeapons()[player.getCurrentWeapon()]).framesToNeedToPlay();
-
-		/*if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
-			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
-			shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
-			System.gc();
-		}*/
-
-
 	}
 
 	//switch to target state and vice versa

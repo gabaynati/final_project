@@ -127,7 +127,7 @@ public class Player {
 	 * if i = -1 take the previous weapon
 	 * else do nothing
 	 */
-	public void setCurrentWeapon(int i){
+	public void chengeCurrentWeapon(int i){
 
 		if(i == 1)
 			current_weapon = (current_weapon + i) % weapons.length;

@@ -50,11 +50,6 @@ public class Mp412 extends Weapon {
 		sound.start();
 	}
 
-	//called when the user choose this weapon while the game
-	public void choose_this_weapon() {
-
-	}
-
 	//return resources id array of reload animation bitmaps
 	@Override
 	public int[] reload(){
@@ -75,7 +70,15 @@ public class Mp412 extends Weapon {
 	@Override
 	public AnimationDrawable getAnimation(String anim){
 
-		if(anim.equals("stand"))
+		if(anim.equals("drop")){
+			target_state = false;
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp412_drop_animation);
+		}
+		
+		else if(anim.equals("choose"))
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp412_choose_animation);
+			
+		else if(anim.equals("stand"))
 			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.mp412_stand_animation);
 
 		else if(anim.equals("target"))

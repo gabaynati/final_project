@@ -12,7 +12,7 @@ public class Srr61 extends Weapon {
 
 	private final int max_bullets = 10;                                       //max stack size of this weapon
 	private final int reload_anim_size = 21;                                  //reload animation size of this weapon
-	private final int shootingTime = 1700;                                    //shooting time at mili seconds
+	private final int shootingTime = 1900;                                    //shooting time at mili seconds
 	private final int frameSound1 = 6, frameSound2 = 14;                      //frames number that need to play sound when displayed
 	private final String reload_anim_name = "reload";
 
@@ -67,7 +67,15 @@ public class Srr61 extends Weapon {
 	@Override
 	public AnimationDrawable getAnimation(String anim) {
 
-		if(anim.equals("stand"))
+		if(anim.equals("drop")){
+			target_state = false;
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.srr61_drop_animation);
+		}
+			
+		else if(anim.equals("choose"))
+			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.srr61_choose_animation);
+		
+		else if(anim.equals("stand"))
 			return (AnimationDrawable)actContext.getResources().getDrawable(R.drawable.srr61_stand_animation);
 
 		else if(anim.equals("target"))
