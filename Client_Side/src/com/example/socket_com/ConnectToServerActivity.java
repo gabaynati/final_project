@@ -71,6 +71,7 @@ public class ConnectToServerActivity extends Activity {
 	//connect button onClick method
 	OnClickListener buttonConnectOnClickListener = new OnClickListener(){
 
+
 		@Override
 		public void onClick(View arg0) {
 			//checking for Internet connection
@@ -105,7 +106,7 @@ public class ConnectToServerActivity extends Activity {
 				String res="";
 				server_com=new ServerCommunication();
 				res=server_com.ConnectToServer(addr, port, nickname, password);
-
+				server_com.setlistener();
 				if(res.equals("true")){
 					buffer="You have successfully connected to server";
 					textResponse.setText(buffer);

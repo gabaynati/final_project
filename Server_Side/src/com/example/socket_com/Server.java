@@ -2,7 +2,10 @@ package com.example.socket_com;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.Vector;
 
@@ -11,8 +14,18 @@ public class Server {
 	private ServerInterface panel;
 	private  Vector<String> serverLogs;
 	private Vector<Player> players;
-	private int serverPort;
+	public static int serverPort;
+	//public static DatagramSocket serverSocket;
 	public Server(int serverPort){
+//		try {
+//			serverSocket = new DatagramSocket(serverPort);
+//		} catch (SocketException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+		
+		
 		this.players=new Vector<Player>();
 		this.games=new Vector<Game>();
 		this.serverLogs=new Vector<String>();
@@ -137,10 +150,10 @@ public class Server {
 		}
 
 	}
-	public Socket getPlayerSocketByNickName(String nickName) {
+	public InetAddress getPlayerIPByNickName(String nickName) {
 		for (int i=0;i<players.size();i++)
 			if(nickName.equals(players.elementAt(i).getNickName()))
-				return players.elementAt(i).getSocket();
+				return players.elementAt(i).getIP();
 		return null;
 	}
 	public Player getPlayerByNickName(String nickName) {
@@ -149,9 +162,9 @@ public class Server {
 				return players.elementAt(i);
 		return null;
 	}
-	public Player getPlayerBySocket(Socket player_socket) {
+	public Player getPlayerByIP(InetAddress player_IP) {
 		for (int i=0;i<players.size();i++)
-			if(player_socket.equals(players.elementAt(i).getSocket()))
+			if(player_IP.equals(players.elementAt(i).getIP()))
 				return players.elementAt(i);
 		return null;
 	}

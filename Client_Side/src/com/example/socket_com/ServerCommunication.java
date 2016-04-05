@@ -1,54 +1,67 @@
 package com.example.socket_com;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.StreamCorruptedException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
-
+import android.net.IpPrefix;
 import android.os.AsyncTask;
 import android.util.Log;
 
 
 public class ServerCommunication {
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
-
-	public static boolean isOutputStreamOpened=false,isInputStreamOpened=false;
-	public static ObjectOutputStream outToServer;
 	//this method is used to prevent two thread from writing to the socket simultaneously.
+	private DatagramSocket socket;
+	ByteArrayOutputStream outputStream;
+	ObjectOutputStream os;
+
+
+	public ServerCommunication(){
+		try {
+			socket= new DatagramSocket();
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+
 	private synchronized String writePacket(GamePacket packet){
 		String response="true";
 
-
-		//Opening output stream
-		if(!isOutputStreamOpened){
-			try {
-				outToServer = new ObjectOutputStream(MainActivity.out);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			isOutputStreamOpened=true;
+		DatagramSocket socket = null;
+		try {
+			socket = new DatagramSocket();
+		} catch (SocketException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
+		try {
+			os.writeObject(packet);
+			byte[] data = outputStream.toByteArray();
+			DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getByName(MainActivity.serverIP), MainActivity.serverPort);
+			socket.send(sendPacket);
 
-
-
-		try{
-			outToServer.writeObject(packet);
-		}catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			response = "UnknownHostException: " + e.toString();
-		} catch (IOException e) {
+		}catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			response = "IOException: " + e.toString();
@@ -75,32 +88,45 @@ public class ServerCommunication {
 
 			GamePacket packet = null;
 
-			ObjectInputStream inFromClient = null;
-			//Opening input stream
-			if(!isInputStreamOpened){
-				try {
-					inFromClient= new ObjectInputStream(MainActivity.in);
-				} catch (IOException e) {
+
+
+
+			byte[] incomingData = new byte[1024];
+			DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
+			ByteArrayInputStream in;
+			ObjectInputStream is = null;
+			DatagramSocket socket = null;
+			try {
+				socket = new DatagramSocket();
+				byte[] data = incomingPacket.getData();
+				 in = new ByteArrayInputStream(data);
+				 is = new ObjectInputStream(in);
+				socket.receive(incomingPacket);
+			} catch (SocketException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			} catch (StreamCorruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+
+		
+			while(running){
+				try{
+					//reading "packet" object from client
+
+					packet=(GamePacket)is.readObject();
+
+
+				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				isInputStreamOpened=true;
-			}
-
-
-			while(running){
-
-				//reading "packet" object from client
-				try {
-					packet=(GamePacket) inFromClient.readObject();
-				} 
-				catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					response = "ClassNotFoundException: " + e.toString();
-
-					return response;
-				}catch (UnknownHostException e) {
+				catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 					response = "UnknownHostException: " + e.toString();
@@ -200,15 +226,26 @@ public class ServerCommunication {
 		@Override
 		protected String doInBackground(Boolean... arg0) {
 			try {
+				/*
 				//initializing socket properties
-				MainActivity.socket = new Socket(dstAddress, dstPort);
+				MainActivity.socket = new DatagramSocket( dstPort,dstAddress);
 				MainActivity.in=MainActivity.socket.getInputStream();
 				MainActivity.out=MainActivity.socket.getOutputStream();
+								response=writePacket(packet);
 
-
+				 */
 				GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"","",-1);
 
-				response=writePacket(packet);
+				DatagramSocket socket= new DatagramSocket();
+				InetAddress IPAddress =InetAddress.getByName(dstAddress);
+				outputStream = new ByteArrayOutputStream();
+				os = new ObjectOutputStream(outputStream);
+				os.writeObject(packet);
+				byte[] data = outputStream.toByteArray();
+				DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, dstPort);
+				socket.send(sendPacket);
+
+
 
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -271,7 +308,7 @@ public class ServerCommunication {
 
 
 
-	//Methods which uses above threads to communicate server
+	//Methods which uses above threads to communicate the server
 	/********M***************S*****************************************************/
 	/**********E************D*****************************************************/
 	/*************T*******O*******************************************************/

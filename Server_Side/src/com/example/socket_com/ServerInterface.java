@@ -112,7 +112,7 @@ public class ServerInterface extends JPanel implements Runnable {
 		for(int i=0;i<team.size();i++){
 			Vector<String> row = new Vector<String>();
 			row.addElement(team.elementAt(i).getNickName().toString());
-			row.addElement(team.elementAt(i).getSocket().getRemoteSocketAddress().toString());
+			row.addElement(team.elementAt(i).getIP().toString());
 			rowData.addElement(row);
 		}
 

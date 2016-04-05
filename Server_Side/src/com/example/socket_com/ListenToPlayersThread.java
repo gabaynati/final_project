@@ -11,14 +11,12 @@ public class ListenToPlayersThread extends Thread
 	private Player player;
 	private String player_gameName;
 	private Server server;
-	private boolean isInputStreamDefined=false;
-	private ObjectInputStream inFromClient;
+	
 
 	public  ListenToPlayersThread(Player player,Server server) throws IOException
 	{
 		this.player=player;
 		this.server=server;
-		inFromClient= player.getObjectInputStream();
 	}
 
 
@@ -120,7 +118,7 @@ public class ListenToPlayersThread extends Thread
 					server.playerDisconnected(player.getNickName(),player_gameName);
 					Main.server.getServerLogs().add(packet.getNickName()+" has just disconnected!");
 					Main.server.getPanel().update();
-					this.player.getSocket().close();
+					//this.player.getSocket().close();
 					return;
 				}
 				if(packet.isGetGamesList()){

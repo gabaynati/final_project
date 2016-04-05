@@ -4,12 +4,15 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 public class Player {
-	private Socket socket;
-	private ObjectOutputStream out;
-	private ObjectInputStream in;
+	private InetAddress ipAddr;
+	private int port;
+	private DatagramSocket socket;
 	private String nickName,password;
 	private int life;
 	private int gameScore;
@@ -18,30 +21,27 @@ public class Player {
 	private int ammunition;
 	private Team team;
 	private Game currentGame=null;
-	public Player(Socket socket,String nickName){
-		this.socket=socket;
-		try {
-			this.out = new ObjectOutputStream(socket.getOutputStream());
-			this.in = new ObjectInputStream(socket.getInputStream());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public Player(InetAddress ipAddr,int port,String nickName){
+		this.ipAddr=ipAddr;
+		this.port=port;
 		life=100;
 		gameScore=0;
 		killCount=0;
 		this.nickName=nickName;
 		ammunition=30;
+		try {
+			socket=new DatagramSocket(this.port);
+			socket.connect(ipAddr,port);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-
-	public Socket getSocket() {
-		return socket;
+	public DatagramSocket getSocket(){ 
+		return this.socket;
 	}
-	public ObjectOutputStream getObjectOutputStream() {
-		return out;
-	}
-	public ObjectInputStream getObjectInputStream() {
-		return in;
+	public InetAddress getIP(){
+		return this.ipAddr;
 	}
 	public String getNickName() {
 		return nickName;
@@ -67,15 +67,6 @@ public class Player {
 	public Game getCurrentGame() {
 		return currentGame;
 	}
-	public void setSocket(Socket socket) {
-		this.socket = socket;
-	}
-	public void setObjectOutputStream(ObjectOutputStream out) {
-		this.out = out;
-	}
-	public void setObjectInputStream(ObjectInputStream in) {
-		this.in = in;
-	}
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
@@ -99,6 +90,11 @@ public class Player {
 	}
 	public void setCurrentGame(Game currentGame) {
 		this.currentGame = currentGame;
+	}
+
+	public int getPort() {
+		return this.port;
+		// TODO Auto-generated method stub
 	}
 
 

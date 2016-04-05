@@ -2,6 +2,7 @@ package com.example.socket_com;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.Vector;
 
@@ -28,15 +29,14 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	//*********server configurations****************/
-	public static Socket socket;
 	public static InputStream in;
 	public static OutputStream out;
-	public static String serverIP="192.168.1.14";
-	public static int serverPort=9000;
+	public static String serverIP="192.168.1.17";
+	public static int serverPort=9001;
 	public static Player player=new Player("nati","1234");
 	public static String enemy="gili";
 	public static String currentGame="";
-	public static Vector<String>gameList;
+	public static Vector<String> gameList;
 	//*************************************************/
 
 	Button buttonConnectToServer;

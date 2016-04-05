@@ -3,6 +3,7 @@ import java.awt.DisplayMode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.DatagramSocket;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -13,7 +14,7 @@ import javax.swing.JFrame;
 
 public class Main {
 	
-	private static int serverPort = Integer.parseInt("9000");
+	private static int serverPort = Integer.parseInt("9001");
 	public static Server server=new Server(serverPort);
 	
 	@SuppressWarnings("deprecation")

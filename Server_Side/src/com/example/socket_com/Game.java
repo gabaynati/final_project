@@ -1,5 +1,6 @@
 package com.example.socket_com;
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Vector;
@@ -105,8 +106,8 @@ public class Game {
 
 	}*/
 	public String Hit(String Hitman_nickName,String injured_nickName){
-		Socket hitman_address=getSocketByNickName(Hitman_nickName);
-		Socket injured_address=getSocketByNickName(injured_nickName);
+		InetAddress hitman_address=getIPByNickName(Hitman_nickName);
+		InetAddress injured_address=getIPByNickName(injured_nickName);
 
 		String print="";
 		if(hitman_address!=null && injured_address!=null)
@@ -145,10 +146,10 @@ public class Game {
 		return null;
 	}*/
 
-	private Socket getSocketByNickName(String player_nickName) {
+	private InetAddress getIPByNickName(String player_nickName) {
 		for(int i=0;i<players.size();i++)
 			if(players.elementAt(i).getNickName().equals(player_nickName))
-				return players.elementAt(i).getSocket();
+				return players.elementAt(i).getIP();
 
 		return null;
 	}
