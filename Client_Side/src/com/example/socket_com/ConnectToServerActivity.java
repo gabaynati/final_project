@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.example.hs.R;
-import com.example.socket_com.ServerCommunication.MyClientTask_Connect;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -106,7 +105,6 @@ public class ConnectToServerActivity extends Activity {
 				String res="";
 				server_com=new ServerCommunication();
 				res=server_com.ConnectToServer(addr, port, nickname, password);
-				server_com.setlistener();
 				if(res.equals("true")){
 					buffer="You have successfully connected to server";
 					textResponse.setText(buffer);
@@ -114,6 +112,9 @@ public class ConnectToServerActivity extends Activity {
 					editTextPassword.setVisibility(View.GONE);
 					editTextNickName.setVisibility(View.GONE);
 					MainActivity.player.setConnectedToServer(true);
+					
+					//setting server listener:
+					server_com.setlistener();
 					finish();
 				}
 				else{

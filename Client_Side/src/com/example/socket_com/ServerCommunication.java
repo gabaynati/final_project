@@ -25,46 +25,68 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 
+
+/**some notes:
+ * 1.two threads cannot operate on sockets with the same port!.
+ * 	 therefore, i separate the ports of send and listen threads:
+ *   send port will be same as the port the server listens to(so it will get the packets we send to it),
+ *   and listen port will be some arbitrary port(at the server we need to send the replies to that port).
+ * 2.
+ *
+ */
+	
+
+
+
 public class ServerCommunication {
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
 	//this method is used to prevent two thread from writing to the socket simultaneously.
-	private DatagramSocket socket;
-	ByteArrayOutputStream outputStream;
-	ObjectOutputStream os;
+	int send_port=MainActivity.serverPort;
+	int rcv_port=9002;
+
+	InetAddress serverIP;
+	int serverPort=MainActivity.serverPort;
+
 
 
 	public ServerCommunication(){
 		try {
-			socket= new DatagramSocket();
-		} catch (SocketException e) {
+			serverIP=InetAddress.getByName(MainActivity.serverIP);
+
+
+		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
 	}
 
 
 
-	private synchronized String writePacket(GamePacket packet){
+
+
+
+
+	private String writePacket(GamePacket packet){
 		String response="true";
 
-		DatagramSocket socket = null;
+		DatagramSocket socket=null;
 		try {
-			socket = new DatagramSocket();
-		} catch (SocketException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		try {
+			socket=new DatagramSocket(send_port);
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ObjectOutputStream os = new ObjectOutputStream(outputStream);
 			os.writeObject(packet);
 			byte[] data = outputStream.toByteArray();
-			DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getByName(MainActivity.serverIP), MainActivity.serverPort);
+			DatagramPacket sendPacket = new DatagramPacket(data, data.length, serverIP, serverPort);
 			socket.send(sendPacket);
 
 		}catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			response = "IOException: " + e.toString();
+		}
+		finally{
+			if(socket!=null)
+				socket.close();
 		}
 		return response;
 	}
@@ -87,43 +109,21 @@ public class ServerCommunication {
 		protected String doInBackground(Void... arg0) {
 
 			GamePacket packet = null;
-
-
-
-
 			byte[] incomingData = new byte[1024];
-			DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-			ByteArrayInputStream in;
-			ObjectInputStream is = null;
-			DatagramSocket socket = null;
-			try {
-				socket = new DatagramSocket();
-				byte[] data = incomingPacket.getData();
-				 in = new ByteArrayInputStream(data);
-				 is = new ObjectInputStream(in);
-				socket.receive(incomingPacket);
-			} catch (SocketException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			} catch (StreamCorruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
+			while (running) {
 
-		
-			while(running){
-				try{
-					//reading "packet" object from client
-
-					packet=(GamePacket)is.readObject();
+				try {
+					@SuppressWarnings("resource")
+					DatagramSocket socket=new DatagramSocket(rcv_port);
+					DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
+					socket.receive(incomingPacket);
+					byte[] data = incomingPacket.getData();
+					ByteArrayInputStream in = new ByteArrayInputStream(data);
+					ObjectInputStream is = new ObjectInputStream(in);
+					packet = (GamePacket) is.readObject();
 
 
 				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				catch (UnknownHostException e) {
@@ -181,9 +181,8 @@ public class ServerCommunication {
 
 
 	/*****************************************************************/
+	//first argument is the parameters to execute() which is passed to doInBackground ,second doesn't matter and third is the return type of doInBackground
 	public class MyClientTask_SendPakcet extends AsyncTask<GamePacket, Void, String> {
-
-
 		String response = "true";
 
 
@@ -192,7 +191,7 @@ public class ServerCommunication {
 			response=writePacket((GamePacket)args[0]);
 			return response;
 		}
-
+		//result is the return data from doInBackground()
 		@Override
 		protected void onPostExecute(String result) {
 			//textResponse.setText(response);
@@ -205,95 +204,6 @@ public class ServerCommunication {
 
 
 
-
-	/*****************************************************************/
-	//first argument is the parameters to execute() which is passed to doInBackground ,second doesn't matter and third is the return type of doInBackground
-	public class MyClientTask_Connect extends AsyncTask<Boolean, Void, String> {
-
-		private String dstAddress;
-		private int dstPort;
-		private String response = "true";
-		private String nickname,password;
-
-
-		public MyClientTask_Connect(String addr, int port,String nickname,String password){
-			this.dstAddress = addr;
-			this.dstPort = port;
-			this.nickname=nickname;
-			this.password=password;
-		}
-
-		@Override
-		protected String doInBackground(Boolean... arg0) {
-			try {
-				/*
-				//initializing socket properties
-				MainActivity.socket = new DatagramSocket( dstPort,dstAddress);
-				MainActivity.in=MainActivity.socket.getInputStream();
-				MainActivity.out=MainActivity.socket.getOutputStream();
-								response=writePacket(packet);
-
-				 */
-				GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"","",-1);
-
-				DatagramSocket socket= new DatagramSocket();
-				InetAddress IPAddress =InetAddress.getByName(dstAddress);
-				outputStream = new ByteArrayOutputStream();
-				os = new ObjectOutputStream(outputStream);
-				os.writeObject(packet);
-				byte[] data = outputStream.toByteArray();
-				DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, dstPort);
-				socket.send(sendPacket);
-
-
-
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "UnknownHostException: " + e.toString();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "IOException: " + e.toString();
-
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				response = "Exception: " + e.toString();
-			}
-
-
-
-			/*finally{
-					if(socket != null){
-						try {
-							socket.close();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-
-				}
-			 */
-
-			return response;
-		}
-
-		//result is the return data from doInBackground()
-		@Override
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-			/************/
-			//setting serverListener
-			//setlistener();
-			/************/
-
-
-		}
-
-	}
-	/*****************************************************************/
 
 
 
@@ -313,6 +223,34 @@ public class ServerCommunication {
 	/**********E************D*****************************************************/
 	/*************T*******O*******************************************************/
 	/*****************H***********************************************************/
+
+
+
+
+	/*****************************************************************/
+	public String ConnectToServer(String addr, int port,String nickname,String password){
+		MyClientTask_SendPakcet connect_thread=new MyClientTask_SendPakcet();
+		GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"","",-1);
+		String result = "";
+		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
+		try {
+			result=connect_thread.execute(packet).get(3000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		}
+
+		return result;
+	}
+	/*****************************************************************/
+
+
 
 
 
@@ -344,27 +282,6 @@ public class ServerCommunication {
 
 
 
-	/*****************************************************************/
-	public String ConnectToServer(String addr, int port,String nickname,String password){
-		MyClientTask_Connect connect=new MyClientTask_Connect(addr,port, nickname,password);
-		String result = "";
-		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
-		try {
-			result=connect.execute().get(3000, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			result="InterruptedException: "+e.toString();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			result="InterruptedException: "+e.toString();
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
-			result="InterruptedException: "+e.toString();
-		}
-
-		return result;
-	}
-	/*****************************************************************/
 
 
 

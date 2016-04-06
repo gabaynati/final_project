@@ -12,7 +12,6 @@ import java.net.SocketException;
 public class Player {
 	private InetAddress ipAddr;
 	private int port;
-	private DatagramSocket socket;
 	private String nickName,password;
 	private int life;
 	private int gameScore;
@@ -29,17 +28,10 @@ public class Player {
 		killCount=0;
 		this.nickName=nickName;
 		ammunition=30;
-		try {
-			socket=new DatagramSocket(this.port);
-			socket.connect(ipAddr,port);
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 	}
-	public DatagramSocket getSocket(){ 
-		return this.socket;
-	}
+
+
 	public InetAddress getIP(){
 		return this.ipAddr;
 	}

@@ -27,15 +27,16 @@ public class SendPacketThread extends Thread  {
 
 
 	//this method is used to prevent two thread from writing to the socket simultaneously.
-	private synchronized String writePacket(GamePacket packet){
+	private String writePacket(GamePacket packet){
 		String response="true";
 		try{
+			DatagramSocket socket=new DatagramSocket();
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ObjectOutputStream os = new ObjectOutputStream(outputStream);
 			os.writeObject(packet);
 			byte[] data = outputStream.toByteArray();
-			DatagramPacket sendPacket = new DatagramPacket(data, data.length, player.getIP(), player.getPort());
-			player.getSocket().send(sendPacket);
+			DatagramPacket sendPacket = new DatagramPacket(data, data.length, player.getIP(), player.getPort()+1);
+			socket.send(sendPacket);
 		}catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

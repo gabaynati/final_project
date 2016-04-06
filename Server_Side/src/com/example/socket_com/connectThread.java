@@ -13,7 +13,7 @@ public class connectThread extends Thread
 
 
 	private Server server;
-	DatagramSocket socket;
+	private DatagramSocket socket;
 	//private DatagramSocket serverSocket=server.serverSocket;
 	public  connectThread(Server server) throws IOException
 	{
@@ -22,21 +22,30 @@ public class connectThread extends Thread
 		socket = new DatagramSocket(Server.serverPort);
 	}
 
+	
+	@Override
 	public void run()
 	{
 		while(true)
 		{
 			try
 			{
-
+				
+				
+				//waiting for a packet
 				byte[] incomingData = new byte[1024];
-
-
-				DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-
+				DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);	
+				//busy wait until 
 				socket.receive(incomingPacket);
 
+				
+				
+				
+				
+				//converting the object to array of bytes
 				byte[] data = incomingPacket.getData();
+				
+				
 				ByteArrayInputStream in = new ByteArrayInputStream(data);
 				ObjectInputStream is = new ObjectInputStream(in);
 				GamePacket packet = null;
@@ -74,6 +83,7 @@ public class connectThread extends Thread
 						//printing the client IP address
 						//server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
 
+						//creating new Player:
 						Player newPlayer=new Player(IPAddress,port,"");
 
 
@@ -85,24 +95,13 @@ public class connectThread extends Thread
 						server.getPanel().update();
 
 
+						
 						//sending gameList:
 						GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
 						gamesListPacket.setGamesList(Main.server.getGamesIDs());
-						//writing game List to client					
-						ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-						ObjectOutputStream os = new ObjectOutputStream(outputStream);
-						os.writeObject(gamesListPacket);
-						data = outputStream.toByteArray();
-						DatagramPacket sendPacket = new DatagramPacket(data, data.length,IPAddress, port);
-						socket.send(sendPacket);
-						
-						
-						
-						/*
-						//starting listener thread for the specific player which has just connected
-						Thread t = new ListenToPlayersThread(newPlayer,server);
+						SendPacketThread t=new SendPacketThread(gamesListPacket,newPlayer);
 						t.start();
-						 */
+						
 					}
 					if(packet.isHit()){
 						System.out.println("HITTTTT");
@@ -117,24 +116,20 @@ public class connectThread extends Thread
 						//writing object to the injured player
 						if(injured_player!=null){
 							GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit, injured_nickName,game.getGameName(),packet.getHitArea());
-							ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-							ObjectOutputStream os = new ObjectOutputStream(outputStream);
-							os.writeObject(gotHitPacket);
-							data = outputStream.toByteArray();
-							DatagramPacket sendPacket = new DatagramPacket(data, data.length,IPAddress, port);
-							socket.send(sendPacket);
+							SendPacketThread t=new SendPacketThread(gotHitPacket,injured_player);
+							t.start();
 						}
 
 					}
-					/*
+					
 					if(packet.isDisconnect()){
 						System.out.println("byeeeeeeeee");
-						server.playerDisconnected(player.getNickName(),player_gameName);
+						//server.playerDisconnected(packet.getNickName());
 						Main.server.getServerLogs().add(packet.getNickName()+" has just disconnected!");
 						Main.server.getPanel().update();
 						//this.player.getSocket().close();
 						return;
-					}*/
+					}
 					if(packet.isGetGamesList()){
 						GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
 						gamesListPacket.setGamesList(Main.server.getGamesIDs());
@@ -142,12 +137,8 @@ public class connectThread extends Thread
 						
 						
 						//writing game List to client
-						ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-						ObjectOutputStream os = new ObjectOutputStream(outputStream);
-						os.writeObject(gamesListPacket);
-						data = outputStream.toByteArray();
-						DatagramPacket sendPacket = new DatagramPacket(data, data.length,IPAddress, port);
-						socket.send(sendPacket);
+						SendPacketThread t=new SendPacketThread(gamesListPacket,server.getPlayerByIP(IPAddress));
+						t.start();
 
 					}
 					if(packet.isJoinAGame()){
