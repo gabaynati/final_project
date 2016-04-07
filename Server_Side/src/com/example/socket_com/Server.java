@@ -71,7 +71,7 @@ public class Server {
 		this.games.add(game);
 		return true;
 	}
-	public void playerDisconnected(String player_nickname,String player_gameName){
+	public void playerDisconnected(String player_nickname){
 		for (int i=0;i<players.size();i++)
 			if(player_nickname.equals(players.elementAt(i).getNickName())){
 				if(getPlayerByNickName(player_nickname).getCurrentGame()!=null)

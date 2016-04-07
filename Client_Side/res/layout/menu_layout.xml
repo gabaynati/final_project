@@ -64,6 +64,16 @@
         android:textColor="@color/material_grey_100"
         android:textStyle="bold"
         android:visibility="gone" />
+       <Button
+        android:id="@+id/createAGame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#88676767"
+        android:drawableLeft="@drawable/ic_call_merge_white_48dp"
+        android:text="Create A Game"
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/logOut"

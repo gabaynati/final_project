@@ -35,7 +35,6 @@ public class ConnectToServerActivity extends Activity {
 	Button buttonConnect;
 	String nickname;
 	String password;
-	ServerCommunication server_com;
 	boolean isConnectionSucceded;
 	String buffer="";
 	@Override
@@ -46,7 +45,6 @@ public class ConnectToServerActivity extends Activity {
 
 
 		setContentView(R.layout.connect_layout);
-		server_com=new ServerCommunication();
 		buttonConnect = (Button)findViewById(R.id.connect);
 		textResponse = (TextView)findViewById(R.id.response);
 		editTextNickName=(EditText)findViewById(R.id.nickname);
@@ -103,8 +101,8 @@ public class ConnectToServerActivity extends Activity {
 
 			try{
 				String res="";
-				server_com=new ServerCommunication();
-				res=server_com.ConnectToServer(addr, port, nickname, password);
+				
+				res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password);
 				if(res.equals("true")){
 					buffer="You have successfully connected to server";
 					textResponse.setText(buffer);
@@ -114,7 +112,7 @@ public class ConnectToServerActivity extends Activity {
 					MainActivity.player.setConnectedToServer(true);
 					
 					//setting server listener:
-					server_com.setlistener();
+					MainActivity.server_com.setlistener();
 					finish();
 				}
 				else{

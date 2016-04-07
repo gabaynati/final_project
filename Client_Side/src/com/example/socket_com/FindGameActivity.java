@@ -22,52 +22,11 @@ import android.widget.AdapterView.OnItemClickListener;
 public class FindGameActivity extends Activity {
 
 	private Vector<String> gameList=MainActivity.gameList;
-	ServerCommunication server_com=new ServerCommunication();
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_list_layout);
-		
-		
-//		//getting gameList from server
-//		String res=server_com.sendGameListRequest();
-		if(gameList!=null){
-
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, gameList);
-
-			ListView listView = (ListView) findViewById(R.id.mobile_list);
-			listView.setAdapter(adapter);
-			listView.setOnItemClickListener(new OnItemClickListener()
-			{
-				@Override
-				public void onItemClick(AdapterView<?> adapter, View v, int position,long arg3) 
-				{
-					String value = (String)adapter.getItemAtPosition(position); 
-					MainActivity.currentGame=value;
-					String res= server_com.JoinGame(value);
-					if(res.equals("true")){
-					Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
-					//moving to game interface
-					Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
-					startActivity(gameInterface);
-					finish();
-					}
-					else
-						Toast.makeText(getBaseContext(), res, Toast.LENGTH_LONG).show();
-
-
-				}
-
-
-			});
-
-
-		}
-		else{
-			Toast.makeText(getBaseContext(), "Error while getting game list from the server", Toast.LENGTH_LONG).show();
-			finish();
-		}
 
 	}
 
@@ -93,5 +52,55 @@ public class FindGameActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	@Override
+	protected void onResume(){
+		super.onResume();
+		
+		
+//		//getting gameList from server
+//		String res=server_com.sendGameListRequest();
+		gameList=MainActivity.gameList;
+		if(gameList!=null){
+
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, gameList);
+
+			ListView listView = (ListView) findViewById(R.id.mobile_list);
+			listView.setAdapter(adapter);
+			listView.setOnItemClickListener(new OnItemClickListener()
+			{
+				@Override
+				public void onItemClick(AdapterView<?> adapter, View v, int position,long arg3) 
+				{
+					String value = (String)adapter.getItemAtPosition(position); 
+					MainActivity.currentGame=value;
+					String res= MainActivity.server_com.JoinGame(value);
+					if(res.equals("true")){
+					Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
+					//moving to game interface
+					Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
+					startActivity(gameInterface);
+					finish();
+					}
+					else
+						Toast.makeText(getBaseContext(), res, Toast.LENGTH_LONG).show();
+
+
+				}
+
+
+			});
+
+
+		}
+		else{
+			Toast.makeText(getBaseContext(), "Error while getting game list from the server", Toast.LENGTH_LONG).show();
+			finish();
+		}
+
+	}
+	@Override
+	protected void onPause(){
+		onResume();
 	}
 }

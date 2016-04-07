@@ -52,7 +52,7 @@ public class ServerCommunication {
 	public ServerCommunication(){
 		try {
 			serverIP=InetAddress.getByName(MainActivity.serverIP);
-
+			
 
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -185,7 +185,7 @@ public class ServerCommunication {
 	public class MyClientTask_SendPakcet extends AsyncTask<GamePacket, Void, String> {
 		String response = "true";
 
-
+		boolean running=false;
 		@Override
 		protected String doInBackground(GamePacket... args) {
 			response=writePacket((GamePacket)args[0]);
@@ -371,7 +371,7 @@ public class ServerCommunication {
 
 
 	/*****************************************************************/
-	public String createNewGame(String newGameName){
+	public String createNewGame(String newGameName,int numOfPlayers){
 		MyClientTask_SendPakcet createNewGame=new MyClientTask_SendPakcet();
 		String res="true";
 		try {

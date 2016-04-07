@@ -37,12 +37,15 @@ public class MainActivity extends Activity {
 	public static String enemy="gili";
 	public static String currentGame="";
 	public static Vector<String> gameList;
+	public static ServerCommunication server_com=new ServerCommunication();
+
 	//*************************************************/
 
 	Button buttonConnectToServer;
 	Button buttonRegisterToSystem;
 	Button buttonToGame;
 	Button buttonJoinAGame;
+	Button buttonCreateAGame;
 	Button buttonLogOut;
 	Button buttonExit;
 	Button buttonMyAccount;
@@ -57,6 +60,7 @@ public class MainActivity extends Activity {
 		buttonRegisterToSystem = (Button)findViewById(R.id.registerToSystem);
 		buttonToGame = (Button)findViewById(R.id.toGame);
 		buttonJoinAGame = (Button)findViewById(R.id.joinAGame);
+		buttonCreateAGame = (Button)findViewById(R.id.createAGame);
 		buttonLogOut=(Button)findViewById(R.id.logOut);
 		buttonExit=(Button)findViewById(R.id.exit);
 		buttonMyAccount=(Button)findViewById(R.id.myAccount);
@@ -67,6 +71,7 @@ public class MainActivity extends Activity {
 		buttonRegisterToSystem.setOnClickListener(buttonRegisterToSystemOnClickListener);
 		buttonToGame.setOnClickListener(buttonToGameOnClickListener);
 		buttonJoinAGame.setOnClickListener(buttonJoinAGameOnClickListener);
+		buttonCreateAGame.setOnClickListener(buttonCreateAGameOnClickListener);
 		buttonLogOut.setOnClickListener(buttonLogOutOnClickListener);
 		buttonMyAccount.setOnClickListener(buttonMyAccountOnClickListener);
 		buttonExit.setOnClickListener(buttonExitOnClickListener);
@@ -98,6 +103,7 @@ public class MainActivity extends Activity {
 			result=server_com.disconnectFromServer();
 			txtResponse.setText(result);
 			buttonJoinAGame.setVisibility(View.GONE);
+			buttonCreateAGame.setVisibility(View.GONE);
 			buttonLogOut.setVisibility(View.GONE);
 			buttonMyAccount.setVisibility(View.GONE);
 			buttonConnectToServer.setVisibility(View.VISIBLE);
@@ -131,6 +137,15 @@ public class MainActivity extends Activity {
 		@Override
 		public void onClick(View arg0) {
 			Intent connectToServer = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
+			startActivity(connectToServer);
+		}
+	};
+	
+	//create a game button onClick method
+	OnClickListener buttonCreateAGameOnClickListener = new OnClickListener(){
+		@Override
+		public void onClick(View arg0) {
+			Intent connectToServer = new Intent("com.example.socket_com.CREATEAGAMEACTIVITY");
 			startActivity(connectToServer);
 		}
 	};
@@ -210,6 +225,7 @@ public class MainActivity extends Activity {
 		if(MainActivity.player.isConnectedToServer()){
 			txtResponse.setText("Logged in as: "+MainActivity.player.getNickName());
 			buttonJoinAGame.setVisibility(View.VISIBLE);
+			buttonCreateAGame.setVisibility(View.VISIBLE);
 			buttonLogOut.setVisibility(View.VISIBLE);
 			buttonConnectToServer.setVisibility(View.GONE);
 			buttonRegisterToSystem.setVisibility(View.GONE);
