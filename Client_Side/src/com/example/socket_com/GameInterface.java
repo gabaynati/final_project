@@ -186,6 +186,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mOpenCvCameraView.setOnTouchListener(this);
 		//***************************************///
 
+
 		logic = new Logic(mOpenCvCameraView);
 
 		touched = false;
@@ -486,7 +487,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			case MotionEvent.ACTION_UP: 
 			{
 				if(!someAnimationRun){
-					
+
 					x2 = event.getX();
 
 					//Left to Right Swap Performed
@@ -696,8 +697,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		if(anim.equals("stand")){
 
-			if(stand_animation == null)
-				stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");
+			/*if(stand_animation == null)
+				stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");*/
 
 			animation = stand_animation;
 		}
@@ -731,14 +732,16 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			@Override
 			void onAnimationFinish() {
 
-				
+
 				if(setScreen())
 					reload();
 
 				else
-					if(!player.getWeapons()[player.getCurrent_weapon()].target_state)
+					if(!player.getWeapons()[player.getCurrent_weapon()].target_state){
+						if(stand_animation == null)
+							stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");
 						setAnimation("stand");
-
+					}
 				someAnimationRun = false;
 			}
 		};
@@ -761,7 +764,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				stand_animation = null;
 
 				executeAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("choose"));
-				shoot_animation = (player.getWeapons()[player.getCurrent_weapon()].getAnimation("shoot"));
+				
+				Thread thread = new Thread() {
+				    @Override
+				    public void run() {
+
+				    	shoot_animation = (player.getWeapons()[player.getCurrent_weapon()].getAnimation("shoot"));
+				    }
+				};
+
+				thread.start();
+				
 			}
 		};
 
