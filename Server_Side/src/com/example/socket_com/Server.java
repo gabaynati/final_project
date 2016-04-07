@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Vector;
 
 public class Server {
@@ -31,7 +32,18 @@ public class Server {
 		this.serverLogs=new Vector<String>();
 		displayServerInformation(serverPort);
 		this.serverPort=serverPort;
-		addGame(new Game("game 1"));
+		Game game1=new Game("game 1");
+		try {
+			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "trtrtrtr"));
+			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "yyyyyyyyy"));
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	
+
+		addGame(game1);
 		addGame(new Game("game 2"));
 		addGame(new Game("game 3"));
 		addGame(new Game("game 4"));

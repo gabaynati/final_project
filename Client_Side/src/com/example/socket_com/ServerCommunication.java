@@ -110,11 +110,17 @@ public class ServerCommunication {
 
 			GamePacket packet = null;
 			byte[] incomingData = new byte[1024];
+			DatagramSocket socket=null;
+			try {
+				socket = new DatagramSocket(rcv_port);
+			} catch (SocketException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
 			while (running) {
 
 				try {
-					@SuppressWarnings("resource")
-					DatagramSocket socket=new DatagramSocket(rcv_port);
 					DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
 					socket.receive(incomingPacket);
 					byte[] data = incomingPacket.getData();
@@ -156,7 +162,8 @@ public class ServerCommunication {
 				if(packet.isGetGameInfo()){
 					MainActivity.currentGameTeam1=packet.getTeam1();
 					MainActivity.currentGameTeam2=packet.getTeam2();
-
+					//setDone();
+					throw new NullPointerException();
 				}
 				
 				
@@ -182,6 +189,14 @@ public class ServerCommunication {
 		}
 
 	}
+	
+	public synchronized void setDone() {
+
+	    MainActivity.flag= true;
+
+	    this.notifyAll();
+	}
+
 	/*****************************************************************/
 
 

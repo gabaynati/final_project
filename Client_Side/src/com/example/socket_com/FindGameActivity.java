@@ -22,14 +22,12 @@ import android.widget.AdapterView.OnItemClickListener;
 public class FindGameActivity extends Activity {
 
 	private Vector<String> gameList=MainActivity.gameList;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_list_layout);
-
 	}
-
 
 
 
@@ -56,10 +54,10 @@ public class FindGameActivity extends Activity {
 	@Override
 	protected void onResume(){
 		super.onResume();
-		
-		
-//		//getting gameList from server
-//		String res=server_com.sendGameListRequest();
+
+
+		//		//getting gameList from server
+		//		String res=server_com.sendGameListRequest();
 		gameList=MainActivity.gameList;
 		if(gameList!=null){
 
@@ -75,12 +73,16 @@ public class FindGameActivity extends Activity {
 					String value = (String)adapter.getItemAtPosition(position); 
 					MainActivity.currentGame=value;
 					String res= MainActivity.server_com.getGameInfo(value);
+
+
+					//waitUntilDone();
+
 					if(res.equals("true")){
-					Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
-					//moving to game interface
-					Intent gameInfo = new Intent("com.example.socket_com.GAMEINFOACTIVITY");
-					startActivity(gameInfo);
-					finish();
+						Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
+						//moving to game interface
+						Intent gameInfo = new Intent("com.example.socket_com.GAMEINFOACTIVITY");
+						startActivity(gameInfo);
+						finish();
 					}
 					else
 						Toast.makeText(getBaseContext(), res, Toast.LENGTH_LONG).show();
@@ -98,6 +100,18 @@ public class FindGameActivity extends Activity {
 			finish();
 		}
 
+	}
+	public synchronized void waitUntilDone() {
+
+	     while (!MainActivity.flag) {
+
+	        try {
+	             this.wait();
+
+	        } catch (InterruptedException ignore) {
+	             // log.debug("interrupted: " + ignore.getMessage());
+	        }
+	     }
 	}
 
 }

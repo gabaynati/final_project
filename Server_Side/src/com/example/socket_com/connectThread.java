@@ -157,11 +157,15 @@ public class connectThread extends Thread
 				if(packet.isGetGameInfo()){
 					GamePacket gamesInfoPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
 					Game game=Main.server.getGameByName(packet.getGameName());
+					System.out.println("game info:"+packet.getGameName());
 					gamesInfoPacket.setTeam1(game.getTeam2PlayersNickNames());
 					gamesInfoPacket.setTeam2(game.getTeam2PlayersNickNames());
-
-
-
+					/*
+					for(int i=0;i<game.getTeam2PlayersNickNames().size();i++)
+						System.out.println(game.getTeam2PlayersNickNames().elementAt(i));
+					for(int i=0;i<game.getTeam1PlayersNickNames().size();i++)
+						System.out.println(game.getTeam1PlayersNickNames().elementAt(i));
+*/
 
 					//writing game List to client
 					SendPacketThread t=new SendPacketThread(gamesInfoPacket,server.getPlayerByIP(IPAddress));

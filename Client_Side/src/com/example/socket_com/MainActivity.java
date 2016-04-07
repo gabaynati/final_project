@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
 
 import com.example.hs.R;
 import com.example.hs.R.id;
@@ -39,6 +41,8 @@ public class MainActivity extends Activity {
 	public static Vector<String> currentGameTeam1,currentGameTeam2;
 	public static Vector<String> gameList;
 	public static ServerCommunication server_com=new ServerCommunication();
+	public static Boolean flag=false;
+
 
 	//*************************************************/
 
