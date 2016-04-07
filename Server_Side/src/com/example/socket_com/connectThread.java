@@ -154,6 +154,20 @@ public class connectThread extends Thread
 //					SendPacketThread t=new SendPacketThread(gamesListPacket,server.getPlayerByIP(IPAddress));
 //					t.start();
 				}
+				if(packet.isGetGameInfo()){
+					GamePacket gamesInfoPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
+					Game game=Main.server.getGameByName(packet.getGameName());
+					gamesInfoPacket.setTeam1(game.getTeam2PlayersNickNames());
+					gamesInfoPacket.setTeam2(game.getTeam2PlayersNickNames());
+
+
+
+
+					//writing game List to client
+					SendPacketThread t=new SendPacketThread(gamesInfoPacket,server.getPlayerByIP(IPAddress));
+					t.start();
+				}
+					
 			}
 
 

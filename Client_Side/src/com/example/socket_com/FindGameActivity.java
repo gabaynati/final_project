@@ -74,12 +74,12 @@ public class FindGameActivity extends Activity {
 				{
 					String value = (String)adapter.getItemAtPosition(position); 
 					MainActivity.currentGame=value;
-					String res= MainActivity.server_com.JoinGame(value);
+					String res= MainActivity.server_com.getGameInfo(value);
 					if(res.equals("true")){
 					Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
 					//moving to game interface
-					Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
-					startActivity(gameInterface);
+					Intent gameInfo = new Intent("com.example.socket_com.GAMEINFOACTIVITY");
+					startActivity(gameInfo);
 					finish();
 					}
 					else
@@ -99,8 +99,5 @@ public class FindGameActivity extends Activity {
 		}
 
 	}
-	@Override
-	protected void onPause(){
-		onResume();
-	}
+
 }

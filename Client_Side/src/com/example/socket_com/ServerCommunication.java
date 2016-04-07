@@ -153,6 +153,13 @@ public class ServerCommunication {
 				if(packet.isGetGamesList()){
 					MainActivity.gameList=packet.getGamesList();
 				}
+				if(packet.isGetGameInfo()){
+					MainActivity.currentGameTeam1=packet.getTeam1();
+					MainActivity.currentGameTeam2=packet.getTeam2();
+
+				}
+				
+				
 				/*finally
 			{
 				if(MainActivity.socket != null){
@@ -280,7 +287,29 @@ public class ServerCommunication {
 
 
 
+	
+	/*****************************************************************/
+	public String getGameInfo(String gameName){
+		MyClientTask_SendPakcet getGameInfo_thread=new MyClientTask_SendPakcet();
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.getGameInfo, "", gameName,-1);
+		String result = "";
+		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
+		try {
+			result=getGameInfo_thread.execute(packet).get(3000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		}
 
+		return result;
+	}
+	/*****************************************************************/
 
 
 

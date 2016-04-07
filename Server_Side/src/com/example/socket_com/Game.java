@@ -95,6 +95,23 @@ public class Game {
 
 
 	}
+	public Vector<String> getTeam1PlayersNickNames(){
+		Vector<String> team1Players=new Vector<String>();
+		for(int i=0;i<players.size();i++)
+			if(players.elementAt(i).getTeam().equals(team1))
+				team1Players.add(players.elementAt(i).getNickName());
+		return team1Players;
+	}
+	public Vector<String> getTeam2PlayersNickNames(){
+		Vector<String> team2Players=new Vector<String>();
+		for(int i=0;i<players.size();i++)
+			if(players.elementAt(i).getTeam().equals(team2))
+				team2Players.add(players.elementAt(i).getNickName());
+		return team2Players;
+	}
+	
+	
+	
 	/*
 	public Socket getSocketByNickName(String nickName){
 		if(team1.getSocketByNickName(nickName)!=null)

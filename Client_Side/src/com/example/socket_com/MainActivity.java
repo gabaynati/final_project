@@ -36,6 +36,7 @@ public class MainActivity extends Activity {
 	public static Player player=new Player("nati","1234");
 	public static String enemy="gili";
 	public static String currentGame="";
+	public static Vector<String> currentGameTeam1,currentGameTeam2;
 	public static Vector<String> gameList;
 	public static ServerCommunication server_com=new ServerCommunication();
 

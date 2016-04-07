@@ -91,6 +91,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+             <activity
+            android:name="com.example.socket_com.GameInfoActivity"
+            android:label="@string/title_activity_find_game" >
+            <intent-filter>
+                <action android:name="com.example.socket_com.GAMEINFOACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="com.example.socket_com.MyAccountActivity"
             android:label="@string/title_activity_my_account" >
