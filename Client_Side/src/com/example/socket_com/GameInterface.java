@@ -48,6 +48,7 @@ import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -55,9 +56,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TableRow;
 import android.widget.Toast;
 import android.widget.TextView;
 
@@ -74,14 +77,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	private Logic logic;
 	private final int ramBurden = 5;
+	private FrameLayout frame;
 	private TextView current_bulletsText, total_bulletsText, slesh;
 	private static ProgressBar player_life;
 	private ImageButton reload, target, shoot;
-	private ImageView img, sight_img, board_num1, board_num2;
+	private ImageView img, bullet_hit, sight_img, board_num1, board_num2;
 	private int anim_index, soundIndex, state, unUsed, shootingTime;
 	private float x1, x2;
 	private AnimationDrawable shoot_animation, stand_animation;
-	private boolean someAnimationRun, pressed, touched;
+	private boolean someAnimationRun, someAnimationLoad, pressed, touched;
 	private Player player=MainActivity.player;
 	private Handler AnimationHandler, DrawableHandler, changeAnimation, shootHandler;
 	private int[] drawableResources, sounds_frames;
@@ -155,7 +159,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		Criteria crit = new Criteria();
 		crit.setAccuracy(Criteria.ACCURACY_FINE);
 		bestProvider = location.getBestProvider(crit, false);
-		location.requestLocationUpdates(bestProvider, 0, 0, this);
+		//location.requestLocationUpdates(bestProvider, 0, 0, this);
 		/******************************************************************/
 
 
@@ -192,6 +196,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		touched = false;
 
 
+		frame = (FrameLayout)findViewById(R.id.game_layout);
 		img = (ImageView)findViewById(R.id.weaponView);
 		sight_img = (ImageView)findViewById(R.id.sight);
 		board_num1 = (ImageView)findViewById(R.id.board_num1);
@@ -473,17 +478,20 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
+		//if the player press on the screen
 		if(v.getId() == mOpenCvCameraView.getId()){
 
 			switch (event.getAction()){
 
+			//when press on the screen
 			case MotionEvent.ACTION_DOWN: 
 			{
 				x1 = event.getX();
 
 				break;
 			}
-
+			
+			//when release the screen
 			case MotionEvent.ACTION_UP: 
 			{
 				if(!someAnimationRun){
@@ -493,6 +501,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					//Left to Right Swap Performed
 					if (x1 < x2){
 
+						someAnimationLoad = true;
 						someAnimationRun = true;
 						shoot_animation = null;
 						System.gc();
@@ -509,6 +518,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					//Right to Left Swap Performed
 					if (x1 > x2){
 
+						someAnimationLoad = true;
 						someAnimationRun = true;
 						shoot_animation = null;
 						System.gc();
@@ -528,13 +538,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 		}
 
+		//if the user press on the shooting button
 		else if(v.getId() == shoot.getId()){
 
 			switch (event.getAction()){
 
+			//when press on the button
 			case MotionEvent.ACTION_DOWN: 
 			{
-				if(!someAnimationRun){
+				if(!someAnimationRun && !someAnimationLoad){
 
 					shootHandler = new Handler();
 					shootHandler.postDelayed(shootAction, shootingTime);
@@ -543,7 +555,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				break;
 			}
 
-
+			//when release the button 
 			case MotionEvent.ACTION_UP: 
 			{
 				if (shootHandler == null)
@@ -561,6 +573,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		return true;
 	}
 
+	//continue shooting while the shooting button is pressing according to the current weapon shooting time  
 	private Runnable shootAction = new Runnable() {
 		@Override
 		public void run() {
@@ -570,8 +583,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 	};
 
+	//call this method when the user shoot
 	private void shoot(){
-
+		
 		touched = true;
 
 		int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
@@ -601,6 +615,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			}
 			if(hitArea != -1){
+				
+				drawHit();
 				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
 				toast.show();					
 				////*****server communication*******/
@@ -618,6 +634,36 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			setScreen();
 		}
 	}
+	
+	
+	private void drawHit(){
+		
+		Timer timer = new Timer(200) {
+			
+			@Override
+			public void onFinish() {
+				// TODO Auto-generated method stub
+				frame.removeView(bullet_hit);
+			}
+			
+			
+		};
+		
+		int size = logic.getSizeOfRect();
+		bullet_hit = new ImageView(getApplicationContext());
+		bullet_hit.setImageResource(R.drawable.bullet_hit);
+		bullet_hit.setX(mOpenCvCameraView.getWidth()/2 - bullet_hit.getWidth()/2);
+		bullet_hit.setY(mOpenCvCameraView.getHeight()/2 - bullet_hit.getHeight()/2);
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(size/10, size/10);
+
+
+		bullet_hit.setLayoutParams(params);
+		frame.addView(bullet_hit);
+		
+		timer.start();
+		
+		
+	}
 
 
 	public static void hitRecvied(){
@@ -633,14 +679,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		case R.id.reload:
 
-			if(!someAnimationRun)
+			if(!someAnimationRun && !someAnimationLoad)
 				reload();
 			break;
 
 		case R.id.target:
 
-			if(!someAnimationRun)
+			if(!someAnimationRun && !someAnimationLoad)
 				targetState();
+			
 			break;
 		}
 
@@ -722,6 +769,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			img.setBackgroundDrawable(animation);
 
 			animation.start();
+			someAnimationLoad = false;
 		}
 	}
 
@@ -771,6 +819,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 				    	shoot_animation = (player.getWeapons()[player.getCurrent_weapon()].getAnimation("shoot"));
 				    }
+				    
 				};
 
 				thread.start();

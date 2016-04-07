@@ -13,6 +13,7 @@ public class Logic {
 
 	private JavaCameraView mOpenCvCameraView;
 	private Mat mGray, mRgba;
+	private int rectSize;
 	//private Rect[] facesArrayWhileShoot, upperBodyArrayWhileShoot, lowerBodyArrayWhileShoot;
 	
 	public Logic(JavaCameraView CameraView){
@@ -23,6 +24,10 @@ public class Logic {
 	public void setMats(Mat mGray, Mat mRgba){
 		this.mGray = mGray;
 		this.mRgba = mRgba;
+	}
+	
+	public int getSizeOfRect(){
+		return rectSize;
 	}
 
 	public int isHit(Rect[] facesArrayWhileShoot, Rect[] upperBodyArrayWhileShoot, Rect[] lowerBodyArrayWhileShoot){
@@ -72,8 +77,10 @@ public class Logic {
 			Point sightPoint = getSightPoint();
 
 			for (int i = 0; i < upperBodyArrayWhileShoot.length; i++){
-				if(sightPoint.inside(upperBodyArrayWhileShoot[i]))
+				if(sightPoint.inside(upperBodyArrayWhileShoot[i])){
+					rectSize = upperBodyArrayWhileShoot[i].width;
 					return true;
+				}
 			}
 		}
 		/*if(upperBodyArrayWhileShoot != null){
@@ -102,8 +109,10 @@ public class Logic {
 			Point sightPoint = getSightPoint();
 
 			for (int i = 0; i < lowerBodyArrayWhileShoot.length; i++){
-				if(sightPoint.inside(lowerBodyArrayWhileShoot[i]))
+				if(sightPoint.inside(lowerBodyArrayWhileShoot[i])){
+					rectSize = lowerBodyArrayWhileShoot[i].width;
 					return true;
+				}
 			}
 		}
 
@@ -111,7 +120,7 @@ public class Logic {
 	}
 
 	//return the weapon sight point
-	private Point getSightPoint(){
+	public Point getSightPoint(){
 
 		return new Point(mOpenCvCameraView.getWidth()/2- getOffset("X"), mOpenCvCameraView.getHeight()/2- getOffset("Y"));
 	}
