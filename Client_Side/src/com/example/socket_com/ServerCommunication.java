@@ -150,25 +150,7 @@ public class ServerCommunication {
 					return response;
 				}
 
-				if(packet.isConnect()){
-					MainActivity.lock.unlock();
-				}
-
-				if(packet.isHit()){
-					MainActivity.player.Hit(packet.getHitArea());
-					GameInterface.hitRecvied();
-
-				}
-				if(packet.isGetGamesList()){
-					MainActivity.gameList=packet.getGamesList();
-				}
-				if(packet.isGetGameInfo()){
-					MainActivity.currentGameTeam1=packet.getTeam1();
-					MainActivity.currentGameTeam2=packet.getTeam2();
-					//setDone();
-					throw new NullPointerException();
-				}
-				
+				processPacket(packet);
 				
 				/*finally
 			{
@@ -185,10 +167,38 @@ public class ServerCommunication {
 			return response;
 		}
 
+		
+		
+	
 		@Override
 		protected void onPostExecute(String result) {
 			//textResponse.setText(response);
 			super.onPostExecute(result);
+		}
+		
+		
+		
+		private void processPacket(GamePacket packet) {
+			
+			if(packet.isConnect()){
+				MainActivity.connectSem.release();
+			}
+
+			else if(packet.isHit()){
+				MainActivity.player.Hit(packet.getHitArea());
+				GameInterface.hitRecvied();
+
+			}
+			else if(packet.isGetGamesList()){
+				MainActivity.gameList=packet.getGamesList();
+				MainActivity.getGameListSem.release();
+			}
+			else if(packet.isGetGameInfo()){
+				MainActivity.currentGameTeam1=packet.getTeam1();
+				MainActivity.currentGameTeam2=packet.getTeam2();
+				MainActivity.getGameInfoSem.release();
+			}
+						
 		}
 
 	}

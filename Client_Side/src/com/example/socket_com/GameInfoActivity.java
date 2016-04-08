@@ -6,6 +6,7 @@ import com.example.hs.R;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +21,7 @@ public class GameInfoActivity extends Activity {
 		setContentView(R.layout.game_info_layout);
 		ls1 = (ListView) findViewById (R.id.team1list);
 		ls2 = (ListView) findViewById (R.id.team2list);
+	
 		Vector<String> team1,team2;
 		if(MainActivity.currentGameTeam1==null)
 			team1=new Vector<String>();

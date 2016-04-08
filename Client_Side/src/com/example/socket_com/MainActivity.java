@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.example.hs.R;
 import com.example.hs.R.id;
@@ -31,9 +32,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	//*********server configurations****************/
-	public static InputStream in;
-	public static OutputStream out;
-	public static String serverIP="192.168.1.17";
+	public static String serverIP="192.168.43.191";
 	public static int serverPort=9001;
 	public static Player player=new Player("nati","1234");
 	public static String enemy="gili";
@@ -41,39 +40,10 @@ public class MainActivity extends Activity {
 	public static Vector<String> currentGameTeam1,currentGameTeam2;
 	public static Vector<String> gameList;
 	public static ServerCommunication server_com=new ServerCommunication();
-	public static Boolean flag=false;
-	public static Lock lock;
-	public static mySemaphore sem=new mySemaphore(){
-
-
-		@Override
-		public synchronized void s_wait(int thread_index) throws InterruptedException{
-
-			if(permits>0)
-				permits--;
-			else
-			{
-				if(permits<=0)
-				{
-					System.out.println("sempaphore chars: rcv["+thread_index+"] accuriered semaphore");
-					this.wait();//puts to sleep	
-					System.out.println("sempaphore chars: rcv["+thread_index+"] reciever exited busy wait");
-
-				}
-				permits--;
-			}
-		}
-
-
-
-		@Override
-		public synchronized void s_signal(){
-			System.out.println("sempaphore chars: sender released semaphore");
-			permits++;
-			this.notify();//wakes the FIRST thread that put to sleep.
-		}
-	};
-
+	public static Semaphore connectSem=new Semaphore(0);
+	public static Semaphore getGameListSem=new Semaphore(0);
+	public static Semaphore getGameInfoSem=new Semaphore(0);
+	public static boolean flag;
 
 
 	//*************************************************/
@@ -92,7 +62,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.menu_layout);
-
+		
 		buttonConnectToServer = (Button)findViewById(R.id.connectToServer);
 		buttonRegisterToSystem = (Button)findViewById(R.id.registerToSystem);
 		buttonToGame = (Button)findViewById(R.id.toGame);

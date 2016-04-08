@@ -56,8 +56,14 @@ public class FindGameActivity extends Activity {
 		super.onResume();
 
 
-		//		//getting gameList from server
-		//		String res=server_com.sendGameListRequest();
+		//getting gameList from server
+		String res=MainActivity.server_com.sendGameListRequest();
+		try {
+			MainActivity.getGameListSem.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		gameList=MainActivity.gameList;
 		if(gameList!=null){
 
@@ -73,7 +79,12 @@ public class FindGameActivity extends Activity {
 					String value = (String)adapter.getItemAtPosition(position); 
 					MainActivity.currentGame=value;
 					String res= MainActivity.server_com.getGameInfo(value);
-
+					try {
+						MainActivity.getGameInfoSem.acquire();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
 					//waitUntilDone();
 
@@ -103,15 +114,15 @@ public class FindGameActivity extends Activity {
 	}
 	public synchronized void waitUntilDone() {
 
-	     while (!MainActivity.flag) {
+		while (!MainActivity.flag) {
 
-	        try {
-	             this.wait();
+			try {
+				this.wait();
 
-	        } catch (InterruptedException ignore) {
-	             // log.debug("interrupted: " + ignore.getMessage());
-	        }
-	     }
+			} catch (InterruptedException ignore) {
+				// log.debug("interrupted: " + ignore.getMessage());
+			}
+		}
 	}
 
 }
