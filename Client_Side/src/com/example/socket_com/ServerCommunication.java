@@ -17,6 +17,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -47,8 +48,7 @@ public class ServerCommunication {
 	InetAddress serverIP;
 	int serverPort=MainActivity.serverPort;
 
-
-
+	
 	public ServerCommunication(){
 		try {
 			serverIP=InetAddress.getByName(MainActivity.serverIP);
@@ -110,17 +110,18 @@ public class ServerCommunication {
 
 			GamePacket packet = null;
 			byte[] incomingData = new byte[1024];
-			DatagramSocket socket=null;
-			try {
-				socket = new DatagramSocket(rcv_port);
-			} catch (SocketException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
+			
+				DatagramSocket socket=null;
+				try {
+					socket = new DatagramSocket(rcv_port);
+				} catch (SocketException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			while (running) {
 
 				try {
+
 					DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
 					socket.receive(incomingPacket);
 					byte[] data = incomingPacket.getData();
@@ -149,7 +150,9 @@ public class ServerCommunication {
 					return response;
 				}
 
-
+				if(packet.isConnect()){
+					MainActivity.lock.unlock();
+				}
 
 				if(packet.isHit()){
 					MainActivity.player.Hit(packet.getHitArea());
@@ -256,7 +259,7 @@ public class ServerCommunication {
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
-			result=connect_thread.execute(packet).get(3000, TimeUnit.MILLISECONDS);
+			result=connect_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			result="InterruptedException: "+e.toString();
@@ -283,7 +286,7 @@ public class ServerCommunication {
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
-			result=joinGame_thread.execute(packet).get(3000, TimeUnit.MILLISECONDS);
+			result=joinGame_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			result="InterruptedException: "+e.toString();
@@ -310,7 +313,7 @@ public class ServerCommunication {
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
-			result=getGameInfo_thread.execute(packet).get(3000, TimeUnit.MILLISECONDS);
+			result=getGameInfo_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			result="InterruptedException: "+e.toString();
@@ -337,7 +340,7 @@ public class ServerCommunication {
 		GamePacket packet =new GamePacket(MainActivity.player.getNickName(),MainActivity.player.getPassword(), GamePacket.disconnect, "", "game 1", -1);
 		String result = "";
 		try {
-			result=disconnect.execute((GamePacket)packet).get(4000, TimeUnit.MILLISECONDS);
+			result=disconnect.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,(GamePacket)packet).get(4000, TimeUnit.MILLISECONDS);
 
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -365,7 +368,7 @@ public class ServerCommunication {
 		MyClientTask_SendPakcet gameList_thread=new MyClientTask_SendPakcet();
 		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), getGamesList,"", "", -1);
 		try {
-			res=gameList_thread.execute(packet).get(4000, TimeUnit.MILLISECONDS);
+			res=gameList_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			res="InterruptedException:"+ e.toString();
@@ -392,7 +395,7 @@ public class ServerCommunication {
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, injured_nickname, MainActivity.currentGame, hitArea);
-			res = sendHit.execute(packet).get(4000, TimeUnit.MILLISECONDS);
+			res = sendHit.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -420,7 +423,7 @@ public class ServerCommunication {
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.createGame, "", newGameName, -1);
-			res = createNewGame.execute(packet).get();
+			res = createNewGame.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -440,7 +443,7 @@ public class ServerCommunication {
 
 	/*****************************************************************/
 	public void setlistener(){
-		(new MyClientTask_ListenToPakcets()).execute();
+		(new MyClientTask_ListenToPakcets()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		return;
 	}
 	/*****************************************************************/

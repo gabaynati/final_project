@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
+import java.util.Timer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -34,6 +35,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.AnimationDrawable;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -48,7 +50,6 @@ import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -638,9 +639,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	
 	private void drawHit(){
 		
-		Timer timer = new Timer(200) {
+		Timer timer = new Timer() {
 			
-			@Override
 			public void onFinish() {
 				// TODO Auto-generated method stub
 				frame.removeView(bullet_hit);
@@ -660,7 +660,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		bullet_hit.setLayoutParams(params);
 		frame.addView(bullet_hit);
 		
-		timer.start();
+		((Animatable) timer).start();
 		
 		
 	}

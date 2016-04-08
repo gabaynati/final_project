@@ -42,6 +42,38 @@ public class MainActivity extends Activity {
 	public static Vector<String> gameList;
 	public static ServerCommunication server_com=new ServerCommunication();
 	public static Boolean flag=false;
+	public static Lock lock;
+	public static mySemaphore sem=new mySemaphore(){
+
+
+		@Override
+		public synchronized void s_wait(int thread_index) throws InterruptedException{
+
+			if(permits>0)
+				permits--;
+			else
+			{
+				if(permits<=0)
+				{
+					System.out.println("sempaphore chars: rcv["+thread_index+"] accuriered semaphore");
+					this.wait();//puts to sleep	
+					System.out.println("sempaphore chars: rcv["+thread_index+"] reciever exited busy wait");
+
+				}
+				permits--;
+			}
+		}
+
+
+
+		@Override
+		public synchronized void s_signal(){
+			System.out.println("sempaphore chars: sender released semaphore");
+			permits++;
+			this.notify();//wakes the FIRST thread that put to sleep.
+		}
+	};
+
 
 
 	//*************************************************/

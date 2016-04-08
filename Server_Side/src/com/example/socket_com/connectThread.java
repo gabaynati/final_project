@@ -85,13 +85,17 @@ public class connectThread extends Thread
 						server.getServerLogs().add(packet.getNickName()+" has just connected!");
 						server.getPanel().update();
 
-
-
+						//sending ACK:
+						GamePacket ACK_packet=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.connect, "","",-1);
+						SendPacketThread t=new SendPacketThread(ACK_packet,newPlayer);
+						t.start();
+						/*
 						//sending gameList:
 						GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
 						gamesListPacket.setGamesList(Main.server.getGamesIDs());
-						SendPacketThread t=new SendPacketThread(gamesListPacket,newPlayer);
-						t.start();
+						SendPacketThread t1=new SendPacketThread(gamesListPacket,newPlayer);
+						t1.start();
+						*/
 
 					}
 				}

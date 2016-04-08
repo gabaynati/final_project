@@ -101,8 +101,11 @@ public class ConnectToServerActivity extends Activity {
 
 			try{
 				String res="";
-				
+				//setting server listener:
+				MainActivity.server_com.setlistener();
+		
 				res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password);
+				MainActivity.lock.lock();
 				if(res.equals("true")){
 					buffer="You have successfully connected to server";
 					textResponse.setText(buffer);
@@ -111,8 +114,7 @@ public class ConnectToServerActivity extends Activity {
 					editTextNickName.setVisibility(View.GONE);
 					MainActivity.player.setConnectedToServer(true);
 					
-					//setting server listener:
-					MainActivity.server_com.setlistener();
+					
 					finish();
 				}
 				else{
