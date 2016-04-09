@@ -21,7 +21,21 @@ public class GameInfoActivity extends Activity {
 		setContentView(R.layout.game_info_layout);
 		ls1 = (ListView) findViewById (R.id.team1list);
 		ls2 = (ListView) findViewById (R.id.team2list);
-	
+		
+		
+		//setting headers
+		
+		
+        View header1 = (View)getLayoutInflater().inflate(R.layout.listview_header_row, null);
+       ( (TextView)header1.findViewById(R.id.txtHeader)).setText("Team 1");
+        ls1.addHeaderView(header1);
+        
+        
+        View header2 = (View)getLayoutInflater().inflate(R.layout.listview_header_row, null);
+        ( (TextView)header2.findViewById(R.id.txtHeader)).setText("Team 2");
+        ls2.addHeaderView(header2);
+        
+        
 		Vector<String> team1,team2;
 		if(MainActivity.currentGameTeam1==null)
 			team1=new Vector<String>();
@@ -32,8 +46,12 @@ public class GameInfoActivity extends Activity {
 		else
 			team2=MainActivity.currentGameTeam2;
 
-		ls1.setAdapter(new ArrayAdapter<String> (this, android.R.layout.simple_list_item_1, team1));
-		ls2.setAdapter(new ArrayAdapter<String> (this, android.R.layout.simple_list_item_1, team2));
+		
+		
+		PlayerListAdapter team1_adapter=new PlayerListAdapter(this, R.layout.listview_item_row, team1);
+		PlayerListAdapter team2_adapter=new PlayerListAdapter(this, R.layout.listview_item_row, team2);
+		ls1.setAdapter(team1_adapter);
+		ls2.setAdapter(team2_adapter);
 
 
 	}

@@ -7,13 +7,14 @@
         android:id="@+id/team1list"
         android:layout_width="0dp"
         android:layout_height="fill_parent"
-        android:layout_weight=".50" >
+        android:layout_weight=".50">
     </ListView>
 
     <ListView
         android:id="@+id/team2list"
         android:layout_width="0dp"
         android:layout_height="fill_parent"
-        android:layout_weight=".50" >
+        android:layout_weight=".50">
     </ListView>
+
 </LinearLayout>

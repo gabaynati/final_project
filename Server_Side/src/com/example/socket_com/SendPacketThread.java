@@ -21,7 +21,6 @@ public class SendPacketThread extends Thread  {
 	{
 
 		String res=writePacket(this.packet);
-		System.out.println("sendddddd: "+res);
 
 	}
 
@@ -35,7 +34,8 @@ public class SendPacketThread extends Thread  {
 			ObjectOutputStream os = new ObjectOutputStream(outputStream);
 			os.writeObject(packet);
 			byte[] data = outputStream.toByteArray();
-			DatagramPacket sendPacket = new DatagramPacket(data, data.length, player.getIP(), player.getPort()+1);
+			System.out.println("sendddddd: "+player.getPort());
+			DatagramPacket sendPacket = new DatagramPacket(data, data.length, player.getIP(), player.getPort());
 			socket.send(sendPacket);
 		}catch (UnknownHostException e) {
 			// TODO Auto-generated catch block

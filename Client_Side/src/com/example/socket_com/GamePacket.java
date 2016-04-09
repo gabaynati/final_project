@@ -13,6 +13,7 @@ public class GamePacket implements Serializable{
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4,joinGame=5,getGameInfo=6;
 	private String nickName,password,injured_nickName;
 	private int packetType;
+	private int playerPort;
 	private Vector<String> gamesList;
 	private String gameName;
 	private Vector<String> gameTeam1Players,gameTeam2Players;
@@ -94,5 +95,11 @@ public class GamePacket implements Serializable{
 	public int getType() {
 		// TODO Auto-generated method stub
 		return this.packetType;
+	}
+	public int getPlayerPort() {
+		return playerPort;
+	}
+	public void setPlayerPort(int playerPort) {
+		this.playerPort = playerPort;
 	}
 }

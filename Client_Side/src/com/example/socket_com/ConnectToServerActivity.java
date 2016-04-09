@@ -102,8 +102,9 @@ public class ConnectToServerActivity extends Activity {
 			try{
 				String res="";
 				//setting server listener:
+				MainActivity.server_com.openSocket();
 				MainActivity.server_com.setlistener();
-		
+			
 				res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password);
 				try {
 					MainActivity.connectSem.acquire();

@@ -11,6 +11,7 @@ import java.io.StreamCorruptedException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -35,33 +36,33 @@ import android.util.Log;
  * 2.
  *
  */
-	
+
 
 
 
 public class ServerCommunication {
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
 	//this method is used to prevent two thread from writing to the socket simultaneously.
-	int send_port=MainActivity.serverPort;
-	int rcv_port=9002;
+
 
 	InetAddress serverIP;
 	int serverPort=MainActivity.serverPort;
+	DatagramSocket socket=null;
 
-	
+
+
+
+
 	public ServerCommunication(){
 		try {
 			serverIP=InetAddress.getByName(MainActivity.serverIP);
-			
-
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		}
+
+
 	}
-
-
-
 
 
 
@@ -69,9 +70,7 @@ public class ServerCommunication {
 	private String writePacket(GamePacket packet){
 		String response="true";
 
-		DatagramSocket socket=null;
 		try {
-			socket=new DatagramSocket(send_port);
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ObjectOutputStream os = new ObjectOutputStream(outputStream);
 			os.writeObject(packet);
@@ -84,10 +83,10 @@ public class ServerCommunication {
 			e.printStackTrace();
 			response = "IOException: " + e.toString();
 		}
-		finally{
-			if(socket!=null)
-				socket.close();
-		}
+		//		finally{
+		//			if(socket!=null)
+		//				socket.close();
+		//		}
 		return response;
 	}
 
@@ -96,6 +95,42 @@ public class ServerCommunication {
 
 
 	//Threads:
+	/*****************************************************************/
+	public  class MyClientTask_OpenSocket extends AsyncTask<Void, Void, String> {
+	private String response;
+		@Override
+		protected String doInBackground(Void... arg0) {
+			try{
+				socket=new DatagramSocket(MainActivity.playerPort);
+				
+			 //   SocketAddress sockaddr = new InetSocketAddress(serverIP, serverPort);
+				//socket.connect(sockaddr);
+			} catch (SocketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				response = "SocketException: " + e.toString();
+
+			}
+			
+	
+			return response;
+		}
+
+
+
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+		}
+
+	}
+	/*****************************************************************/
+
+	
+	
+	
+	
 	/*****************************************************************/
 	public  class MyClientTask_ListenToPakcets extends AsyncTask<Void, Void, String> {
 
@@ -110,14 +145,7 @@ public class ServerCommunication {
 
 			GamePacket packet = null;
 			byte[] incomingData = new byte[1024];
-			
-				DatagramSocket socket=null;
-				try {
-					socket = new DatagramSocket(rcv_port);
-				} catch (SocketException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+	
 			while (running) {
 
 				try {
@@ -151,7 +179,7 @@ public class ServerCommunication {
 				}
 
 				processPacket(packet);
-				
+
 				/*finally
 			{
 				if(MainActivity.socket != null){
@@ -167,19 +195,19 @@ public class ServerCommunication {
 			return response;
 		}
 
-		
-		
-	
+
+
+
 		@Override
 		protected void onPostExecute(String result) {
 			//textResponse.setText(response);
 			super.onPostExecute(result);
 		}
-		
-		
-		
+
+
+
 		private void processPacket(GamePacket packet) {
-			
+
 			if(packet.isConnect()){
 				MainActivity.connectSem.release();
 			}
@@ -198,16 +226,16 @@ public class ServerCommunication {
 				MainActivity.currentGameTeam2=packet.getTeam2();
 				MainActivity.getGameInfoSem.release();
 			}
-						
+
 		}
 
 	}
-	
+
 	public synchronized void setDone() {
 
-	    MainActivity.flag= true;
+		MainActivity.flag= true;
 
-	    this.notifyAll();
+		this.notifyAll();
 	}
 
 	/*****************************************************************/
@@ -266,6 +294,7 @@ public class ServerCommunication {
 	public String ConnectToServer(String addr, int port,String nickname,String password){
 		MyClientTask_SendPakcet connect_thread=new MyClientTask_SendPakcet();
 		GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"","",-1);
+		packet.setPlayerPort(MainActivity.playerPort);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
@@ -315,7 +344,7 @@ public class ServerCommunication {
 
 
 
-	
+
 	/*****************************************************************/
 	public String getGameInfo(String gameName){
 		MyClientTask_SendPakcet getGameInfo_thread=new MyClientTask_SendPakcet();
@@ -457,9 +486,34 @@ public class ServerCommunication {
 		return;
 	}
 	/*****************************************************************/
+	public String openSocket(){
+		MyClientTask_OpenSocket openSocket_thread=new MyClientTask_OpenSocket();
+		String res="true";
+		try {
+			res=openSocket_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get(4000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			res="InterruptedException: "+e.toString();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			res="ExecutionException: "+e.toString();
+
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			res="TimeoutException: "+e.toString();
+
+		}
+		return res;
+	}
 
 
+	/*****************************************************************/
 
+	
+	/*****************************************************************/
 
 
 }

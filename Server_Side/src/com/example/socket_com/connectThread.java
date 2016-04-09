@@ -22,7 +22,7 @@ public class connectThread extends Thread
 		socket = new DatagramSocket(Server.serverPort);
 	}
 
-	
+
 	@Override
 	public void run()
 	{
@@ -52,12 +52,11 @@ public class connectThread extends Thread
 				packet=(GamePacket)is.readObject();
 
 				InetAddress IPAddress = incomingPacket.getAddress();
-				int port = incomingPacket.getPort();
 				System.out.println(packet.getNickName());
 				System.out.println(IPAddress);
-				System.out.println(port);
+				System.out.println(packet.getPlayerPort());
 				System.out.println(packet.getType());
-				processPacket(packet, IPAddress, port);
+				processPacket(packet, IPAddress);
 			}
 
 			//server.close();
@@ -76,11 +75,11 @@ public class connectThread extends Thread
 			}
 		}
 	}
-	
-	
-	
-	
-	private void processPacket(GamePacket packet,InetAddress IPAddress,int port){
+
+
+
+
+	private void processPacket(GamePacket packet,InetAddress IPAddress){
 		//adding new player
 		if(packet.isConnect()){
 			if(!server.isPlayerConnected(packet.getNickName())){
@@ -88,9 +87,9 @@ public class connectThread extends Thread
 				//server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
 
 				//creating new Player:
-				Player newPlayer=new Player(IPAddress,port,"");
+				Player newPlayer=new Player(IPAddress,packet.getPlayerPort(),"");
 
-
+				System.out.println("new player ,port=:" + packet.getPlayerPort());
 				//adding to server
 				newPlayer.setNickName(packet.getNickName());
 				newPlayer.setPassword(packet.getPassword());
