@@ -58,14 +58,24 @@ public class FindGameActivity extends Activity {
 
 		//getting gameList from server
 		String res=MainActivity.server_com.sendGameListRequest();
+		
+		
+		
+		//blocking thread until the server responses with the data or until timeout occur.
 		try {
 			MainActivity.getGameListSem.acquire();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+		
 		gameList=MainActivity.gameList;
-		if(gameList!=null){
+		
+		
+		//if timeout occurred then there is no response from the server  
+		if(gameList!=null ||!MainActivity.getGameListSem.isTimedOut()){
 
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, gameList);
 
@@ -76,19 +86,22 @@ public class FindGameActivity extends Activity {
 				@Override
 				public void onItemClick(AdapterView<?> adapter, View v, int position,long arg3) 
 				{
+					
+					//getting game info from the server
 					String value = (String)adapter.getItemAtPosition(position); 
 					MainActivity.currentGame=value;
 					String res= MainActivity.server_com.getGameInfo(value);
+					
+					//blocking thread until the server responses with the data or until timeout occur.
 					try {
 						MainActivity.getGameInfoSem.acquire();
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
-					//waitUntilDone();
-
-					if(res.equals("true")){
+					
+					//if timeout occurred then there is no response from the server  
+					if(!MainActivity.getGameInfoSem.isTimedOut()){
 						Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
 						//moving to game interface
 						Intent gameInfo = new Intent("com.example.socket_com.GAMEINFOACTIVITY");
@@ -96,7 +109,7 @@ public class FindGameActivity extends Activity {
 						finish();
 					}
 					else
-						Toast.makeText(getBaseContext(), res, Toast.LENGTH_LONG).show();
+						Toast.makeText(getBaseContext(), "Error while getting game info from the server", Toast.LENGTH_LONG).show();
 
 
 				}

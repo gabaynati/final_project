@@ -34,8 +34,8 @@ public class Server {
 		this.serverPort=serverPort;
 		Game game1=new Game("game 1");
 		try {
-			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "trtrtrtr"));
-			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "yyyyyyyyy"));
+			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "trtrtrtr"),1);
+			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "yyyyyyyyy"),2);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -100,12 +100,12 @@ public class Server {
 	public Vector<Game> getGames() {
 		return games;
 	}
-	public void addPlayerToGame(Player player,String gameName){
+	public void addPlayerToGame(Player player,String gameName,int team){
 		if(isPlayerJoinedAGame(player))
 			return;
 		Game game=getGameByName(gameName);
 		if(game!=null)
-			game.addPlayer(player);
+			game.addPlayer(player,team);
 	}
 	public boolean isPlayerJoinedAGame(Player player){
 		for(int i=0;i<games.size();i++)

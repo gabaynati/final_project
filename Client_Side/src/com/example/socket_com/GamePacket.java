@@ -10,7 +10,7 @@ public class GamePacket implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4,joinGame=5,getGameInfo=6;
+	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4,joinGame=5,getGameInfo=6,quitGame=7;
 	private String nickName,password,injured_nickName;
 	private int packetType;
 	private int playerPort;
@@ -18,6 +18,7 @@ public class GamePacket implements Serializable{
 	private String gameName;
 	private Vector<String> gameTeam1Players,gameTeam2Players;
 	private int hitArea;
+	private int team;
 	
 	public GamePacket(String nickName,String password,final int packetType,String injured_nickName,String gameName,int hitArea){
 		this.packetType=packetType;
@@ -92,6 +93,9 @@ public class GamePacket implements Serializable{
 	public boolean isGetGameInfo(){
 		return this.packetType==getGameInfo;
 	}
+	public boolean isQuitGame(){
+		return this.packetType==quitGame;
+	}
 	public int getType() {
 		// TODO Auto-generated method stub
 		return this.packetType;
@@ -101,5 +105,11 @@ public class GamePacket implements Serializable{
 	}
 	public void setPlayerPort(int playerPort) {
 		this.playerPort = playerPort;
+	}
+	public int getTeam() {
+		return team;
+	}
+	public void setTeam(int team) {
+		this.team = team;
 	}
 }

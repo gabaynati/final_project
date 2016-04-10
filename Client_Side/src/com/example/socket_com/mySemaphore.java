@@ -21,8 +21,20 @@ package com.example.socket_com;
  */
 
 
+/**note about timedOut:
+ * I used in this project semaphore for thread synchronization.
+ * when a packet is sent to server with a request for data(for example: games list) the thread is blocked until the data is received from the server.
+ * however, if the server is down ,then the blocked thread will be blocked forever.
+ * for this reason, i block the thread for a period of time; therefore if the server is down the thread will be timeout from the semaphore.
+ * in that case , permits will be stay at zero value(because release() from the server will inc permits be one)
+ * the function isTimedOut lets you know if the semaphore is released be the response of the server or it released by timeout of no response from the server.
+ * 
+ *
+ */
+
 public class mySemaphore {
 	protected int permits;
+	protected boolean timedOut=false;
 	public mySemaphore(){
 		this.permits=0;
 	}
@@ -33,16 +45,31 @@ public class mySemaphore {
 
 
 
-	public synchronized void s_wait() throws InterruptedException{
-
+	public synchronized void acquire() throws InterruptedException{
+		timedOut=false;
+		if(permits>0)
+			permits--;
+		else
+		{
+			if(permits<=0)
+			{
+				this.wait(5000);//puts to sleep	
+				if(permits==0)
+					timedOut=true;
+			}
+			permits--;
+		}
 	}
 	public synchronized void s_wait(int thread_index) throws InterruptedException{
 
 	}
 
-
-	public synchronized void s_signal(){
-
+	public boolean isTimedOut(){
+		return timedOut;
+	}
+	public synchronized void release(){
+		permits++;
+		this.notify();//wakes the FIRST thread that put to sleep.
 	}
 
 

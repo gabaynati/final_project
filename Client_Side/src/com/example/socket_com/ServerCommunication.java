@@ -29,12 +29,16 @@ import android.util.Log;
 
 
 /**some notes:
- * 1.two threads cannot operate on sockets with the same port!.
- * 	 therefore, i separate the ports of send and listen threads:
- *   send port will be same as the port the server listens to(so it will get the packets we send to it),
- *   and listen port will be some arbitrary port(at the server we need to send the replies to that port).
- * 2.
- *
+ * 1.the socket to the server is constructed in this manner:
+ * player_port<---->server_port
+ * the client side is binded to player_port and the server side is binded to the server_port.
+ * 
+ * 
+ * 2.I used semaphore for thread synchronization.
+ *  when a packet is sent to server with a request for data(for example: games list) the thread is blocked until the data is received from the server and then semaphore will be released.
+ *  
+ *  
+ *  3.
  */
 
 
@@ -42,7 +46,6 @@ import android.util.Log;
 
 public class ServerCommunication {
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
-	//this method is used to prevent two thread from writing to the socket simultaneously.
 
 
 	InetAddress serverIP;
@@ -128,7 +131,7 @@ public class ServerCommunication {
 	/*****************************************************************/
 
 	
-	
+
 	
 	
 	/*****************************************************************/
@@ -209,6 +212,7 @@ public class ServerCommunication {
 		private void processPacket(GamePacket packet) {
 
 			if(packet.isConnect()){
+				//waking the blocked thread which is used to connect to the server
 				MainActivity.connectSem.release();
 			}
 
@@ -219,14 +223,20 @@ public class ServerCommunication {
 			}
 			else if(packet.isGetGamesList()){
 				MainActivity.gameList=packet.getGamesList();
+				//waking the blocked thread which request the data
 				MainActivity.getGameListSem.release();
 			}
 			else if(packet.isGetGameInfo()){
 				MainActivity.currentGameTeam1=packet.getTeam1();
 				MainActivity.currentGameTeam2=packet.getTeam2();
+				//waking the blocked thread which request the data
 				MainActivity.getGameInfoSem.release();
 			}
-
+			else if(packet.isJoinAGame()){
+				MainActivity.team=packet.getTeam();
+				//waking the blocked thread which request the data
+				MainActivity.joinGameSem.release();
+			}
 		}
 
 	}
@@ -319,9 +329,10 @@ public class ServerCommunication {
 
 
 	/*****************************************************************/
-	public String JoinGame(String gameName){
+	public String JoinGame(String gameName,int team){
 		MyClientTask_SendPakcet joinGame_thread=new MyClientTask_SendPakcet();
 		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.joinGame, "", gameName,-1);
+		packet.setTeam(team);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
@@ -376,10 +387,10 @@ public class ServerCommunication {
 	/*****************************************************************/
 	public String disconnectFromServer(){
 		MyClientTask_SendPakcet disconnect=new MyClientTask_SendPakcet();
-		GamePacket packet =new GamePacket(MainActivity.player.getNickName(),MainActivity.player.getPassword(), GamePacket.disconnect, "", "game 1", -1);
+		GamePacket packet =new GamePacket(MainActivity.player.getNickName(),MainActivity.player.getPassword(), GamePacket.disconnect, "", "", -1);
 		String result = "";
 		try {
-			result=disconnect.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,(GamePacket)packet).get(4000, TimeUnit.MILLISECONDS);
+			result=disconnect.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(3000, TimeUnit.MILLISECONDS);
 
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

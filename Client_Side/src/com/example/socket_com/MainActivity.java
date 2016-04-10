@@ -38,12 +38,15 @@ public class MainActivity extends Activity {
 	public static Player player=new Player("nati","1234");
 	public static String enemy="gili";
 	public static String currentGame="";
+	public static int team;
 	public static Vector<String> currentGameTeam1,currentGameTeam2;
 	public static Vector<String> gameList;
 	public static ServerCommunication server_com=new ServerCommunication();
-	public static Semaphore connectSem=new Semaphore(0);
-	public static Semaphore getGameListSem=new Semaphore(0);
-	public static Semaphore getGameInfoSem=new Semaphore(0);
+	public static mySemaphore connectSem=new mySemaphore(0);
+	public static mySemaphore getGameListSem=new mySemaphore(0);
+	public static mySemaphore getGameInfoSem=new mySemaphore(0);
+	public static mySemaphore joinGameSem=new mySemaphore(0);
+
 	public static boolean flag;
 
 
@@ -63,6 +66,11 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.menu_layout);
+		
+		
+		
+		
+		
 		
 		buttonConnectToServer = (Button)findViewById(R.id.connectToServer);
 		buttonRegisterToSystem = (Button)findViewById(R.id.registerToSystem);
@@ -107,7 +115,6 @@ public class MainActivity extends Activity {
 			//Log.d("DDDDDD:", "CONNECTED");
 
 
-			ServerCommunication server_com=new ServerCommunication();
 			result=server_com.disconnectFromServer();
 			txtResponse.setText(result);
 			buttonJoinAGame.setVisibility(View.GONE);
@@ -218,8 +225,9 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
-
-
+		server_com.disconnectFromServer();
+		finish();
+		System.exit(0);
 	}
 	@Override
 	protected void onPause(){

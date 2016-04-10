@@ -39,11 +39,11 @@ public class Game {
 
 
 	}
-	
-	
+
+
 	/*
 	public Player getPlayerByNickName(String player_nickname){
-		
+
 	}*/
 	public void playerDisconnected(String player_nickname){
 		//removing player
@@ -52,25 +52,22 @@ public class Game {
 				if(players.elementAt(i).getTeam().equals(team1))
 					team1_numOfPlayers--;
 				else if(players.elementAt(i).getTeam().equals(team2))
-				team2_numOfPlayers--;
+					team2_numOfPlayers--;
 				players.removeElementAt(i);
 			}
 
 	}
-	public void addPlayer(Player player){
+	public void addPlayer(Player player, int team){
 		player.setCurrentGame(this);
 		if(!isConnected(player.getNickName())){
 			this.players.add(player);
 
-			if(team1_numOfPlayers==team2_numOfPlayers){
+			if(team==1)
 				addPlayerToTeam1(player);
-			}
-			else if(team1_numOfPlayers>team2_numOfPlayers){
+			else if(team==2)
 				addPlayerToTeam2(player);
-			}
-			else if(team2_numOfPlayers>team1_numOfPlayers){
-				addPlayerToTeam1(player);
-			}
+
+
 		}
 	}
 	public String toString(){
@@ -109,9 +106,9 @@ public class Game {
 				team2Players.add(players.elementAt(i).getNickName());
 		return team2Players;
 	}
-	
-	
-	
+
+
+
 	/*
 	public Socket getSocketByNickName(String nickName){
 		if(team1.getSocketByNickName(nickName)!=null)

@@ -148,12 +148,12 @@ public class connectThread extends Thread
 
 		}
 		else if(packet.isJoinAGame()){
-			//System.out.println(packet.getGameName());
-			//if(player==null)
-			//	return;
-			server.addPlayerToGame(server.getPlayerByNickName(packet.getNickName()), packet.getGameName());
-
-			//System.out.println(server.getGameByName(packet.getGameName()).getPlayersSockets().firstElement().toString());
+			server.addPlayerToGame(server.getPlayerByNickName(packet.getNickName()), packet.getGameName(),packet.getTeam());
+			//sending ACK:
+			GamePacket joinGamePacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.joinGame, "",packet.getGameName(),-1);
+			joinGamePacket.setTeam(packet.getTeam());
+			SendPacketThread t=new SendPacketThread(joinGamePacket,server.getPlayerByIP(IPAddress));
+			t.start();
 		}
 		else if(packet.isCreateNewGame()){
 			server.addGame(new Game(packet.getGameName()));

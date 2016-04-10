@@ -106,13 +106,17 @@ public class ConnectToServerActivity extends Activity {
 				MainActivity.server_com.setlistener();
 			
 				res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password);
+				//blocking thread until the server responses with the data or until timeout occur.
 				try {
 					MainActivity.connectSem.acquire();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				if(res.equals("true")){
+				
+				
+				//if timeout occurred then there is no response from the server  
+				if(!MainActivity.connectSem.isTimedOut()){
 					buffer="You have successfully connected to server";
 					textResponse.setText(buffer);
 					buttonConnect.setVisibility(View.GONE);
