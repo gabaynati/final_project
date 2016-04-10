@@ -70,6 +70,13 @@ public class Game {
 
 		}
 	}
+	public void quitGame(String player){
+		for(int i=0;i<players.size();i++){
+			if(players.elementAt(i).getNickName().equals(player)){
+				players.removeElementAt(i);
+			}
+		}
+	}
 	public String toString(){
 		String str="";
 		str+=team1.toString()+"\n"+team2.toString();

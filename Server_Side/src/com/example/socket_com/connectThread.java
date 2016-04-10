@@ -152,6 +152,7 @@ public class connectThread extends Thread
 			//sending ACK:
 			GamePacket joinGamePacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.joinGame, "",packet.getGameName(),-1);
 			joinGamePacket.setTeam(packet.getTeam());
+			Main.server.getPanel().update();
 			SendPacketThread t=new SendPacketThread(joinGamePacket,server.getPlayerByIP(IPAddress));
 			t.start();
 		}
@@ -171,7 +172,13 @@ public class connectThread extends Thread
 			SendPacketThread t=new SendPacketThread(gamesInfoPacket,server.getPlayerByIP(IPAddress));
 			t.start();
 		}
-
+		if(packet.isQuitGame()){
+			Main.server.quitGame(packet.getNickName(), packet.getGameName());
+			Main.server.getPanel().update();
+		}
+		
+		
+		
 	}
 
 }

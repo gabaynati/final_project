@@ -521,9 +521,40 @@ public class ServerCommunication {
 	}
 
 
+
+
+
+
+
 	/*****************************************************************/
 
-	
+	public String quitGame() {
+		MyClientTask_SendPakcet quitGame_thread=new MyClientTask_SendPakcet();
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.quitGame, "", MainActivity.currentGame,-1);
+		String result = "";
+		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
+		try {
+			result=quitGame_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(3000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			result="InterruptedException: "+e.toString();
+		}
+		
+		
+		MainActivity.currentGame=null;
+		MainActivity.team=-1;
+		MainActivity.isJoinedAGame=false;
+		
+		
+		return result;	
+		
+	}
 	/*****************************************************************/
 
 

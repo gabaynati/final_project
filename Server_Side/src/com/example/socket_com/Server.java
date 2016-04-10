@@ -93,6 +93,15 @@ public class Server {
 
 
 	}
+	
+	public void quitGame(String player_nickname,String GameName){
+		getGameByName(GameName).quitGame(player_nickname);
+		for(int i=0;i<players.size();i++){
+			if(players.elementAt(i).getNickName().equals(player_nickname)){
+				players.elementAt(i).setCurrentGame(null);
+			}
+		}
+	}
 	public int getServerPort(){
 		return this.serverPort;
 	}

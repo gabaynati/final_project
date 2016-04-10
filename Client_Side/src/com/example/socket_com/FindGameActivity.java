@@ -77,9 +77,9 @@ public class FindGameActivity extends Activity {
 		//if timeout occurred then there is no response from the server  
 		if(gameList!=null ||!MainActivity.getGameListSem.isTimedOut()){
 
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, gameList);
 
 			ListView listView = (ListView) findViewById(R.id.mobile_list);
+			CustomListAdapter adapter=new CustomListAdapter(this, R.layout.listview_item_row,gameList);
 			listView.setAdapter(adapter);
 			listView.setOnItemClickListener(new OnItemClickListener()
 			{

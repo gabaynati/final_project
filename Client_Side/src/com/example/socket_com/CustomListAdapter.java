@@ -14,13 +14,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class PlayerListAdapter extends ArrayAdapter<String>{
+public class CustomListAdapter extends ArrayAdapter<String>{
 
 	    Context context; 
 	    int layoutResourceId;    
 	    Vector<String> team = null;
 	    
-	    public PlayerListAdapter(Context context, int layoutResourceId,Vector<String> team) {
+	    public CustomListAdapter(Context context, int layoutResourceId,Vector<String> team) {
 	        super(context, layoutResourceId,team);
 	        this.layoutResourceId = layoutResourceId;
 	        this.context = context;
