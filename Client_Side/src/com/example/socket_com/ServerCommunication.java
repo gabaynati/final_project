@@ -450,12 +450,12 @@ public class ServerCommunication {
 	 * @param f 
 	 * @param d 
 	 * @param azimut ***************************************************************/
-	public String sendHitToServer(int hitArea, float azimuth, Location loc) {
+	public String sendHitToServer(int hitArea, float azimuth, float latitude, float longitude) {
 		MyClientTask_SendPakcet sendHit=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, MainActivity.currentGame, hitArea);
-			packet.setGPS(loc.getLatitude(),loc.getLongitude());
+			packet.setGPS(latitude, longitude);
 			packet.setAzimuth(azimuth);
 			res = sendHit.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {

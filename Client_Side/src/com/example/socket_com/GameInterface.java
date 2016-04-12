@@ -31,6 +31,7 @@ import android.provider.Settings;
 import com.example.hs.R;
 import com.example.socket_com.ServerCommunication.MyClientTask_ListenToPakcets;
 import com.example.socket_com.ServerCommunication.MyClientTask_SendPakcet;
+import com.example.socket_com.SingleShotLocationProvider.GPSCoordinates;
 
 import android.app.Activity;
 import android.content.Context;
@@ -78,6 +79,7 @@ import org.opencv.imgproc.Imgproc;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener, LocationListener {
 	private HitListener_Thread hitThread;
+	private Context context;
 	private Logic logic;
 	private final int ramBurden = 5;
 	private FrameLayout frame;
@@ -99,7 +101,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Sensor mAccelerometer;
 	private Sensor mMagnetometer;
 
-	private float azimut = 0;
+	private float azimuth = 0;
 	private TextView sensorTest;
 	/********************************************/
 
@@ -115,7 +117,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	/******************************************/
 
 
-	
+
 
 
 
@@ -148,6 +150,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		setContentView(R.layout.game_layout);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+		context = this.getApplicationContext();
 		/***************************Sensors*************************************/
 		mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -164,7 +167,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//running hit event listener:
 		hitThread=new HitListener_Thread();
 		hitThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		
+
 		/*		
 		tar = new Location("dummyprovider");
 		//loc = new Location("dummyprovider");
@@ -331,7 +334,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//the third argument is a listener object that keeps track to the binding process.
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,this , mLoaderCallback);
 
-		
+
 
 		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
 		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
@@ -480,7 +483,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 				break;
 			}
-			
+
 			//when release the screen
 			case MotionEvent.ACTION_UP: 
 			{
@@ -575,7 +578,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	//call this method when the user shoot
 	private void shoot(){
-		
+
 		touched = true;
 
 		int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
@@ -588,7 +591,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			//logic.catchRect();
 
 			//if this player hits someone
-			int hitArea = logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
+			final int hitArea = logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
 			String hit_area="";
 			switch(hitArea){
 			case Logic.UPPER_BODY_HIT:
@@ -605,37 +608,44 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			}
 			if(hitArea != -1){
-				
+
 				drawHit();
 				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
 				toast.show();					
-				/*****server communication*******/
-							String res="";
-							res=MainActivity.server_com.sendHitToServer(hitArea,azimut,loc);
+
+				
+				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
+					@Override 
+					public void onNewLocationAvailable(GPSCoordinates location) {
+
+						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
+					}
+				});
+
 
 				/**********************************/
 
-				
+
 			}
 
 
 			setScreen();
 		}
 	}
-	
-	
+
+
 	private void drawHit(){
-		
+
 		Timer timer = new Timer() {
-			
+
 			public void onFinish() {
 				// TODO Auto-generated method stub
 				frame.removeView(bullet_hit);
 			}
-			
-			
+
+
 		};
-		
+
 		int size = logic.getSizeOfRect();
 		bullet_hit = new ImageView(getApplicationContext());
 		bullet_hit.setImageResource(R.drawable.bullet_hit);
@@ -646,10 +656,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		bullet_hit.setLayoutParams(params);
 		frame.addView(bullet_hit);
-		
+
 		((Animatable) timer).start();
-		
-		
+
+
 	}
 
 
@@ -674,7 +684,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			if(!someAnimationRun && !someAnimationLoad)
 				targetState();
-			
+
 			break;
 		}
 
@@ -799,18 +809,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				stand_animation = null;
 
 				executeAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("choose"));
-				
-				Thread thread = new Thread() {
-				    @Override
-				    public void run() {
 
-				    	shoot_animation = (player.getWeapons()[player.getCurrent_weapon()].getAnimation("shoot"));
-				    }
-				    
+				Thread thread = new Thread() {
+					@Override
+					public void run() {
+
+						shoot_animation = (player.getWeapons()[player.getCurrent_weapon()].getAnimation("shoot"));
+					}
+
 				};
 
 				thread.start();
-				
+
 			}
 		};
 
@@ -975,7 +985,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	public void onSensorChanged(SensorEvent event) {
 
 
-		/*
+
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
 			mGravity = event.values;
 
@@ -989,29 +999,29 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			if (success) {
 				float orientation[] = new float[3];
 				SensorManager.getOrientation(R, orientation);
-				azimut = orientation[0]; // orientation contains: azimut, pitch and roll
+				azimuth = orientation[0]; // orientation contains: azimuth, pitch and roll
 
 			}
 		}
-		azimut = (float)Math.toDegrees(azimut);
+		azimuth = (float)Math.toDegrees(azimuth);
 
-		if(azimut > 90 && azimut <= 180){
-			azimut += 90;
-			float offset = Math.abs(180 - azimut);
-			azimut = (180 - offset) * -1;
+		if(azimuth > 90 && azimuth <= 180){
+			azimuth += 90;
+			float offset = Math.abs(180 - azimuth);
+			azimuth = (180 - offset) * -1;
 		}
 
 		else
-			azimut += 90;
+			azimuth += 90;
 
 
-		sensorTest.setText(Float.toString(azimut));*/
+		//sensorTest.setText(Float.toString(azimuth));
 
-		/*azimut += geoField.getDeclination();
+		/*azimuth += geoField.getDeclination();
 
-		azimut = azimut - degree;*/
+		azimuth = azimuth - degree;*/
 
-		//		sensorTest.setText(Float.toString(azimut));
+		//		sensorTest.setText(Float.toString(azimuth));
 		/*if (event.sensor == mAccelerometer){
 			//total_bulletsText.setText(Float.toString(event.values[1]));
 		}
@@ -1041,7 +1051,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		             (float) location.getAltitude(),
 		             System.currentTimeMillis());
 
-			azimut += geoField.getDeclination();
+			azimuth += geoField.getDeclination();
 
 			tar.setLatitude(location.getLatitude()-1);
 			tar.setLongitude(location.getLongitude());
@@ -1050,7 +1060,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 			gpsTest.setText(Float.toString(bearing));
-			sensorTest.setText(Float.toString(azimut));*/
+			sensorTest.setText(Float.toString(azimuth));*/
 
 		/*String msg = "New Latitude: " + location.getLatitude()
 				+ ",New Longitude: " + location.getLongitude();
@@ -1076,12 +1086,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 		startActivity(intent);
 	}
+	
 
-	
-	
+
 	/*****************************************************************/
 	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
-	private String response;
+		private String response;
 		@Override
 		protected String doInBackground(Void... arg0) {
 			try {
@@ -1089,16 +1099,25 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}		
 			
-			
-			
-			/******GPS HERE***********/
-			double hitterLatitude=MainActivity.hitterLatitude;
-			double hitterLongitude=MainActivity.hitterLongitude;
-			double hitterAzimuth=MainActivity.hitterAzimuth;
+			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
+				@Override 
+				public void onNewLocationAvailable(GPSCoordinates location) {
+
+					loc = new Location("thisLoc");
+					tar = new Location("hitterLoc");
+					
+					loc.setLatitude(location.latitude);
+					loc.setLongitude(location.longitude);
+					tar.setLatitude(MainActivity.hitterLatitude);
+					tar.setLongitude(MainActivity.hitterLongitude);
+					
+					logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+				}
+			});
 			/**************************/
-			
+
 			try {
 				MainActivity.hitSem.acquire();
 			} catch (InterruptedException e) {

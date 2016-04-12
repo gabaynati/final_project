@@ -51,8 +51,8 @@ public class MainActivity extends Activity {
 	public static Semaphore hitSem=new Semaphore(0);
 	public static boolean flag;
 	public static float hitterAzimuth;
-	public static double hitterLatitude;
-	public static double hitterLongitude;
+	public static float hitterLatitude;
+	public static float hitterLongitude;
 
 	//*************************************************/
 
