@@ -14,6 +14,8 @@ public class Logic {
 	private JavaCameraView mOpenCvCameraView;
 	private Mat mGray, mRgba;
 	private int rectSize;
+	
+	
 	//private Rect[] facesArrayWhileShoot, upperBodyArrayWhileShoot, lowerBodyArrayWhileShoot;
 	
 	public Logic(JavaCameraView CameraView){

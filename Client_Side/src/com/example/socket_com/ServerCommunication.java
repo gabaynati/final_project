@@ -22,6 +22,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import android.location.Location;
 import android.net.IpPrefix;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -218,6 +219,7 @@ public class ServerCommunication {
 
 			else if(packet.isHit()){
 				MainActivity.player.Hit(packet.getHitArea());
+				MainActivity.hitSem.release();
 				GameInterface.hitRecvied();
 
 			}
@@ -303,7 +305,7 @@ public class ServerCommunication {
 	/*****************************************************************/
 	public String ConnectToServer(String addr, int port,String nickname,String password){
 		MyClientTask_SendPakcet connect_thread=new MyClientTask_SendPakcet();
-		GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"","",-1);
+		GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"",-1);
 		packet.setPlayerPort(MainActivity.playerPort);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
@@ -331,7 +333,7 @@ public class ServerCommunication {
 	/*****************************************************************/
 	public String JoinGame(String gameName,int team){
 		MyClientTask_SendPakcet joinGame_thread=new MyClientTask_SendPakcet();
-		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.joinGame, "", gameName,-1);
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.joinGame, gameName,-1);
 		packet.setTeam(team);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
@@ -359,7 +361,7 @@ public class ServerCommunication {
 	/*****************************************************************/
 	public String getGameInfo(String gameName){
 		MyClientTask_SendPakcet getGameInfo_thread=new MyClientTask_SendPakcet();
-		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.getGameInfo, "", gameName,-1);
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.getGameInfo,  gameName,-1);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
@@ -387,7 +389,7 @@ public class ServerCommunication {
 	/*****************************************************************/
 	public String disconnectFromServer(){
 		MyClientTask_SendPakcet disconnect=new MyClientTask_SendPakcet();
-		GamePacket packet =new GamePacket(MainActivity.player.getNickName(),MainActivity.player.getPassword(), GamePacket.disconnect, "", "", -1);
+		GamePacket packet =new GamePacket(MainActivity.player.getNickName(),MainActivity.player.getPassword(), GamePacket.disconnect, "", -1);
 		String result = "";
 		try {
 			result=disconnect.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(3000, TimeUnit.MILLISECONDS);
@@ -416,7 +418,7 @@ public class ServerCommunication {
 	public String sendGameListRequest(){
 		String res = null;
 		MyClientTask_SendPakcet gameList_thread=new MyClientTask_SendPakcet();
-		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), getGamesList,"", "", -1);
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), getGamesList, "", -1);
 		try {
 			res=gameList_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
@@ -439,12 +441,17 @@ public class ServerCommunication {
 
 
 
-	/*****************************************************************/
-	public String sendHitToServer(String injured_nickname,int hitArea) {
+	/**
+	 * @param f 
+	 * @param d 
+	 * @param azimut ***************************************************************/
+	public String sendHitToServer(int hitArea, float azimuth, Location loc) {
 		MyClientTask_SendPakcet sendHit=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
-			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, injured_nickname, MainActivity.currentGame, hitArea);
+			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, MainActivity.currentGame, hitArea);
+			packet.setGPS(loc);
+			packet.setAzimuth(azimuth);
 			res = sendHit.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -472,7 +479,7 @@ public class ServerCommunication {
 		MyClientTask_SendPakcet createNewGame=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
-			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.createGame, "", newGameName, -1);
+			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.createGame, newGameName, -1);
 			res = createNewGame.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -530,7 +537,7 @@ public class ServerCommunication {
 
 	public String quitGame() {
 		MyClientTask_SendPakcet quitGame_thread=new MyClientTask_SendPakcet();
-		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.quitGame, "", MainActivity.currentGame,-1);
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.quitGame, MainActivity.currentGame,-1);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
@@ -557,5 +564,6 @@ public class ServerCommunication {
 	}
 	/*****************************************************************/
 
+	/*****************************************************************/
 
 }

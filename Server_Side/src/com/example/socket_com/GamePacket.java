@@ -11,7 +11,7 @@ public class GamePacket implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4,joinGame=5,getGameInfo=6,quitGame=7;
-	private String nickName,password,injured_nickName;
+	private String nickName,password;
 	private int packetType;
 	private int playerPort;
 	private Vector<String> gamesList;
@@ -19,16 +19,23 @@ public class GamePacket implements Serializable{
 	private Vector<String> gameTeam1Players,gameTeam2Players;
 	private int hitArea;
 	private int team;
+	//GPS COORDINATES:
+	private float azimuth,latitude, longitude;
 	
-	public GamePacket(String nickName,String password,final int packetType,String injured_nickName,String gameName,int hitArea){
+	public GamePacket(String nickName,String password,final int packetType,String gameName,int hitArea){
 		this.packetType=packetType;
-		this.injured_nickName=injured_nickName;
 		this.nickName=nickName;
 		this.password=password;
 		this.gameName=gameName;
 		this.hitArea=hitArea;
 		
 	}
+	
+	public void setGPS(float latitude, float longitude){
+		this.latitude=latitude;
+		this.longitude=longitude;
+	}
+	
 	public Vector<String> getTeam1(){
 		return this.gameTeam1Players;
 	}
@@ -65,12 +72,8 @@ public class GamePacket implements Serializable{
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public String getInjured_nickName() {
-		return injured_nickName;
-	}
-	public void setInjured_nickName(String injured_nickName) {
-		this.injured_nickName = injured_nickName;
-	}
+
+
 	public boolean isHit() {
 		return this.packetType==hit;
 	}
@@ -111,5 +114,23 @@ public class GamePacket implements Serializable{
 	}
 	public void setTeam(int team) {
 		this.team = team;
+	}
+	public float getAzimuth() {
+		return azimuth;
+	}
+	public void setAzimuth(float azimuth) {
+		this.azimuth = azimuth;
+	}
+	public float getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(float latitude) {
+		this.latitude = latitude;
+	}
+	public float getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(float longitude) {
+		this.longitude = longitude;
 	}
 }

@@ -149,7 +149,9 @@ public class Server {
 		this.panel.update();
 	}
 
-
+	public Vector<Player> getPlayers(){
+		return this.players;
+	}
 	public void displayServerInformation(int port){
 		serverLogs.add("Server started!");
 		//serverLogs.add("server startedgffffffffffffffggfgfffffffffffffffffffffff");

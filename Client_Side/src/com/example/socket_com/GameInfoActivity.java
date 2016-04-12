@@ -6,7 +6,9 @@ import com.example.hs.R;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -17,16 +19,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class GameInfoActivity extends Activity {
+
 	ListView ls1,ls2;
 	Vector<String> team1,team2;
 	boolean joinTeam=false;
+	CustomListAdapter team1_adapter,team2_adapter;
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_info_layout);
 		ls1 = (ListView) findViewById (R.id.team1list);
 		ls2 = (ListView) findViewById (R.id.team2list);
 
-
+		getGameInfo();
 
 
 
@@ -64,28 +68,32 @@ public class GameInfoActivity extends Activity {
 						Toast.makeText(getBaseContext(), "You Already In!", Toast.LENGTH_LONG).show();
 						return;
 					}
-					else
+					//if the user want to switch teams:
+					else if	(team2.contains(MainActivity.player.getNickName())){
+						//removing from the other team:
+						team2.remove(MainActivity.player.getNickName());
+
+						//joining to this team
+						team1.remove(team1.size()-1);
+						team1.add(MainActivity.player.getNickName());
+						team1.add("join team");
+						MainActivity.team=1;
+					}
+					else//player is not in team:
 					{
 						team1.remove(team1.size()-1);
-						team2.remove(team2.size()-1);
 						team1.add(MainActivity.player.getNickName());
+						team1.add("join team");
 						MainActivity.team=1;
 					}
 
 
 
-					//checking if the player is on the other team:
-					if(team2.contains(MainActivity.player.getNickName())){
-						team1.remove(team1.size()-1);
-						team2.remove(team2.size()-1);
-						team1.add(MainActivity.player.getNickName());
-						MainActivity.team=1;
-						team2.remove(MainActivity.player.getNickName());
-					}
 
 
-					onCreate(savedInstanceState);
 
+					//adding adapters
+					updateLists();
 				}
 
 			}
@@ -104,28 +112,23 @@ public class GameInfoActivity extends Activity {
 						Toast.makeText(getBaseContext(), "You Already In!", Toast.LENGTH_LONG).show();
 						return;
 					}
-					else
-					{
-						team1.remove(team1.size()-1);
-						team2.remove(team2.size()-1);
-						team2.add(MainActivity.player.getNickName());
-						MainActivity.team=2;
-
-					}
-
-
-
 					//checking if the player is on the other team:
-					if(team1.contains(MainActivity.player.getNickName())){
-						team1.remove(team1.size()-1);
+					else if(team1.contains(MainActivity.player.getNickName())){
 						team2.remove(team2.size()-1);
 						team2.add(MainActivity.player.getNickName());
+						team2.add("join team");
 						MainActivity.team=2;
 						team1.remove(MainActivity.player.getNickName());
-
 					}
-
-					onCreate(savedInstanceState);
+					else
+					{
+						team2.remove(team2.size()-1);
+						team2.add(MainActivity.player.getNickName());
+						team2.add("join team");
+						MainActivity.team=2;
+					}	
+					//adding adapters
+					updateLists();
 				}
 			}
 
@@ -164,16 +167,62 @@ public class GameInfoActivity extends Activity {
 
 
 		//adding adapters
-		CustomListAdapter team1_adapter=new CustomListAdapter(this, R.layout.listview_item_row, team1);
-		CustomListAdapter team2_adapter=new CustomListAdapter(this, R.layout.listview_item_row, team2);
+		team1_adapter=new CustomListAdapter(this, R.layout.listview_item_row, team1);
+		team2_adapter=new CustomListAdapter(this, R.layout.listview_item_row, team2);
 		ls1.setAdapter(team1_adapter);
 		ls2.setAdapter(team2_adapter);
 
 
+
+
+
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				while(true){
+
+							getGameInfo();
+							updateLists();
+					try {
+						Thread.sleep(6000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					
+					
+				}
+			}
+		});
 	}
 
+	private void getGameInfo(){
+		String res= MainActivity.server_com.getGameInfo(MainActivity.currentGame);
 
+		//blocking thread until the server responses with the data or until timeout occur.
+		try {
+			MainActivity.getGameInfoSem.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+		//if timeout occurred then there is no response from the server  
+		if(!MainActivity.getGameInfoSem.isTimedOut()){
+			//Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
+
+		}
+		else
+			Toast.makeText(getBaseContext(), "Error while getting game info from the server", Toast.LENGTH_LONG).show();
+
+	}
+
+	private void updateLists(){
+		team1_adapter.notifyDataSetChanged();
+		team2_adapter.notifyDataSetChanged();
+	}
 
 	OnClickListener joinGame=new OnClickListener() {
 
@@ -183,7 +232,7 @@ public class GameInfoActivity extends Activity {
 
 
 			//joining the game
-			Toast.makeText(getBaseContext(), "please wait...", Toast.LENGTH_LONG).show();
+			//Toast.makeText(getBaseContext(), "please wait...", Toast.LENGTH_LONG).show();
 			MainActivity.server_com.JoinGame(MainActivity.currentGame, MainActivity.team);
 			try {
 				MainActivity.joinGameSem.acquire();
@@ -193,13 +242,24 @@ public class GameInfoActivity extends Activity {
 			}
 			if(!MainActivity.joinGameSem.isTimedOut()){
 				MainActivity.isJoinedAGame=true;
+				if(team1.size()>=2 && team2.size()>=2){
+					//moving to game interface
+					Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
+					startActivity(gameInfo);
+					finish();
+					return;
+				}
+				else
+					Toast.makeText(getBaseContext(), "You need at least two players", Toast.LENGTH_LONG).show();
+
+
 				//the game must have at least two players.
-//				while(team1.size()<2 && team2.size()<2){
-//					
-//				}
-				//moving to game interface
-				Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
-				startActivity(gameInfo);
+				//therefore pull
+				if(team1.size()<2 || team2.size()<2){
+
+
+				}
+
 			}
 			else
 				Toast.makeText(getBaseContext(), "Error joining the game", Toast.LENGTH_LONG).show();
@@ -222,5 +282,11 @@ public class GameInfoActivity extends Activity {
 			MainActivity.server_com.quitGame();
 		}
 	}
+
+
+
+
+
+
 }
 

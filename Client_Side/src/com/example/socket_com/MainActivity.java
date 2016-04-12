@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 	public static mySemaphore getGameListSem=new mySemaphore(0);
 	public static mySemaphore getGameInfoSem=new mySemaphore(0);
 	public static mySemaphore joinGameSem=new mySemaphore(0);
-
+	public static Semaphore hitSem=new Semaphore(0);
 	public static boolean flag;
 
 

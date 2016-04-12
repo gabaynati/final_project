@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.concurrent.ExecutionException;
@@ -75,7 +77,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener, LocationListener {
-
+	private HitListener_Thread hitThread;
 	private Logic logic;
 	private final int ramBurden = 5;
 	private FrameLayout frame;
@@ -113,10 +115,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	/******************************************/
 
 
-	//****server communication configuration*********///
-	//private ServerCommunication serverCom;
-	//private MyClientTask_ListenToPakcets serverListener;
-	//**************************************************//
+	
 
 
 
@@ -162,8 +161,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		bestProvider = location.getBestProvider(crit, false);
 		//location.requestLocationUpdates(bestProvider, 0, 0, this);
 		/******************************************************************/
-
-
+		//running hit event listener:
+		hitThread=new HitListener_Thread();
+		hitThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		
 		/*		
 		tar = new Location("dummyprovider");
 		//loc = new Location("dummyprovider");
@@ -233,10 +234,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		target.setOnClickListener(this);
 		shoot.setOnTouchListener(this);
 
-		/**Server Communication**********/
-		//serverCom=new ServerCommunication();
-
-		/********************************/
 	}
 
 
@@ -334,10 +331,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//the third argument is a listener object that keeps track to the binding process.
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,this , mLoaderCallback);
 
-		/************Server Communication*************************/
-		//initiate server listener
-
-		/*************************************/
+		
 
 		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
 		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
@@ -352,11 +346,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		if (mOpenCvCameraView!=null)
 			mOpenCvCameraView.disableView();
 
-		/************Server Communication*************************/
-		//stopping the server listener
-		//serverListener.cancel(true);
-
-		/*************************************/
 
 	}
 	@Override
@@ -620,15 +609,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				drawHit();
 				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
 				toast.show();					
-				////*****server communication*******/
-				//sending to server a GamePacket packet which contains information about the hit event
-				//			String res="";
-				//			res=serverCom.sendHitToServer(MainActivity.enemy, hitArea);
+				/*****server communication*******/
+							String res="";
+							res=MainActivity.server_com.sendHitToServer(hitArea,azimut,loc);
 
-				//**********************************/
+				/**********************************/
 
-				//			Toast toast1 = Toast.makeText(getApplicationContext(),res, 1000);
-				//			toast1.show();
+				
 			}
 
 
@@ -1090,4 +1077,41 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		startActivity(intent);
 	}
 
+	
+	
+	/*****************************************************************/
+	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
+	private String response;
+		@Override
+		protected String doInBackground(Void... arg0) {
+			try {
+				MainActivity.hitSem.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			//GPS here 
+			
+			
+			try {
+				MainActivity.hitSem.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return response;
+		}
+
+
+
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+		}
+
+	}
+	/*****************************************************************/
 }

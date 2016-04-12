@@ -126,15 +126,15 @@ public class Game {
 			return null;
 
 	}*/
-	public String Hit(String Hitman_nickName,String injured_nickName){
-		InetAddress hitman_address=getIPByNickName(Hitman_nickName);
-		InetAddress injured_address=getIPByNickName(injured_nickName);
+	public String Hit(String Hitman_nickName){
+		//		InetAddress hitman_address=getIPByNickName(Hitman_nickName);
+		//		InetAddress injured_address=getIPByNickName(injured_nickName);
 
 		String print="";
-		if(hitman_address!=null && injured_address!=null)
-			print="hit detected:\n"+Hitman_nickName +" shot "+injured_nickName;
-		else
-			print="hit detected";
+		//		if(hitman_address!=null && injured_address!=null)
+		//			print="hit detected:\n"+Hitman_nickName +" shot "+injured_nickName;
+		//		else
+		print="hit detected";
 		return print;
 
 	}

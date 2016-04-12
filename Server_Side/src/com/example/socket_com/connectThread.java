@@ -98,15 +98,10 @@ public class connectThread extends Thread
 				server.getPanel().update();
 
 				//sending ACK:
-				GamePacket ACK_packet=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.connect, "","",-1);
+				GamePacket ACK_packet=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.connect,"",-1);
 				SendPacketThread t=new SendPacketThread(ACK_packet,newPlayer);
 				t.start();
 
-				//				//sending gameList:
-				//				GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
-				//				gamesListPacket.setGamesList(Main.server.getGamesIDs());
-				//				SendPacketThread t1=new SendPacketThread(gamesListPacket,newPlayer);
-				//				t1.start();
 
 
 			}
@@ -115,18 +110,21 @@ public class connectThread extends Thread
 			System.out.println("HITTTTT");
 			Game game=server.getGameByName(packet.getGameName());
 			String hitter_nickName=packet.getNickName();
-			String injured_nickName=packet.getInjured_nickName();
-			Main.server.addToServer(game.Hit(hitter_nickName, injured_nickName));
-			Player injured_player=server.getPlayerByNickName(injured_nickName);
+			Main.server.addToServer(game.Hit(hitter_nickName));
 
 
 
-			//writing object to the injured player
-			if(injured_player!=null){
-				GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit, injured_nickName,game.getGameName(),packet.getHitArea());
-				SendPacketThread t=new SendPacketThread(gotHitPacket,injured_player);
-				t.start();
+			//writing object to all players except the hitter
+
+			GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit,game.getGameName(),packet.getHitArea());
+			Vector<Player> players=Main.server.getPlayers();
+			for(int i=0;i<players.size();i++){
+				if(players.elementAt(i).getNickName()!=hitter_nickName){
+					SendPacketThread t=new SendPacketThread(gotHitPacket,players.elementAt(i));
+					t.start();
+				}
 			}
+
 
 		}
 
@@ -138,7 +136,7 @@ public class connectThread extends Thread
 			//this.player.getSocket().close();
 		}
 		else if(packet.isGetGamesList()){
-			GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList, "","",-1);
+			GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList,"",-1);
 			gamesListPacket.setGamesList(Main.server.getGamesIDs());
 
 
@@ -150,7 +148,7 @@ public class connectThread extends Thread
 		else if(packet.isJoinAGame()){
 			server.addPlayerToGame(server.getPlayerByNickName(packet.getNickName()), packet.getGameName(),packet.getTeam());
 			//sending ACK:
-			GamePacket joinGamePacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.joinGame, "",packet.getGameName(),-1);
+			GamePacket joinGamePacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.joinGame,packet.getGameName(),-1);
 			joinGamePacket.setTeam(packet.getTeam());
 			Main.server.getPanel().update();
 			SendPacketThread t=new SendPacketThread(joinGamePacket,server.getPlayerByIP(IPAddress));
@@ -162,7 +160,7 @@ public class connectThread extends Thread
 			Main.server.getPanel().update();
 		}
 		if(packet.isGetGameInfo()){
-			GamePacket gamesInfoPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGameInfo, "","",-1);
+			GamePacket gamesInfoPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGameInfo,"",-1);
 			Game game=Main.server.getGameByName(packet.getGameName());
 			System.out.println("game info:"+packet.getGameName());
 			gamesInfoPacket.setTeam1(game.getTeam1PlayersNickNames());
@@ -176,9 +174,9 @@ public class connectThread extends Thread
 			Main.server.quitGame(packet.getNickName(), packet.getGameName());
 			Main.server.getPanel().update();
 		}
-		
-		
-		
+
+
+
 	}
 
 }

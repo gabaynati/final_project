@@ -90,27 +90,11 @@ public class FindGameActivity extends Activity {
 					//getting game info from the server
 					String value = (String)adapter.getItemAtPosition(position); 
 					MainActivity.currentGame=value;
-					String res= MainActivity.server_com.getGameInfo(value);
+					//moving to game Interface
+					Intent gameInfo = new Intent("com.example.socket_com.GAMEINFOACTIVITY");
+					startActivity(gameInfo);
+					finish();
 					
-					//blocking thread until the server responses with the data or until timeout occur.
-					try {
-						MainActivity.getGameInfoSem.acquire();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					//if timeout occurred then there is no response from the server  
-					if(!MainActivity.getGameInfoSem.isTimedOut()){
-						Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
-						//moving to game interface
-						Intent gameInfo = new Intent("com.example.socket_com.GAMEINFOACTIVITY");
-						startActivity(gameInfo);
-						finish();
-					}
-					else
-						Toast.makeText(getBaseContext(), "Error while getting game info from the server", Toast.LENGTH_LONG).show();
-
 
 				}
 
