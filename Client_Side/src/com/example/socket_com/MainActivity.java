@@ -17,6 +17,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,7 +50,9 @@ public class MainActivity extends Activity {
 	public static mySemaphore joinGameSem=new mySemaphore(0);
 	public static Semaphore hitSem=new Semaphore(0);
 	public static boolean flag;
-
+	public static float hitterAzimuth;
+	public static double hitterLatitude;
+	public static double hitterLongitude;
 
 	//*************************************************/
 

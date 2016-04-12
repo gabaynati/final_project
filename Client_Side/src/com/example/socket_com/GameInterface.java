@@ -1092,8 +1092,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 			
 			
-			//GPS here 
 			
+			/******GPS HERE***********/
+			double hitterLatitude=MainActivity.hitterLatitude;
+			double hitterLongitude=MainActivity.hitterLongitude;
+			double hitterAzimuth=MainActivity.hitterAzimuth;
+			/**************************/
 			
 			try {
 				MainActivity.hitSem.acquire();

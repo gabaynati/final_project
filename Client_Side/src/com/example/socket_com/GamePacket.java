@@ -4,8 +4,6 @@ package com.example.socket_com;
 
 import java.io.Serializable;
 import java.util.Vector;
-
-import android.location.Location;
 public class GamePacket implements Serializable{
 
 	/**
@@ -23,8 +21,7 @@ public class GamePacket implements Serializable{
 	private int team;
 	//GPS COORDINATES:
 	private float azimuth;
-	private double latitude, longitude;
-	private Location loc;
+	public double latitude, longitude;
 	
 	public GamePacket(String nickName,String password,final int packetType,String gameName,int hitArea){
 		this.packetType=packetType;
@@ -35,8 +32,9 @@ public class GamePacket implements Serializable{
 		
 	}
 	
-	public void setGPS(Location loc){
-		this.loc=loc;
+	public void setGPS(double latitude, double longitude){
+		this.latitude=latitude;
+		this.longitude=longitude;
 	}
 	
 	public Vector<String> getTeam1(){

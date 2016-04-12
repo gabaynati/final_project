@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 import android.location.Location;
 import android.net.IpPrefix;
 import android.os.AsyncTask;
+import android.text.method.HideReturnsTransformationMethod;
 import android.util.Log;
 
 
@@ -219,6 +220,10 @@ public class ServerCommunication {
 
 			else if(packet.isHit()){
 				MainActivity.player.Hit(packet.getHitArea());
+				MainActivity.hitterLatitude=packet.getLatitude();
+				MainActivity.hitterLongitude=packet.getLongitude();
+				MainActivity.hitterAzimuth=packet.getAzimuth();
+
 				MainActivity.hitSem.release();
 				GameInterface.hitRecvied();
 
@@ -450,7 +455,7 @@ public class ServerCommunication {
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, MainActivity.currentGame, hitArea);
-			packet.setGPS(loc);
+			packet.setGPS(loc.getLatitude(),loc.getLongitude());
 			packet.setAzimuth(azimuth);
 			res = sendHit.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
