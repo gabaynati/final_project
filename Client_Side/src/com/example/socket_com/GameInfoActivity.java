@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -22,17 +21,14 @@ public class GameInfoActivity extends Activity {
 
 	ListView ls1,ls2;
 	Vector<String> team1,team2;
-	boolean joinTeam=false;
+	Vector<String> tempTeam1,tempTeam2;
 	CustomListAdapter team1_adapter,team2_adapter;
+	updateGameInfo_Thread updateThread=new updateGameInfo_Thread();
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_info_layout);
 		ls1 = (ListView) findViewById (R.id.team1list);
 		ls2 = (ListView) findViewById (R.id.team2list);
-
-		getGameInfo();
-
-
 
 
 		if(MainActivity.currentGameTeam1==null)
@@ -43,9 +39,7 @@ public class GameInfoActivity extends Activity {
 			team2=new Vector<String>();
 		else
 			team2=MainActivity.currentGameTeam2;
-		//adding join option:
-		team1.add("join team");
-		team2.add("join team");
+
 
 
 
@@ -62,7 +56,8 @@ public class GameInfoActivity extends Activity {
 			{
 				String value = (String)parent.getItemAtPosition(position);
 				if(value.equals("join team")){
-
+				
+					/*
 					//checking if the player is already on the team:
 					if(team1.contains(MainActivity.player.getNickName())){
 						Toast.makeText(getBaseContext(), "You Already In!", Toast.LENGTH_LONG).show();
@@ -74,16 +69,16 @@ public class GameInfoActivity extends Activity {
 						team2.remove(MainActivity.player.getNickName());
 
 						//joining to this team
-						team1.remove(team1.size()-1);
+						//team1.remove(team1.size()-1);
 						team1.add(MainActivity.player.getNickName());
-						team1.add("join team");
+						//	team1.add("join team");
 						MainActivity.team=1;
 					}
 					else//player is not in team:
 					{
-						team1.remove(team1.size()-1);
+						//team1.remove(team1.size()-1);
 						team1.add(MainActivity.player.getNickName());
-						team1.add("join team");
+						//	team1.add("join team");
 						MainActivity.team=1;
 					}
 
@@ -94,6 +89,7 @@ public class GameInfoActivity extends Activity {
 
 					//adding adapters
 					updateLists();
+					*/
 				}
 
 			}
@@ -107,6 +103,7 @@ public class GameInfoActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				String value = (String)parent.getItemAtPosition(position); 
 				if(value.equals("join team")){
+					/*
 					//checking if the player is already on the team:
 					if(team2.contains(MainActivity.player.getNickName())){
 						Toast.makeText(getBaseContext(), "You Already In!", Toast.LENGTH_LONG).show();
@@ -114,21 +111,22 @@ public class GameInfoActivity extends Activity {
 					}
 					//checking if the player is on the other team:
 					else if(team1.contains(MainActivity.player.getNickName())){
-						team2.remove(team2.size()-1);
+						//	team2.remove(team2.size()-1);
 						team2.add(MainActivity.player.getNickName());
-						team2.add("join team");
+						//team2.add("join team");
 						MainActivity.team=2;
 						team1.remove(MainActivity.player.getNickName());
 					}
 					else
 					{
-						team2.remove(team2.size()-1);
+						//team2.remove(team2.size()-1);
 						team2.add(MainActivity.player.getNickName());
-						team2.add("join team");
+						//team2.add("join team");
 						MainActivity.team=2;
 					}	
 					//adding adapters
 					updateLists();
+					*/
 				}
 			}
 
@@ -145,10 +143,11 @@ public class GameInfoActivity extends Activity {
 		//setting headers
 		View header1 = (View)getLayoutInflater().inflate(R.layout.listview_header_row, null);
 		( (TextView)header1.findViewById(R.id.txtHeader)).setText("Team 1");
-		ls1.addHeaderView(header1);
+		
+		ls1.addHeaderView(header1,null, false);
 		View header2 = (View)getLayoutInflater().inflate(R.layout.listview_header_row, null);
 		( (TextView)header2.findViewById(R.id.txtHeader)).setText("Team 2");
-		ls2.addHeaderView(header2);
+		ls2.addHeaderView(header2,null, false);
 
 
 
@@ -162,13 +161,13 @@ public class GameInfoActivity extends Activity {
 		//setting footer on click
 		((Button)footerView1.findViewById(R.id.toPlay)).setOnClickListener(joinGame);
 		((Button)footerView2.findViewById(R.id.toPlay)).setOnClickListener(joinGame);
-
-
-
+		((Button)footerView1.findViewById(R.id.joinTeam)).setOnClickListener(joinTeam1);
+		((Button)footerView2.findViewById(R.id.joinTeam)).setOnClickListener(joinTeam2);
 
 		//adding adapters
 		team1_adapter=new CustomListAdapter(this, R.layout.listview_item_row, team1);
 		team2_adapter=new CustomListAdapter(this, R.layout.listview_item_row, team2);
+
 		ls1.setAdapter(team1_adapter);
 		ls2.setAdapter(team2_adapter);
 
@@ -176,26 +175,9 @@ public class GameInfoActivity extends Activity {
 
 
 
-		runOnUiThread(new Runnable() {
+		//getGameInfo();
 
-			@Override
-			public void run() {
-				while(true){
-
-							getGameInfo();
-							updateLists();
-					try {
-						Thread.sleep(6000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					
-					
-				}
-			}
-		});
+		updateThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void getGameInfo(){
@@ -218,12 +200,114 @@ public class GameInfoActivity extends Activity {
 			Toast.makeText(getBaseContext(), "Error while getting game info from the server", Toast.LENGTH_LONG).show();
 
 	}
+	private void addNewPlayerToTeams(Vector<String> to,Vector<String> from){
+		for(int i=0;i<from.size();i++){
+			if(!to.contains(from.elementAt(i)) &&!from.elementAt(i).equals("join team"))
+				to.add(0, from.elementAt(i));
+		}
 
+	}
+	
+	
+	
 	private void updateLists(){
+
+		Vector<String> temp_team1=new Vector<String>();
+		Vector<String> temp_team2=new Vector<String>();
+
+
+
+
+		if(MainActivity.currentGameTeam1==null)
+			temp_team1=new Vector<String>();
+		else{
+
+			temp_team1=MainActivity.currentGameTeam1;
+			addNewPlayerToTeams(team1, temp_team1);
+
+		}
+		if(MainActivity.currentGameTeam2==null)
+			temp_team2=new Vector<String>();
+		else{
+
+			temp_team2=MainActivity.currentGameTeam2;
+			addNewPlayerToTeams(team2, temp_team2);
+		}
+
+
 		team1_adapter.notifyDataSetChanged();
 		team2_adapter.notifyDataSetChanged();
-	}
 
+
+		
+
+
+	}
+	
+	OnClickListener joinTeam1=new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			//checking if the player is already on the team:
+			if(team1.contains(MainActivity.player.getNickName())){
+				Toast.makeText(getBaseContext(), "You Already In!", Toast.LENGTH_LONG).show();
+				return;
+			}
+			//if the user want to switch teams:
+			else if	(team2.contains(MainActivity.player.getNickName())){
+				//removing from the other team:
+				team2.remove(MainActivity.player.getNickName());
+
+				//joining to this team
+				//team1.remove(team1.size()-1);
+				team1.add(MainActivity.player.getNickName());
+				//	team1.add("join team");
+				MainActivity.team=1;
+			}
+			else//player is not in team:
+			{
+				//team1.remove(team1.size()-1);
+				team1.add(MainActivity.player.getNickName());
+				//	team1.add("join team");
+				MainActivity.team=1;
+			}
+
+			team1_adapter.notifyDataSetChanged();
+			team2_adapter.notifyDataSetChanged();
+
+		}
+		
+	};
+	OnClickListener joinTeam2=new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			//checking if the player is already on the team:
+			if(team2.contains(MainActivity.player.getNickName())){
+				Toast.makeText(getBaseContext(), "You Already In!", Toast.LENGTH_LONG).show();
+				return;
+			}
+			//checking if the player is on the other team:
+			else if(team1.contains(MainActivity.player.getNickName())){
+				//	team2.remove(team2.size()-1);
+				team2.add(MainActivity.player.getNickName());
+				//team2.add("join team");
+				MainActivity.team=2;
+				team1.remove(MainActivity.player.getNickName());
+			}
+			else
+			{
+				//team2.remove(team2.size()-1);
+				team2.add(MainActivity.player.getNickName());
+				//team2.add("join team");
+				MainActivity.team=2;
+			}	
+			team1_adapter.notifyDataSetChanged();
+			team2_adapter.notifyDataSetChanged();
+
+		}
+		
+	};
 	OnClickListener joinGame=new OnClickListener() {
 
 		@Override
@@ -242,23 +326,18 @@ public class GameInfoActivity extends Activity {
 			}
 			if(!MainActivity.joinGameSem.isTimedOut()){
 				MainActivity.isJoinedAGame=true;
-				if(team1.size()>=2 && team2.size()>=2){
+				if(team1.size()>=1 && team2.size()>=1){
 					//moving to game interface
 					Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
 					startActivity(gameInfo);
-					finish();
+					//finish();
 					return;
 				}
 				else
 					Toast.makeText(getBaseContext(), "You need at least two players", Toast.LENGTH_LONG).show();
 
 
-				//the game must have at least two players.
-				//therefore pull
-				if(team1.size()<2 || team2.size()<2){
-
-
-				}
+			
 
 			}
 			else
@@ -277,13 +356,52 @@ public class GameInfoActivity extends Activity {
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
+		/*
 		//Quitting the game:
 		if(MainActivity.isJoinedAGame){	
 			MainActivity.server_com.quitGame();
-		}
+
+		}*/
+		//clearing game name
+		MainActivity.currentGame=null;
+
+		//stopping update thread
+		updateThread.cancel(false);
 	}
 
+	public  class updateGameInfo_Thread extends AsyncTask<Void, Void, String> {
+		private String response;
+		@Override
+		protected String doInBackground(Void... arg0) {
+			while(true){
+				if(isCancelled())
+	                  break;  
+				getGameInfo();
+				publishProgress();
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			return response;
+		}
 
+
+
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+		}
+		@Override
+		protected void onProgressUpdate(Void... v) {
+			super.onProgressUpdate(v);
+			updateLists();
+		}
+
+	}
 
 
 

@@ -93,7 +93,7 @@ public class FindGameActivity extends Activity {
 					//moving to game Interface
 					Intent gameInfo = new Intent("com.example.socket_com.GAMEINFOACTIVITY");
 					startActivity(gameInfo);
-					finish();
+					//finish();
 					
 
 				}

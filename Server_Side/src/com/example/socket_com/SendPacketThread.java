@@ -19,8 +19,9 @@ public class SendPacketThread extends Thread  {
 	@Override
 	public void run()
 	{
+		String res="";
 
-		String res=writePacket(this.packet);
+			res=writePacket(this.packet);
 
 	}
 

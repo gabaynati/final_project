@@ -21,7 +21,7 @@ public class GamePacket implements Serializable{
 	private int team;
 	//GPS COORDINATES:
 	private float azimuth;
-	public double latitude, longitude;
+	public float latitude, longitude;
 	
 	public GamePacket(String nickName,String password,final int packetType,String gameName,int hitArea){
 		this.packetType=packetType;
@@ -122,16 +122,16 @@ public class GamePacket implements Serializable{
 	public void setAzimuth(float azimuth) {
 		this.azimuth = azimuth;
 	}
-	public double getLatitude() {
+	public float getLatitude() {
 		return latitude;
 	}
-	public void setLatitude(double latitude) {
+	public void setLatitude(float latitude) {
 		this.latitude = latitude;
 	}
-	public double getLongitude() {
+	public float getLongitude() {
 		return longitude;
 	}
-	public void setLongitude(double longitude) {
+	public void setLongitude(float longitude) {
 		this.longitude = longitude;
 	}
 }

@@ -348,8 +348,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		super.onDestroy();
 		if (mOpenCvCameraView!=null)
 			mOpenCvCameraView.disableView();
-
-
+		
+		//quitting game
+		
+		MainActivity.server_com.quitGame();
 	}
 	@Override
 	public void onPause(){
@@ -609,7 +611,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 			if(hitArea != -1){
 
-				drawHit();
+			//	drawHit();
 				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
 				toast.show();					
 

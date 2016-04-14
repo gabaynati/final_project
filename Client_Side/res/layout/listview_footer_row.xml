@@ -13,8 +13,17 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:orientation="horizontal" >
-
+        android:orientation="vertical" >
+   <Button
+            android:id="@+id/joinTeam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_settings_ethernet_white_48dp"
+            android:orientation="vertical"
+            android:text="Join team"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold" />
    <Button
             android:id="@+id/toPlay"
             android:layout_width="match_parent"

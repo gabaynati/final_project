@@ -559,7 +559,6 @@ public class ServerCommunication {
 		}
 		
 		
-		MainActivity.currentGame=null;
 		MainActivity.team=-1;
 		MainActivity.isJoinedAGame=false;
 		

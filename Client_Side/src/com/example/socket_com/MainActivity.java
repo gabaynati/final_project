@@ -29,11 +29,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MainActivity extends Activity {
 
 	//*********server configurations****************/
-	public static String serverIP="192.168.1.17";
+	public static String serverIP="192.168.1.23";
 	public static int serverPort=9001;
 	public static int playerPort=9002;
 	public static Player player=new Player("nati","1234");
