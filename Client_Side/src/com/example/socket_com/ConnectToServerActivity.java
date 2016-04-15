@@ -88,7 +88,7 @@ public class ConnectToServerActivity extends Activity {
 			password=MainActivity.player.getPassword();
 
 
-			/*
+			
 			//checking if the user name exists in DB
 			String isExists=GameDB.isExists(nickname,password);
 			if(!isExists.equals("exists")){
@@ -96,7 +96,7 @@ public class ConnectToServerActivity extends Activity {
 				return;
 
 			}
-			 */
+			 
 
 			try{
 				String res="";

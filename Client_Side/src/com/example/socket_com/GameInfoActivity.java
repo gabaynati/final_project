@@ -24,6 +24,7 @@ public class GameInfoActivity extends Activity {
 	Vector<String> tempTeam1,tempTeam2;
 	CustomListAdapter team1_adapter,team2_adapter;
 	updateGameInfo_Thread updateThread=new updateGameInfo_Thread();
+	boolean isJoinedAGame=false;
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_info_layout);
@@ -173,11 +174,10 @@ public class GameInfoActivity extends Activity {
 
 
 
-
-
-		//getGameInfo();
-
+		//statring the thread which pulls the server for change in game info
 		updateThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+
 	}
 
 	private void getGameInfo(){
@@ -325,12 +325,13 @@ public class GameInfoActivity extends Activity {
 				e.printStackTrace();
 			}
 			if(!MainActivity.joinGameSem.isTimedOut()){
+				isJoinedAGame=true;
 				MainActivity.isJoinedAGame=true;
 				if(team1.size()>=1 && team2.size()>=1){
 					//moving to game interface
 					Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
 					startActivity(gameInfo);
-					//finish();
+					finish();
 					return;
 				}
 				else
@@ -356,19 +357,35 @@ public class GameInfoActivity extends Activity {
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
-		/*
+		
 		//Quitting the game:
-		if(MainActivity.isJoinedAGame){	
+		if(isJoinedAGame){	
 			MainActivity.server_com.quitGame();
 
-		}*/
-		//clearing game name
+		}
+		//clearing game variables
 		MainActivity.currentGame=null;
+		MainActivity.currentGameTeam1=null;
+		MainActivity.currentGameTeam2=null;
 
 		//stopping update thread
 		updateThread.cancel(false);
+		
+		
 	}
+	@Override
+	protected void onPause(){
+		super.onPause();
+		
+				
+	}
+	@Override
+	protected void onResume(){
+		super.onResume();
 
+
+				
+	}
 	public  class updateGameInfo_Thread extends AsyncTask<Void, Void, String> {
 		private String response;
 		@Override

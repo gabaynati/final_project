@@ -41,19 +41,42 @@ public class CreateGameActivity extends Activity {
 			String NumOfPlayers=editTextNumOfPlayers.getText().toString();
 			Toast.makeText(getBaseContext(), "Please wait...", Toast.LENGTH_LONG).show();
 
+			//checking the fields
 			if( gameName.isEmpty()||NumOfPlayers.isEmpty()){
 				textResponse.setText("You must fill all fields!");
 				return;
 			}
+			if(!isInteger(NumOfPlayers, 10)){
+				textResponse.setText("The number of players is not integer!");
+				return;
+			}
+				
 			String res=MainActivity.server_com.createNewGame(gameName,Integer.parseInt(NumOfPlayers));
-			if(res.equals("true")){
-				MainActivity.gameList.add(gameName);
+			try {
+				MainActivity.getGameListSem.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(!MainActivity.getGameListSem.isTimedOut()){
+				//MainActivity.gameList.add(gameName);
 				textResponse.setText("Game Created successfully");
 				}
 			else
 			textResponse.setText("ERROR while creating new game!");
 
 		}};
-
+		
+		private boolean isInteger(String s, int radix) {
+		    if(s.isEmpty()) return false;
+		    for(int i = 0; i < s.length(); i++) {
+		        if(i == 0 && s.charAt(i) == '-') {
+		            if(s.length() == 1) return false;
+		            else continue;
+		        }
+		        if(Character.digit(s.charAt(i),radix) < 0) return false;
+		    }
+		    return true;
+		}
 
 }

@@ -32,7 +32,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	//*********server configurations****************/
-	public static String serverIP="192.168.1.23";
+	public static String serverIP="192.168.43.191";
 	public static int serverPort=9001;
 	public static int playerPort=9002;
 	public static Player player=new Player("nati","1234");
@@ -119,7 +119,8 @@ public class MainActivity extends Activity {
 
 
 			result=server_com.disconnectFromServer();
-			txtResponse.setText(result);
+			if(result.equals("true"))
+				txtResponse.setText("You have disconneted from server");
 			buttonJoinAGame.setVisibility(View.GONE);
 			buttonCreateAGame.setVisibility(View.GONE);
 			buttonLogOut.setVisibility(View.GONE);

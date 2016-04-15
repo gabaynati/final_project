@@ -158,6 +158,14 @@ public class connectThread extends Thread
 			server.addGame(new Game(packet.getGameName()));
 			Main.server.getServerLogs().add("new game: "+packet.getGameName()+"has created by: "+packet.getNickName());
 			Main.server.getPanel().update();
+			
+			
+			//sending new game list
+			GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList,"",-1);
+			gamesListPacket.setGamesList(Main.server.getGamesIDs());
+			SendPacketThread t=new SendPacketThread(gamesListPacket,server.getPlayerByIP(IPAddress));
+			t.start();
+			
 		}
 		if(packet.isGetGameInfo()){
 			GamePacket gamesInfoPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGameInfo,"",-1);

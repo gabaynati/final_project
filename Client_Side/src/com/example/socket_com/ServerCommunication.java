@@ -410,8 +410,7 @@ public class ServerCommunication {
 			// TODO Auto-generated catch block
 			result="TimeoutException:"+ e.toString();
 		}
-		//Log.d("DDDDDD:","in disconnected: "+result);
-
+		//Log.d("DDDDDD:","in disconnected: "+result);		
 		return result;
 	}
 	/*****************************************************************/

@@ -34,8 +34,8 @@ public class Server {
 		this.serverPort=serverPort;
 		Game game1=new Game("game 1");
 		try {
-			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "trtrtrtr"),1);
-			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "yyyyyyyyy"),2);
+			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "Player1"),1);
+			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "Player2"),2);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -48,7 +48,7 @@ public class registerActivity extends Activity {
 	OnClickListener buttonRegisterOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
-	
+
 			String email=editTextEmail.getText().toString();
 			String nickname=editTextNickName.getText().toString();
 			String password=editTextPassword.getText().toString();
@@ -58,16 +58,26 @@ public class registerActivity extends Activity {
 				textResponse.setText("You must fill all fields!");
 				return;
 			}
-			GameDB gameDB=new GameDB();
-			String res=gameDB.registerToDB(nickname, password, email);
-			textResponse.setText(res);
+		
+
+			//checking if user already exists:
+			String res=GameDB.isExists(nickname, password);
+			if(res.equals("exists")){
+				textResponse.setText("User name is already taken\nPlease choose another one");
+				return;
+			}
+			//user not exists:
+			else{
+				res=GameDB.registerToDB(nickname, password, email);
+				textResponse.setText(res);
+			}
 		}};
 
 
 
 
 
-		
+
 
 
 
