@@ -121,7 +121,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-	///*************OpenCV configurations********************//
+	/*************OpenCV configurations********************/
 	private final String face_xml_res = "lbpcascade_frontalface";
 	private final String lowerBody_xml_res = "haarcascade_lowerbody";
 	private final String upperBody_xml_res = "haarcascade_upperbody";
@@ -141,9 +141,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Rect[]                 upperBodyArray, upperBodyArrayWhileShoot;
 	private Rect[]                 lowerBodyArray, lowerBodyArrayWhileShoot;
 
-
-
-	//*********************************************************/////
+	/*********************************************************/////
+	
+	
+	
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	

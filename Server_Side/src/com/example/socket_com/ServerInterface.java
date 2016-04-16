@@ -146,7 +146,7 @@ public class ServerInterface extends JPanel implements Runnable {
 		}
 
 		tab=new JTable(rowData,columnNames);
-
+		
 		return tab;
 
 	}

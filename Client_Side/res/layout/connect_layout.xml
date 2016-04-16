@@ -44,13 +44,18 @@
         android:id="@+id/connect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#88676767"
         android:drawableLeft="@drawable/ic_settings_ethernet_white_48dp"
-        android:text="Connect..." 
-         android:textColor="@color/material_grey_100"
-        android:textStyle="bold" 
-        android:background="#88676767"/>
-    
- 
+        android:text="Connect..."
+        android:textColor="@color/material_grey_100"
+        android:textStyle="bold" />
+
+    <ProgressBar
+        android:id="@+id/connectProgBar"
+        style="@android:style/Widget.Holo.ProgressBar.Horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="5dp" />
 
     <TextView
         android:id="@+id/response"

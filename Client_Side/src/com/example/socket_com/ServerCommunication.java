@@ -47,7 +47,6 @@ import android.util.Log;
 
 
 public class ServerCommunication {
-	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4;
 
 
 	InetAddress serverIP;
@@ -334,7 +333,6 @@ public class ServerCommunication {
 
 
 
-
 	/*****************************************************************/
 	public String JoinGame(String gameName,int team){
 		MyClientTask_SendPakcet joinGame_thread=new MyClientTask_SendPakcet();
@@ -362,7 +360,6 @@ public class ServerCommunication {
 
 
 
-
 	/*****************************************************************/
 	public String getGameInfo(String gameName){
 		MyClientTask_SendPakcet getGameInfo_thread=new MyClientTask_SendPakcet();
@@ -385,9 +382,6 @@ public class ServerCommunication {
 		return result;
 	}
 	/*****************************************************************/
-
-
-
 
 
 
@@ -422,7 +416,7 @@ public class ServerCommunication {
 	public String sendGameListRequest(){
 		String res = null;
 		MyClientTask_SendPakcet gameList_thread=new MyClientTask_SendPakcet();
-		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), getGamesList, "", -1);
+		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.getGamesList, "", -1);
 		try {
 			res=gameList_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
@@ -477,6 +471,7 @@ public class ServerCommunication {
 
 
 
+	
 
 	/*****************************************************************/
 	public String createNewGame(String newGameName,int numOfPlayers){
@@ -501,12 +496,17 @@ public class ServerCommunication {
 
 
 
+	
 
 	/*****************************************************************/
 	public void setlistener(){
 		(new MyClientTask_ListenToPakcets()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		return;
 	}
+	
+	
+	
+	
 	/*****************************************************************/
 	public String openSocket(){
 		MyClientTask_OpenSocket openSocket_thread=new MyClientTask_OpenSocket();
@@ -530,15 +530,11 @@ public class ServerCommunication {
 		}
 		return res;
 	}
-
-
-
-
-
-
-
 	/*****************************************************************/
 
+	
+	
+	
 	public String quitGame() {
 		MyClientTask_SendPakcet quitGame_thread=new MyClientTask_SendPakcet();
 		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.quitGame, MainActivity.currentGame,-1);

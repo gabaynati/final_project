@@ -16,14 +16,7 @@ public class Server {
 	private  Vector<String> serverLogs;
 	private Vector<Player> players;
 	public static int serverPort;
-	//public static DatagramSocket serverSocket;
 	public Server(int serverPort){
-//		try {
-//			serverSocket = new DatagramSocket(serverPort);
-//		} catch (SocketException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 
 		
 		

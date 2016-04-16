@@ -116,16 +116,7 @@ public class Game {
 
 
 
-	/*
-	public Socket getSocketByNickName(String nickName){
-		if(team1.getSocketByNickName(nickName)!=null)
-			return team1.getSocketByNickName(nickName);
-		else if(team2.getSocketByNickName(nickName)!=null)
-			return team2.getSocketByNickName(nickName);
-		else
-			return null;
 
-	}*/
 	public String Hit(String Hitman_nickName){
 		//		InetAddress hitman_address=getIPByNickName(Hitman_nickName);
 		//		InetAddress injured_address=getIPByNickName(injured_nickName);
@@ -138,34 +129,7 @@ public class Game {
 		return print;
 
 	}
-	/*
-	public Vector<Socket> getPlayersSockets(){
-		Vector<Socket> sockets =new Vector<Socket>();
-		for(int i=0;i<team1.getPlayers().size();i++){
-			sockets.addElement(team1.getPlayers().elementAt(i).getSocket());
-		}
-		for(int i=0;i<team2.getPlayers().size();i++){
-			sockets.addElement(team2.getPlayers().elementAt(i).getSocket());
-		}
-		return sockets;
-	}*/
-	/*
-	public String printAllSockets(){
-		String str="";
-		Vector<Socket> sockets=getPlayersSockets();
-		for(int i=0;i<sockets.size();i++){
-			str+=sockets.elementAt(i).toString()+"\n";
-		}
-		return str;
-	}*/
-	/*
-	public Player getPlayerByNickName(String player_nickname){
-		for(int i=0;i<players.size();i++)
-			if(players.elementAt(i).getNickName().equals(player_nickname)){
-				return players.elementAt(i);
-			}
-		return null;
-	}*/
+
 
 	private InetAddress getIPByNickName(String player_nickName) {
 		for(int i=0;i<players.size();i++)

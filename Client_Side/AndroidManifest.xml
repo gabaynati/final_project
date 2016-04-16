@@ -46,7 +46,7 @@
         <activity
             android:name="com.example.socket_com.MenuActivity"
             android:label="@string/app_name"
-            android:screenOrientation="sensor" >
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="com.example.socket_com.MENUACTIVITY" />
 
@@ -56,7 +56,7 @@
         <activity
             android:name="com.example.socket_com.registerActivity"
             android:label="@string/app_name"
-            android:screenOrientation="sensor" >
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="com.example.socket_com.REGISTERACTIVITY" />
 
@@ -66,7 +66,7 @@
         <activity
             android:name="com.example.socket_com.ConnectToServerActivity"
             android:label="@string/app_name"
-            android:screenOrientation="sensor" >
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="com.example.socket_com.CONNECTTOSERVERACTIVITY" />
 
@@ -75,7 +75,8 @@
         </activity>
         <activity
             android:name="com.example.socket_com.FindGameActivity"
-            android:label="@string/title_activity_find_game" >
+            android:label="@string/title_activity_find_game"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="com.example.socket_com.FINDGAMEACTIVITY" />
 
@@ -84,16 +85,18 @@
         </activity>
         <activity
             android:name="com.example.socket_com.CreateGameActivity"
-            android:label="@string/title_activity_find_game" >
+            android:label="@string/title_activity_find_game"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="com.example.socket_com.CREATEAGAMEACTIVITY" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-             <activity
+        <activity
             android:name="com.example.socket_com.GameInfoActivity"
-            android:label="@string/title_activity_find_game" >
+            android:label="@string/title_activity_find_game"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="com.example.socket_com.GAMEINFOACTIVITY" />
 
@@ -102,7 +105,8 @@
         </activity>
         <activity
             android:name="com.example.socket_com.MyAccountActivity"
-            android:label="@string/title_activity_my_account" >
+            android:label="@string/title_activity_my_account"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="com.example.socket_com.MYACCOUNTACTIVITY" />
 

@@ -229,6 +229,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
+		//disconnecting from server
 		server_com.disconnectFromServer();
 		finish();
 		System.exit(0);

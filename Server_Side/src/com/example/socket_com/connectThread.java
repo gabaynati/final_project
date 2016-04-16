@@ -18,7 +18,6 @@ public class connectThread extends Thread
 	public  connectThread(Server server) throws IOException
 	{
 		this.server=server;
-		//serverSocket.setSoTimeout(100000000);
 		socket = new DatagramSocket(Server.serverPort);
 	}
 
@@ -83,9 +82,7 @@ public class connectThread extends Thread
 		//adding new player
 		if(packet.isConnect()){
 			if(!server.isPlayerConnected(packet.getNickName())){
-				//printing the client IP address
-				//server.getServerLogs().add("Just connected to "+ socket.getRemoteSocketAddress());
-
+				
 				//creating new Player:
 				Player newPlayer=new Player(IPAddress,packet.getPlayerPort(),"");
 

@@ -358,19 +358,27 @@ public class GameInfoActivity extends Activity {
 	protected void onDestroy(){
 		super.onDestroy();
 		
-		//Quitting the game:
-		if(isJoinedAGame){	
-			MainActivity.server_com.quitGame();
-
-		}
-		//clearing game variables
-		MainActivity.currentGame=null;
-		MainActivity.currentGameTeam1=null;
-		MainActivity.currentGameTeam2=null;
-
 		//stopping update thread
 		updateThread.cancel(false);
 		
+		
+	}
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		//Quitting the game:
+		if(isJoinedAGame){	
+			MainActivity.server_com.quitGame();
+			//clearing game variables
+			MainActivity.currentGame=null;
+			MainActivity.currentGameTeam1=null;
+			MainActivity.currentGameTeam2=null;
+
+		}
+		
+
+		//stopping update thread
+		updateThread.cancel(false);
 		
 	}
 	@Override
