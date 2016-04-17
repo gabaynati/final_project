@@ -1,5 +1,10 @@
 package com.example.socket_com;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import android.util.Config;
+
 /*  how it's work:
  * 1.semaphore is just a variable than when it equals 0 it causes the current thread to busy_wait until another thread 
  *   increments it by one which causes the first thread to exit the busy wait.
@@ -33,19 +38,18 @@ package com.example.socket_com;
  */
 
 public class mySemaphore {
-	protected int permits;
+	protected int permits,originalPermits;
 	protected boolean timedOut=false;
 	public mySemaphore(){
 		this.permits=0;
 	}
 	public mySemaphore(int permits){
 		this.permits=permits;
+		originalPermits=permits;
 	}
 
 
-
-
-	public synchronized void acquire() throws InterruptedException{
+	public synchronized  void acquire() throws InterruptedException{
 		timedOut=false;
 		if(permits>0)
 			permits--;
@@ -53,23 +57,31 @@ public class mySemaphore {
 		{
 			if(permits<=0)
 			{
-				this.wait(5000);//puts to sleep	
+				
+				this.wait(5000);//blocked
+				
 				if(permits==0)
 					timedOut=true;
 			}
 			permits--;
 		}
 	}
-	public synchronized void s_wait(int thread_index) throws InterruptedException{
+	public  void s_wait(int thread_index) throws InterruptedException{
 
 	}
 
 	public boolean isTimedOut(){
-		return timedOut;
+		if(timedOut)
+			permits=originalPermits;
+		boolean temp=timedOut;
+		timedOut=false;
+		return temp;
 	}
 	public synchronized void release(){
 		permits++;
+	
 		this.notify();//wakes the FIRST thread that put to sleep.
+		
 	}
 
 

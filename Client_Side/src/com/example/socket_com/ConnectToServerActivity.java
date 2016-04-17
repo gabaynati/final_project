@@ -1,25 +1,15 @@
 package com.example.socket_com;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
+
 
 import com.example.hs.R;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Process;
-import android.os.StrictMode;
-import android.annotation.SuppressLint;
+
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.database.CursorJoiner.Result;
+
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.view.View;
@@ -28,7 +18,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 
@@ -41,8 +30,8 @@ public class ConnectToServerActivity extends Activity {
 	String nickname;
 	String password;
 	ProgressBar progBar;
-	private int prgBarProgress=0;
-	boolean isTryToConnect=false;
+	private int prgBarProgress=10;
+	boolean isTryingToConnect=false;
 	String buffer="";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +49,11 @@ public class ConnectToServerActivity extends Activity {
 		buttonConnect.setOnClickListener(buttonConnectOnClickListener);
 		progBar.setProgress(10);
 
-		setProgressByTimer();
 
 
 	}
 	private void setProgressByTimer(){
-		
+
 		new AsyncTask<Void, Void, Void>() {
 
 			int progressFactor=10;
@@ -84,16 +72,22 @@ public class ConnectToServerActivity extends Activity {
 						e.printStackTrace();
 					}
 
-				
+
 				}
 				return null;
 			}	
-			
-			
+
+
 			@Override
 			protected void onProgressUpdate(Void... v) {
 				super.onProgressUpdate(v);
 				progBar.setProgress(prgBarProgress);
+			}
+			@Override
+			protected void onPostExecute(Void result) {
+				super.onPostExecute(result);
+				progBar.setProgress(10);
+				prgBarProgress=10;
 			}
 		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
@@ -116,13 +110,34 @@ public class ConnectToServerActivity extends Activity {
 
 		@Override
 		public void onClick(View arg0) {
+			//running progressBar timer:
+			textResponse.setText("please wait...");
+			new connectThread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,arg0);
+
+
+
+
+		}
+
+	};
+
+
+
+
+	public class connectThread extends AsyncTask<View, Void, Void> {
+		View view;
+		boolean isConnectionSucced=false;
+		@Override
+		protected Void doInBackground(View... params) {
 			//setting the onclick method off
-			arg0.setClickable(false);
+			view=params[0];
+			view.setClickable(false);
+
 			//checking for Internet connection
 			if(!isNetworkAvailable()){
-				buffer="You dont have internet connection!\n Please connect to Internet";
+				buffer="You dont have internet connection!\nPlease connect to Internet";
 				textResponse.setText(buffer);
-				return;
+				return null;
 			}
 
 
@@ -135,72 +150,75 @@ public class ConnectToServerActivity extends Activity {
 			password=MainActivity.player.getPassword();
 
 
+			/*
+//checking if the user name exists in DB
+String isExists=GameDB.isExists(nickname,password);
+if(!isExists.equals("exists")){
+	textResponse.setText("User name not registered!");
+	return;
 
-			//checking if the user name exists in DB
-			String isExists=GameDB.isExists(nickname,password);
-			if(!isExists.equals("exists")){
-				textResponse.setText("User name not registered!");
-				return;
+}
+			 */
 
+
+			String res="";
+			//setting server listener:
+			MainActivity.server_com.openSocket();
+			MainActivity.server_com.setlistener();
+
+
+
+			//trying to connect to server
+			res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password);
+			//blocking thread until the server responses with the data or until timeout occur.
+
+
+			setProgressByTimer();
+
+			try {
+				MainActivity.connectSem.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(!MainActivity.connectSem.isTimedOut())
+				isConnectionSucced=true;
+			return null;
+
+		}
+
+
+		@Override
+		protected void onProgressUpdate(Void... v) {
+			super.onProgressUpdate(v);
+
+
+		}
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			view.setClickable(true);
+
+			//if timeout occurred then there is no response from the server  
+			if(isConnectionSucced){
+				buffer="You have successfully connected to server";
+				textResponse.setText(buffer);
+				buttonConnect.setVisibility(View.GONE);
+				editTextPassword.setVisibility(View.GONE);
+				editTextNickName.setVisibility(View.GONE);
+				MainActivity.player.setConnectedToServer(true);
+
+
+				finish();
+			}
+			else{
+				buffer="You have faild to connect to server";
+				textResponse.setText(buffer);
 			}
 
+		}
 
-			try{
-				String res="";
-				//setting server listener:
-				MainActivity.server_com.openSocket();
-				MainActivity.server_com.setlistener();
-
-
-
-				//trying to connect to server
-				res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password);
-				//blocking thread until the server responses with the data or until timeout occur.
-
-				//running progressBar timer:
-				//setProgressByTimer();
-				
-				
-				try {
-					MainActivity.connectSem.acquire();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-
-				//if timeout occurred then there is no response from the server  
-				if(!MainActivity.connectSem.isTimedOut()){
-					buffer="You have successfully connected to server";
-					textResponse.setText(buffer);
-					buttonConnect.setVisibility(View.GONE);
-					editTextPassword.setVisibility(View.GONE);
-					editTextNickName.setVisibility(View.GONE);
-					MainActivity.player.setConnectedToServer(true);
-
-
-					finish();
-				}
-				else{
-					buffer="You have faild to connect to server";
-					textResponse.setText(buffer);
-				}
-			}catch(NullPointerException e){
-				Toast.makeText(getBaseContext(), "err", Toast.LENGTH_LONG).show();
-				arg0.setClickable(true);
-			}
-
-
-		}};
-
-
-
-
-
-
-
-
-
+	}
 
 
 

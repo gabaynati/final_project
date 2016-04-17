@@ -116,7 +116,7 @@ public class connectThread extends Thread
 			GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit,game.getGameName(),packet.getHitArea());
 			Vector<Player> players=Main.server.getPlayers();
 			for(int i=0;i<players.size();i++){
-				if(players.elementAt(i).getNickName()!=hitter_nickName){
+				if(!players.elementAt(i).getNickName().equals(hitter_nickName)){
 					SendPacketThread t=new SendPacketThread(gotHitPacket,players.elementAt(i));
 					t.start();
 				}

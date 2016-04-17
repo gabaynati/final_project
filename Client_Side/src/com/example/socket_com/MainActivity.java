@@ -32,11 +32,11 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	//*********server configurations****************/
-	public static String serverIP="192.168.43.191";
+	public static String serverIP="192.168.1.23";
 	public static int serverPort=9001;
 	public static int playerPort=9002;
 	public static Player player=new Player("nati","1234");
-	public static String enemy="nati";
+	public static String enemy="gili";
 	public static String currentGame=null;
 	public static int team=-1;
 	public static boolean isJoinedAGame=false;
