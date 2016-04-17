@@ -615,18 +615,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			if(hitArea != -1){
 
 			//	drawHit();
-				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
-				toast.show();					
+//				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
+//				toast.show();					
 
-				/*
+				
 				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
 					@Override 
 					public void onNewLocationAvailable(GPSCoordinates location) {
-
-						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
+						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + " longitude = " + location.longitude, 1000);
+						toast.show();
+						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
 					}
 				});
-*/						MainActivity.server_com.sendHitToServer(hitArea, azimuth, 0, 0);
+						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, 0, 0);
 
 
 				/**********************************/
