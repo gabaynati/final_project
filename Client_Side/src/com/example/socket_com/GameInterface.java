@@ -84,7 +84,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private final int ramBurden = 5;
 	private FrameLayout frame;
 	private TextView current_bulletsText, total_bulletsText, slesh;
-	private static ProgressBar player_life;
+	private ProgressBar player_life;
 	private ImageButton reload, target, shoot;
 	private ImageView img, bullet_hit, sight_img, board_num1, board_num2;
 	private int anim_index, soundIndex, state, unUsed, shootingTime;
@@ -142,11 +142,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Rect[]                 lowerBodyArray, lowerBodyArrayWhileShoot;
 
 	/*********************************************************/////
-	
-	
-	
-	
-	
+
+
+
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);	
@@ -351,9 +351,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		super.onDestroy();
 		if (mOpenCvCameraView!=null)
 			mOpenCvCameraView.disableView();
-		
+
 		//quitting game
-		
+
 		MainActivity.server_com.quitGame();
 	}
 	@Override
@@ -614,20 +614,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 			if(hitArea != -1){
 
-			//	drawHit();
-//				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
-//				toast.show();					
+				//	drawHit();
+				//				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
+				//				toast.show();					
 
-				
+				//sending GPS to server:
 				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
 					@Override 
 					public void onNewLocationAvailable(GPSCoordinates location) {
 						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + " longitude = " + location.longitude, 1000);
 						toast.show();
-						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
+						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
 					}
 				});
-						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, 0, 0);
 
 
 				/**********************************/
@@ -670,8 +669,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 
 
-	public static void hitRecvied(){
-		player_life.setProgress(MainActivity.player.getLife());
+	public void hitRecvied(){
+		player_life.setProgress(50);
+		Toast toast = Toast.makeText(getApplicationContext(), "YOU GOT HITTED!!!!", 1000);
+		toast.show();
+		
 
 	}
 
@@ -1093,49 +1095,63 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 		startActivity(intent);
 	}
-	
+
 
 
 	/*****************************************************************/
+	//this thread used to check if this player got shot by someone
 	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
 		private String response;
 		@Override
 		protected String doInBackground(Void... arg0) {
-			try {
-				MainActivity.hitSem.acquire();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
-			
-			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
-				@Override 
-				public void onNewLocationAvailable(GPSCoordinates location) {
+			while(true){
+				//blocking thread until hit packet received from server:
+				try {
+					MainActivity.hitSem.acquire();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}		
+				
+				
+				
+				SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
+					@Override 
+					public void onNewLocationAvailable(GPSCoordinates location) {
 
-					loc = new Location("thisLoc");
-					tar = new Location("hitterLoc");
-					
-					loc.setLatitude(location.latitude);
-					loc.setLongitude(location.longitude);
-					tar.setLatitude(MainActivity.hitterLatitude);
-					tar.setLongitude(MainActivity.hitterLongitude);
-					
-					logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
-				}
-			});
-			/**************************/
+						
+						//Gathering this player's GPS and hitter player's GPS which has been received from server:
+						loc = new Location("thisLoc");
+						tar = new Location("hitterLoc");
 
-			try {
-				MainActivity.hitSem.acquire();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+						loc.setLatitude(location.latitude);
+						loc.setLongitude(location.longitude);
+						tar.setLatitude(MainActivity.hitterLatitude);
+						tar.setLongitude(MainActivity.hitterLongitude);
+
+						
+						
+						
+						//checking if this player got shot by someone.
+						if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
+						publishProgress();
+						}
+					}
+				});
+				
+
+				//publishProgress();
+
 			}
-			return response;
 		}
 
 
 
+		@Override
+		protected void onProgressUpdate(Void... v) {
+			super.onProgressUpdate(v);
+			hitRecvied();
+		}
 
 		@Override
 		protected void onPostExecute(String result) {

@@ -112,9 +112,15 @@ public class ConnectToServerActivity extends Activity {
 		public void onClick(View arg0) {
 			//running progressBar timer:
 			textResponse.setText("please wait...");
+			//checking for Internet connection
+			if(!isNetworkAvailable()){
+				buffer="You dont have internet connection!\nPlease connect to Internet";
+				textResponse.setText(buffer);
+				return;
+			}
+
 			new connectThread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,arg0);
-
-
+			
 
 
 		}
@@ -133,12 +139,7 @@ public class ConnectToServerActivity extends Activity {
 			view=params[0];
 			view.setClickable(false);
 
-			//checking for Internet connection
-			if(!isNetworkAvailable()){
-				buffer="You dont have internet connection!\nPlease connect to Internet";
-				textResponse.setText(buffer);
-				return null;
-			}
+		
 
 
 

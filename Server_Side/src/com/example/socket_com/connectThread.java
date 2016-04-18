@@ -113,10 +113,10 @@ public class connectThread extends Thread
 
 			//writing object to all players except the hitter
 
-			GamePacket gotHitPacket=new GamePacket(hitter_nickName, "", GamePacket.hit,game.getGameName(),packet.getHitArea());
 			Vector<Player> players=Main.server.getPlayers();
 			for(int i=0;i<players.size();i++){
 				if(!players.elementAt(i).getNickName().equals(hitter_nickName)){
+					GamePacket gotHitPacket=new GamePacket(players.elementAt(i).getNickName(), players.elementAt(i).getPassword(), GamePacket.hit,game.getGameName(),packet.getHitArea());
 					SendPacketThread t=new SendPacketThread(gotHitPacket,players.elementAt(i));
 					t.start();
 				}

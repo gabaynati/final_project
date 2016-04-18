@@ -224,7 +224,6 @@ public class ServerCommunication {
 				MainActivity.hitterAzimuth=packet.getAzimuth();
 
 				MainActivity.hitSem.release();
-				GameInterface.hitRecvied();
 
 			}
 			else if(packet.isGetGamesList()){
