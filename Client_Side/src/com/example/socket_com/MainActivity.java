@@ -21,12 +21,14 @@ import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -52,6 +54,7 @@ public class MainActivity extends Activity {
 	public static float hitterAzimuth;
 	public static float hitterLatitude;
 	public static float hitterLongitude;
+	public static boolean isConnected=false;
 
 	//*************************************************/
 
@@ -64,14 +67,17 @@ public class MainActivity extends Activity {
 	Button buttonExit;
 	Button buttonMyAccount;
 	TextView txtResponse;
-	private MediaPlayer mediaPlayer;
+	ImageView background;
+	private MediaPlayer mediaPlayer_background,mediaPlayer_buttonClick;
+	ActivityAnimation anim;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.menu_layout);
 		
-		
-		
+
+	
 		
 		
 		
@@ -84,7 +90,7 @@ public class MainActivity extends Activity {
 		buttonExit=(Button)findViewById(R.id.exit);
 		buttonMyAccount=(Button)findViewById(R.id.myAccount);
 		txtResponse = (TextView)findViewById(R.id.txtResponse);
-
+		background=(ImageView)findViewById(R.id.backImage);
 
 		buttonConnectToServer.setOnClickListener(buttonConnectToServerOnClickListener);
 		buttonRegisterToSystem.setOnClickListener(buttonRegisterToSystemOnClickListener);
@@ -94,12 +100,24 @@ public class MainActivity extends Activity {
 		buttonLogOut.setOnClickListener(buttonLogOutOnClickListener);
 		buttonMyAccount.setOnClickListener(buttonMyAccountOnClickListener);
 		buttonExit.setOnClickListener(buttonExitOnClickListener);
+		
+		
 		//playing audio
-		mediaPlayer = MediaPlayer.create(getBaseContext(), R.raw.background_audio);
-		mediaPlayer.start(); 
+		mediaPlayer_buttonClick=MediaPlayer.create(getBaseContext(), R.raw.srr61_shoot_sound);
+		mediaPlayer_background = MediaPlayer.create(getBaseContext(), R.raw.background_audio);
+		mediaPlayer_background.start();
+		
+		
+		//animation:
+		anim=new ActivityAnimation(getApplicationContext());
+		
 	}
 
 
+	
+	
+	
+	
 	//********buttons on clicks***********/
 
 
@@ -107,6 +125,11 @@ public class MainActivity extends Activity {
 	OnClickListener buttonLogOutOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
+			
+			//playing sound:
+			mediaPlayer_buttonClick.start();
+			
+			
 			String result="";
 			//disconnecting from server
 			if(!MainActivity.player.isConnectedToServer()){
@@ -121,6 +144,8 @@ public class MainActivity extends Activity {
 			result=server_com.disconnectFromServer();
 			if(result.equals("true"))
 				txtResponse.setText("You have disconneted from server");
+			MainActivity.isConnected=false;
+
 			buttonJoinAGame.setVisibility(View.GONE);
 			buttonCreateAGame.setVisibility(View.GONE);
 			buttonLogOut.setVisibility(View.GONE);
@@ -136,6 +161,8 @@ public class MainActivity extends Activity {
 		@SuppressLint("NewApi")
 		@Override
 		public void onClick(View arg0) {
+			//playing sound:
+			mediaPlayer_buttonClick.start();
 			buttonLogOut.callOnClick();
 			finish();
 			System.exit(0);
@@ -146,6 +173,8 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public void onClick(View arg0) {
+			//playing sound:
+			mediaPlayer_buttonClick.start();
 			Intent myAccount = new Intent("com.example.socket_com.MYACCOUNTACTIVITY");
 			startActivity(myAccount);
 		}
@@ -155,6 +184,8 @@ public class MainActivity extends Activity {
 	OnClickListener buttonJoinAGameOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
+			//playing sound:
+			mediaPlayer_buttonClick.start();
 			Intent connectToServer = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
 			startActivity(connectToServer);
 		}
@@ -164,6 +195,8 @@ public class MainActivity extends Activity {
 	OnClickListener buttonCreateAGameOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
+			//playing sound:
+			mediaPlayer_buttonClick.start();
 			Intent connectToServer = new Intent("com.example.socket_com.CREATEAGAMEACTIVITY");
 			startActivity(connectToServer);
 		}
@@ -173,6 +206,8 @@ public class MainActivity extends Activity {
 	OnClickListener buttonConnectToServerOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
+			//playing sound:
+			mediaPlayer_buttonClick.start();
 			//moving to connect to server
 			Intent connectToServer = new Intent("com.example.socket_com.CONNECTTOSERVERACTIVITY");
 			startActivity(connectToServer);
@@ -183,6 +218,8 @@ public class MainActivity extends Activity {
 	OnClickListener buttonRegisterToSystemOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
+			//playing sound:
+			mediaPlayer_buttonClick.start();
 			//moving to register to server
 			Intent RegistertoServer = new Intent("com.example.socket_com.REGISTERACTIVITY");
 			startActivity(RegistertoServer);
@@ -193,6 +230,7 @@ public class MainActivity extends Activity {
 	OnClickListener buttonToGameOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
+			
 			//moving to game interface
 			Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
 			startActivity(gameInterface);
@@ -228,8 +266,10 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onDestroy(){
+		
 		super.onDestroy();
 		//disconnecting from server
+		if(isConnected)
 		server_com.disconnectFromServer();
 		finish();
 		System.exit(0);
@@ -237,12 +277,14 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause(){
 		super.onPause();
-		mediaPlayer.pause();
+		mediaPlayer_background.pause();
 
 	}
+	@Override
 	protected void onResume(){
-		super.onPause();
-		mediaPlayer.start();
+		super.onResume();
+		anim.fade(background);
+		mediaPlayer_background.start();
 		if(MainActivity.player.isConnectedToServer()){
 			txtResponse.setText("Logged in as: "+MainActivity.player.getNickName());
 			buttonJoinAGame.setVisibility(View.VISIBLE);

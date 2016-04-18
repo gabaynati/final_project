@@ -14,8 +14,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -25,6 +28,7 @@ import android.widget.TextView;
 public class ConnectToServerActivity extends Activity {
 
 	TextView textResponse;
+	ImageView background;
 	EditText editTextNickName,editTextPassword; 
 	Button buttonConnect;
 	String nickname;
@@ -33,6 +37,7 @@ public class ConnectToServerActivity extends Activity {
 	private int prgBarProgress=10;
 	boolean isTryingToConnect=false;
 	String buffer="";
+	ActivityAnimation anim;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,13 +47,16 @@ public class ConnectToServerActivity extends Activity {
 
 		setContentView(R.layout.connect_layout);
 		buttonConnect = (Button)findViewById(R.id.connect);
+		background=(ImageView)findViewById(R.id.imageView);
 		textResponse = (TextView)findViewById(R.id.response);
 		editTextNickName=(EditText)findViewById(R.id.nickname);
 		editTextPassword=(EditText)findViewById(R.id.password);
 		progBar=(ProgressBar)findViewById(R.id.connectProgBar);
 		buttonConnect.setOnClickListener(buttonConnectOnClickListener);
 		progBar.setProgress(10);
-
+		//zoom();
+		//move();
+		anim=new ActivityAnimation(getApplicationContext());
 
 
 	}
@@ -110,6 +118,12 @@ public class ConnectToServerActivity extends Activity {
 
 		@Override
 		public void onClick(View arg0) {
+
+
+
+
+
+
 			//running progressBar timer:
 			textResponse.setText("please wait...");
 			//checking for Internet connection
@@ -118,9 +132,9 @@ public class ConnectToServerActivity extends Activity {
 				textResponse.setText(buffer);
 				return;
 			}
-
+			//trying to connect to server
 			new connectThread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,arg0);
-			
+
 
 
 		}
@@ -139,7 +153,7 @@ public class ConnectToServerActivity extends Activity {
 			view=params[0];
 			view.setClickable(false);
 
-		
+
 
 
 
@@ -208,11 +222,12 @@ if(!isExists.equals("exists")){
 				editTextPassword.setVisibility(View.GONE);
 				editTextNickName.setVisibility(View.GONE);
 				MainActivity.player.setConnectedToServer(true);
-
+				MainActivity.isConnected=true;
 
 				finish();
 			}
 			else{
+				MainActivity.isConnected=false;
 				buffer="You have faild to connect to server";
 				textResponse.setText(buffer);
 			}
@@ -220,9 +235,11 @@ if(!isExists.equals("exists")){
 		}
 
 	}
-
-
-
+	@Override
+	protected void onResume(){
+		super.onResume();
+		anim.clockwise(background);
+	}
 
 
 

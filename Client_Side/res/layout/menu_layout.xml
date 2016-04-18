@@ -1,108 +1,126 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:background="@drawable/logo"
-    android:foreground="@color/abc_primary_text_material_dark"
-    android:orientation="vertical" >
+    android:background="#000000" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:autoLink="web"
-        android:text="Menu"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold" />
+    <ImageView
+        android:id="@+id/backImage"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignEnd="@+id/textView2"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignRight="@+id/textView2"
+        android:layout_alignStart="@+id/textView"
+        android:layout_below="@+id/textView2"
+        android:src="@drawable/logo" />
 
-    <Button
-        android:id="@+id/connectToServer"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#88676767"
-        android:drawableLeft="@drawable/ic_polymer_white_48dp"
-        android:text="Log in"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold" />
-   <Button
-        android:id="@+id/myAccount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#88676767"
-        android:drawableLeft="@drawable/ic_fingerprint_white_48dp"
-        android:text="My Account"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold"
-        android:visibility="gone" />
-    <Button
-        android:id="@+id/registerToSystem"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#88676767"
-        android:drawableLeft="@drawable/ic_group_work_white_48dp"
-        android:text="Register to System"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold" />
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/toGame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#88676767"
-        android:drawableLeft="@drawable/ic_functions_white_48dp"
-        android:text="to Game"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:autoLink="web"
+            android:text="Menu"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/joinAGame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#88676767"
-        android:drawableLeft="@drawable/ic_call_merge_white_48dp"
-        android:text="Join A Game"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold"
-        android:visibility="gone" />
-       <Button
-        android:id="@+id/createAGame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#88676767"
-        android:drawableLeft="@drawable/ic_call_merge_white_48dp"
-        android:text="Create A Game"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold"
-        android:visibility="gone" />
+        <Button
+            android:id="@+id/connectToServer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_polymer_white_48dp"
+            android:text="Log in"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/logOut"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#88676767"
-        android:drawableLeft="@drawable/ic_highlight_off_white_48dp"
-        android:text="log Out"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold"
-        android:visibility="gone" />
+        <Button
+            android:id="@+id/myAccount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_fingerprint_white_48dp"
+            android:text="My Account"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
-   
-    <Button
-        android:id="@+id/exit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#88676767"
-        android:drawableLeft="@drawable/ic_exit_to_app_white_48dp"
-        android:text="exit"
-        android:textColor="@color/material_grey_100"
-        android:textStyle="bold" />
+        <Button
+            android:id="@+id/registerToSystem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_group_work_white_48dp"
+            android:text="Register to System"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/txtResponse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/material_grey_100"
-        android:textColorHint="@color/material_grey_100"
-        android:textStyle="bold" />
+        <Button
+            android:id="@+id/toGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_functions_white_48dp"
+            android:text="to Game"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/joinAGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_call_merge_white_48dp"
+            android:text="Join A Game"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/createAGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_call_merge_white_48dp"
+            android:text="Create A Game"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/logOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_highlight_off_white_48dp"
+            android:text="log Out"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/exit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_exit_to_app_white_48dp"
+            android:text="exit"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtResponse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/material_grey_100"
+            android:textColorHint="@color/material_grey_100"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</RelativeLayout>

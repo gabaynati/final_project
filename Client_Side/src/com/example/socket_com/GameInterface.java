@@ -353,8 +353,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			mOpenCvCameraView.disableView();
 
 		//quitting game
-
-		MainActivity.server_com.quitGame();
+		if(MainActivity.isConnected)
+			MainActivity.server_com.quitGame();
 	}
 	@Override
 	public void onPause(){
