@@ -55,20 +55,20 @@ public class SingleShotLocationProvider {
 
 	  // consider returning Location instead of this dummy wrapper class
 	  public static class GPSCoordinates {
-	      public float longitude = -1;
-	      public float latitude = -1;
-	      public float altitude = -1;
+	      public double longitude = -1;
+	      public double latitude = -1;
+	      public double altitude = -1;
 
-	      public GPSCoordinates(float theLongitude, float theLatitude, float theAltitude) {
+	      public GPSCoordinates(float theLatitude, float theLongitude, float theAltitude) {
+	          longitude = (double) theLongitude;
+	          latitude = (double) theLatitude;
+	          altitude = (double) theAltitude;
+	      }
+
+	      public GPSCoordinates(double theLatitude, double theLongitude, double theAltitude) {
 	          longitude = theLongitude;
 	          latitude = theLatitude;
 	          altitude = theAltitude;
-	      }
-
-	      public GPSCoordinates(double theLongitude, double theLatitude, double theAltitude) {
-	          longitude = (float) theLongitude;
-	          latitude = (float) theLatitude;
-	          altitude = (float) theAltitude;
 	      }
 	  }  
 	}

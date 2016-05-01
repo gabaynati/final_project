@@ -171,23 +171,24 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		hitThread=new HitListener_Thread();
 		hitThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-		/*		
-		tar = new Location("dummyprovider");
-		//loc = new Location("dummyprovider");
+				
+		/*tar = new Location("dummyprovider");
+		loc = new Location("dummyprovider");
 
-		tar.setLatitude(32.06977442847062);
-		tar.setLongitude(34.79713439941406);
+		tar.setLatitude(31.7971001);
+		tar.setLongitude(35.0626474);
 
-		loc.setLatitude(31.796983885889574);
-		loc.setLongitude(35.06264626979828);
+		loc.setLatitude(31.7970121);
+		loc.setLongitude(35.0626729);
 
-        loc = location.getLastKnownLocation(bestProvider);
+        //loc = location.getLastKnownLocation(bestProvider);
 		degree = loc.bearingTo(tar);
 
 
-		gpsTest.setText(Float.toString(degree));
+		Toast toast = Toast.makeText(getApplicationContext(), "degree = " + degree, 300000);
+		toast.show();*/
 
-		 */
+		 
 		///*************OpenCV***********************///
 		//binding the OpenCV camera object to the layout
 		mOpenCvCameraView=(JavaCameraView)findViewById(R.id.cameraPreview);
@@ -610,8 +611,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				break;
 
 
+				
 
-			}
+			}	
+			
 			if(hitArea != -1){
 
 				//	drawHit();
@@ -622,9 +625,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
 					@Override 
 					public void onNewLocationAvailable(GPSCoordinates location) {
-						Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + azimuth, 10000);
+						double latitude = location.latitude;
+						double longitude = location.longitude;
+						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
 						toast.show();
-						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
+						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
 					}
 					
 				});
