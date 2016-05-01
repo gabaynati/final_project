@@ -1024,7 +1024,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		else
 			azimuth += 90;
 
-
+		total_bulletsText.setText(Float.toString(azimuth));
 		//sensorTest.setText(Float.toString(azimuth));
 
 		/*azimuth += geoField.getDeclination();
