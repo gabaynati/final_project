@@ -622,10 +622,11 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
 					@Override 
 					public void onNewLocationAvailable(GPSCoordinates location) {
-						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + " longitude = " + location.longitude, 1000);
+						Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + azimuth, 10000);
 						toast.show();
 						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
 					}
+					
 				});
 
 
@@ -1115,32 +1116,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				
 				
 				
-				SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
-					@Override 
-					public void onNewLocationAvailable(GPSCoordinates location) {
-
-						
-						//Gathering this player's GPS and hitter player's GPS which has been received from server:
-						loc = new Location("thisLoc");
-						tar = new Location("hitterLoc");
-
-						loc.setLatitude(location.latitude);
-						loc.setLongitude(location.longitude);
-						tar.setLatitude(MainActivity.hitterLatitude);
-						tar.setLongitude(MainActivity.hitterLongitude);
-
-						
-						
-						
-						//checking if this player got shot by someone.
-						if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
-						publishProgress();
-						}
-					}
-				});
 				
 
-				//publishProgress();
+				publishProgress();
 
 			}
 		}
@@ -1150,7 +1128,34 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		@Override
 		protected void onProgressUpdate(Void... v) {
 			super.onProgressUpdate(v);
-			hitRecvied();
+
+			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
+				@Override 
+				public void onNewLocationAvailable(GPSCoordinates location) {
+
+					
+					//Gathering this player's GPS and hitter player's GPS which has been received from server:
+					loc = new Location("thisLoc");
+					tar = new Location("hitterLoc");
+
+					loc.setLatitude(location.latitude);
+					loc.setLongitude(location.longitude);
+					tar.setLatitude(MainActivity.hitterLatitude);
+					tar.setLongitude(MainActivity.hitterLongitude);
+
+					
+					float deg = logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+					
+					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
+					toast.show();
+					
+					//checking if this player got shot by someone.
+					/*if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
+						hitRecvied();
+
+					}*/
+				}
+			});
 		}
 
 		@Override

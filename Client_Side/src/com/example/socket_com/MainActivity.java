@@ -36,8 +36,8 @@ public class MainActivity extends Activity {
 	//*********server configurations****************/
 	public static String serverIP="192.168.43.191";
 	public static int serverPort=9001;
-	public static int playerPort=9006;
-	public static Player player=new Player("gii","1234");
+	public static int playerPort=9004;
+	public static Player player=new Player("nati","1234");
 	public static String enemy="gili";
 	public static String currentGame=null;
 	public static int team=-1;

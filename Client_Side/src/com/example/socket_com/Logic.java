@@ -144,15 +144,15 @@ public class Logic {
 			return -1;
 	}
 	
-	public boolean isInjured(Location myLocation, Location otherLocation, float azimuth){
+	public float isInjured(Location myLocation, Location otherLocation, float azimuth){
 		
-		float epsilon = 5f;
+		float epsilon = 0.5f;
 		float degree = otherLocation.bearingTo(myLocation);
-		
-		float digression = Math.abs(degree - azimuth);
+		return degree;
+		//float digression = Math.abs(degree - azimuth);
 		
 		//return digression <= epsilon;
-		return true;
+
 	}
 /*	
 	//catch the detection rectangles on current time
