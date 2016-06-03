@@ -79,6 +79,7 @@ import org.opencv.imgproc.Imgproc;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener, LocationListener {
 	private HitListener_Thread hitThread;
+	private int total_score=20;
 	private Context context;
 	private Logic logic;
 	private final int ramBurden = 5;
@@ -95,6 +96,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Handler AnimationHandler, DrawableHandler, changeAnimation, shootHandler;
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
+	public static final int UPPER_BODY_HIT_SCORE=50,FACE_HIT_SCORE=100,LOWER_BODY_HIT_SCORE=20;
 
 	/*************Sensors****************/
 	private SensorManager mSensorManager;
@@ -106,7 +108,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	/********************************************/
 
 	/*******************GPS********************/
-	private TextView gpsTest;
+	private TextView gpsTest,score_lbl;
 	private LocationManager location;
 	private String bestProvider;
 
@@ -217,7 +219,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
 		slesh = (TextView)findViewById(R.id.slesh);
-
+		score_lbl=(TextView)findViewById(R.id.score_lbl);
+		score_lbl.setText("Score: " + total_score);
 		AnimationHandler = new Handler();
 		DrawableHandler = new Handler();
 		changeAnimation = new Handler();
@@ -354,8 +357,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			mOpenCvCameraView.disableView();
 
 		//quitting game
-		if(MainActivity.isConnected)
+		if(MainActivity.isConnected){
+			//quitting game at server
 			MainActivity.server_com.quitGame();
+			//saving total score at DB
+			GameDB.updateScoreInDB(player.getNickName(), total_score);
+		}
+		
 	}
 	@Override
 	public void onPause(){
@@ -615,8 +623,24 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			}	
 			
+			//hit was detected
 			if(hitArea != -1){
-
+				
+			
+				switch(hitArea){
+				case Logic.UPPER_BODY_HIT:
+					total_score+=UPPER_BODY_HIT_SCORE;
+					break;
+				case Logic.FACE_HIT:
+					total_score+=FACE_HIT_SCORE;
+					break;
+				case Logic.LOWER_BODY_HIT:
+					total_score+=LOWER_BODY_HIT_SCORE;
+					break;
+				}
+				//updating the socre:
+				score_lbl.setText("Score: " + total_score);
+				
 				//	drawHit();
 				//				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
 				//				toast.show();					
@@ -676,11 +700,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 	public void hitRecvied(){
-		player_life.setProgress(50);
+		if(player.getLife()<=0){
+			Toast toast = Toast.makeText(getApplicationContext(), "Game Over!", 1000);
+			toast.show();
+			onDestroy();
+		}
+		else{
+		player_life.setProgress(player.getLife());
+		
 		Toast toast = Toast.makeText(getApplicationContext(), "YOU GOT HITTED!!!!", 1000);
 		toast.show();
 		
-
+		}
 	}
 
 	//on button click, implementation of OnClickListener interface

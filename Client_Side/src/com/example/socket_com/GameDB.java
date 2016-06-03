@@ -178,7 +178,41 @@ public class GameDB {
 	}
 	/*****************************************************************/
 
+	
 
+	/*****************************************************************/
+	public static class updateScoreInDBThread extends AsyncTask<Object, Void, String> {
+
+		@Override
+		protected String doInBackground(Object... params) {
+			try {
+				// Establish the connection.
+				Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
+				con = DriverManager.getConnection(dbConnectionString,"","");
+
+				// Create and execute an SQL statement that returns some data.
+				String SQL = "update Players set player_score=player_score+"+(Integer)params[1]+" where player_nickname='"+(String)params[0]+"'";
+				stmt = con.createStatement();
+				stmt.executeUpdate(SQL);
+			}
+			// Handle any errors that may have occurred.
+			catch (Exception e) {
+				e.printStackTrace();
+				Log.e("YOUR_APP_LOG_TAG", "I got an error", e);
+				return e.getMessage();
+			}
+			finally {
+				if (rs != null) try { rs.close(); } catch(Exception e) {}
+				if (stmt != null) try { stmt.close(); } catch(Exception e) {}
+				if (con != null) try { con.close(); } catch(Exception e) {}
+			}
+			return "notExists";
+
+		}
+
+
+	}
+	/*****************************************************************/
 
 
 
@@ -295,5 +329,24 @@ public class GameDB {
 	/*****************************************************************/
 
 	
-	
+	/*****************************************************************/
+	public static String updateScoreInDB(String nickname,int newScore){
+		updateScoreInDBThread regDB=new updateScoreInDBThread();
+		String res="";
+		try {
+			res = regDB.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,nickname,newScore).get(4000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			res="InterruptedException: "+e.toString();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			res="ExecutionException: "+e.toString();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			res="TimeoutException: "+e.toString();
+		}
+		return res;
+
+	}
+	/*****************************************************************/
 }

@@ -51,6 +51,8 @@ public class Player {
 			this.life = this.life - this.upperBody_hit;
 		else if(hitArea == LOWER_BODY_HIT)
 			this.life = this.life - this.lowerBody_hit;
+		else if(hitArea == FACE_HIT)
+			this.life = 0;
 	}
 
 	public String getRank() {
