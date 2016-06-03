@@ -173,7 +173,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		hitThread=new HitListener_Thread();
 		hitThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-				
+
 		/*tar = new Location("dummyprovider");
 		loc = new Location("dummyprovider");
 
@@ -190,7 +190,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		Toast toast = Toast.makeText(getApplicationContext(), "degree = " + degree, 300000);
 		toast.show();*/
 
-		 
+
 		///*************OpenCV***********************///
 		//binding the OpenCV camera object to the layout
 		mOpenCvCameraView=(JavaCameraView)findViewById(R.id.cameraPreview);
@@ -350,9 +350,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 
 	//we are overriding the onDestroy callback of the activity ,because we want to disable the camera when the activity is destroyed.
-	@Override
-	public void onDestroy(){
-		super.onDestroy();
+	public void exitGameSettings(){
 		if (mOpenCvCameraView!=null)
 			mOpenCvCameraView.disableView();
 
@@ -362,8 +360,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			MainActivity.server_com.quitGame();
 			//saving total score at DB
 			GameDB.updateScoreInDB(player.getNickName(), total_score);
+			
 		}
-		
+	}
+	@Override
+	public void onDestroy(){
+		super.onDestroy();
+		exitGameSettings();
 	}
 	@Override
 	public void onPause(){
@@ -619,14 +622,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				break;
 
 
-				
+
 
 			}	
-			
+
 			//hit was detected
 			if(hitArea != -1){
-				
-			
+
+
 				switch(hitArea){
 				case Logic.UPPER_BODY_HIT:
 					total_score+=UPPER_BODY_HIT_SCORE;
@@ -640,10 +643,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				}
 				//updating the socre:
 				score_lbl.setText("Score: " + total_score);
-				
+
 				//	drawHit();
-				//				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
-				//				toast.show();					
+				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
+				toast.show();					
 
 				//sending GPS to server:
 				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
@@ -655,8 +658,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 						toast.show();
 						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
 					}
-					
+
 				});
+				MainActivity.server_com.sendHitToServer(hitArea, azimuth, 0, 0);
 
 
 				/**********************************/
@@ -701,16 +705,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	public void hitRecvied(){
 		if(player.getLife()<=0){
+			player_life.setProgress(0);
 			Toast toast = Toast.makeText(getApplicationContext(), "Game Over!", 1000);
 			toast.show();
-			onDestroy();
+			exitGameSettings();
+			hitThread.stop();
+			finish();
 		}
 		else{
-		player_life.setProgress(player.getLife());
-		
-		Toast toast = Toast.makeText(getApplicationContext(), "YOU GOT HITTED!!!!", 1000);
-		toast.show();
-		
+			player_life.setProgress(player.getLife());
+			Toast toast = Toast.makeText(getApplicationContext(), "YOU GOT HITTED!!!!", 1000);
+			toast.show();
+
 		}
 	}
 
@@ -1139,9 +1145,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//this thread used to check if this player got shot by someone
 	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
 		private String response;
+		private boolean run=true;
 		@Override
 		protected String doInBackground(Void... arg0) {
-			while(true){
+			while(run){
 				//blocking thread until hit packet received from server:
 				try {
 					MainActivity.hitSem.acquire();
@@ -1149,14 +1156,22 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}		
-				
-				
-				
-				
+
+
+
+
 
 				publishProgress();
 
 			}
+			return response;
+		}
+
+
+
+		public void stop() {
+			run=false;
+			
 		}
 
 
@@ -1169,7 +1184,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				@Override 
 				public void onNewLocationAvailable(GPSCoordinates location) {
 
-					
+
 					//Gathering this player's GPS and hitter player's GPS which has been received from server:
 					loc = new Location("thisLoc");
 					tar = new Location("hitterLoc");
@@ -1179,17 +1194,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					tar.setLatitude(MainActivity.hitterLatitude);
 					tar.setLongitude(MainActivity.hitterLongitude);
 
-					
+
 					float deg = logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
-					
+
 					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
 					toast.show();
-					
+
 					//checking if this player got shot by someone.
 					/*if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
 						hitRecvied();
 
 					}*/
+					hitRecvied();
 				}
 			});
 		}

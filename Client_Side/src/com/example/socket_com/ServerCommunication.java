@@ -555,8 +555,8 @@ public class ServerCommunication {
 		
 		MainActivity.team=-1;
 		MainActivity.isJoinedAGame=false;
-		
-		
+		//setting back the life on the player
+		MainActivity.player.setLife(100);
 		return result;	
 		
 	}
