@@ -10,7 +10,7 @@ public class GamePacket implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4,joinGame=5,getGameInfo=6,quitGame=7;
+	public static final int hit=0,connect=1,getGamesList=2,createGame=3,disconnect=4,joinGame=5,getGameInfo=6,quitGame=7,testPacket=8;
 	private String nickName,password;
 	private int packetType;
 	private int playerPort;
@@ -77,6 +77,9 @@ public class GamePacket implements Serializable{
 
 	public boolean isHit() {
 		return this.packetType==hit;
+	}
+	public boolean isTest() {
+		return this.packetType==testPacket;
 	}
 	
 	public boolean isConnect() {

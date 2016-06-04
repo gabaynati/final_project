@@ -67,7 +67,16 @@
             android:layout_height="wrap_content"
             android:background="#88676767"
             android:drawableLeft="@drawable/ic_functions_white_48dp"
-            android:text="to Game"
+            android:text="to Game(Developer)"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/testing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_functions_white_48dp"
+            android:text="to Testing(Developer)"
             android:textColor="@color/material_grey_100"
             android:textStyle="bold" />
 

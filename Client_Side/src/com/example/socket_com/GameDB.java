@@ -163,7 +163,8 @@ public class GameDB {
 			catch (Exception e) {
 				e.printStackTrace();
 				Log.e("YOUR_APP_LOG_TAG", "I got an error", e);
-				return e.getMessage();
+				return "error";
+					
 			}
 			finally {
 				if (rs != null) try { rs.close(); } catch(Exception e) {}

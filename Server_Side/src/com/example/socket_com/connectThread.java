@@ -142,6 +142,17 @@ public class connectThread extends Thread
 			t.start();
 
 		}
+		else if(packet.isTest()){
+			GamePacket test_packet=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.testPacket,"",-1);
+			test_packet.setGamesList(Main.server.getGamesIDs());
+
+			Main.server.getServerLogs().add("test packet detected");
+			Main.server.getPanel().update();
+			//writing game List to client
+			SendPacketThread t=new SendPacketThread(test_packet,server.getPlayerByIP(IPAddress));
+			t.start();
+
+		}
 		else if(packet.isJoinAGame()){
 			server.addPlayerToGame(server.getPlayerByNickName(packet.getNickName()), packet.getGameName(),packet.getTeam());
 			//sending ACK:

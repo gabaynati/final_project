@@ -34,7 +34,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	//*********server configurations****************/
-	public static String serverIP="192.168.1.15";
+	public static String serverIP="192.168.43.191";
 	public static int serverPort=9001;
 	public static int playerPort=9009;
 	public static Player player=new Player("nati","1234");
@@ -49,6 +49,7 @@ public class MainActivity extends Activity {
 	public static mySemaphore getGameListSem=new mySemaphore(0);
 	public static mySemaphore getGameInfoSem=new mySemaphore(0);
 	public static mySemaphore joinGameSem=new mySemaphore(0);
+	public static mySemaphore testSem=new mySemaphore(0);
 	public static Semaphore hitSem=new Semaphore(0);
 	public static boolean flag;
 	public static float hitterAzimuth;
@@ -66,6 +67,7 @@ public class MainActivity extends Activity {
 	Button buttonLogOut;
 	Button buttonExit;
 	Button buttonMyAccount;
+	Button buttonDeveloperTesting;
 	TextView txtResponse;
 	ImageView background;
 	private MediaPlayer mediaPlayer_background,mediaPlayer_buttonClick;
@@ -80,7 +82,7 @@ public class MainActivity extends Activity {
 	
 		
 		
-		
+		buttonDeveloperTesting=(Button)findViewById(R.id.testing);
 		buttonConnectToServer = (Button)findViewById(R.id.connectToServer);
 		buttonRegisterToSystem = (Button)findViewById(R.id.registerToSystem);
 		buttonToGame = (Button)findViewById(R.id.toGame);
@@ -100,7 +102,7 @@ public class MainActivity extends Activity {
 		buttonLogOut.setOnClickListener(buttonLogOutOnClickListener);
 		buttonMyAccount.setOnClickListener(buttonMyAccountOnClickListener);
 		buttonExit.setOnClickListener(buttonExitOnClickListener);
-		
+		buttonDeveloperTesting.setOnClickListener(buttonDeveloperTestingClickListener);
 		
 		//playing audio
 		mediaPlayer_buttonClick=MediaPlayer.create(getBaseContext(), R.raw.srr61_shoot_sound);
@@ -234,6 +236,16 @@ public class MainActivity extends Activity {
 			//moving to game interface
 			Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
 			startActivity(gameInterface);
+
+		}
+	};
+	OnClickListener buttonDeveloperTestingClickListener = new OnClickListener(){
+		@Override
+		public void onClick(View arg0) {
+			
+			//moving to game interface
+			Intent intenet = new Intent("com.example.socket_com.TESTING_ACTIVITY");
+			startActivity(intenet);
 
 		}
 	};

@@ -113,6 +113,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.example.socket_com.Testing_Activity"
+            android:label="@string/title_activity_testing_"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="com.example.socket_com.TESTING_ACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
