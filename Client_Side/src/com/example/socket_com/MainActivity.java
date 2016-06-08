@@ -34,7 +34,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	//*********server configurations****************/
-	public static String serverIP="192.168.43.191";
+	public static String serverIP="192.168.1.15";
 	public static int serverPort=9001;
 	public static int playerPort=9009;
 	public static Player player=new Player("nati","1234");

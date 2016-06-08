@@ -40,6 +40,7 @@ import android.util.Config;
 public class mySemaphore {
 	protected int permits,originalPermits;
 	protected boolean timedOut=false;
+	/******constrctors***********************************************************/
 	public mySemaphore(){
 		this.permits=0;
 	}
@@ -47,8 +48,7 @@ public class mySemaphore {
 		this.permits=permits;
 		originalPermits=permits;
 	}
-
-
+	/********method that acquires a key to the semaphore*********************************************************/
 	public synchronized  void acquire() throws InterruptedException{
 		timedOut=false;
 		if(permits>0)
@@ -66,10 +66,7 @@ public class mySemaphore {
 			permits--;
 		}
 	}
-	public  void s_wait(int thread_index) throws InterruptedException{
-
-	}
-
+	/******method that returns whether the semaphore is timed out or interrupted ***********************************************************/
 	public boolean isTimedOut(){
 		if(timedOut)
 			permits=originalPermits;
@@ -77,6 +74,7 @@ public class mySemaphore {
 		timedOut=false;
 		return temp;
 	}
+	/*********method that releases a key to the semaphore********************************************************/
 	public synchronized void release(){
 		permits++;
 	

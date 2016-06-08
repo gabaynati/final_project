@@ -24,7 +24,6 @@ import javax.swing.JTable;
 
 @SuppressWarnings("serial")
 public class ServerInterface extends JPanel implements Runnable {
-	private imgPanel logo;
 	private JLabel team1Icon,team2Icon,serverMessages;
 
 
@@ -117,7 +116,7 @@ public class ServerInterface extends JPanel implements Runnable {
 		}
 
 		tab=new JTable(rowData,columnNames);
-
+		
 		return tab;
 
 	}

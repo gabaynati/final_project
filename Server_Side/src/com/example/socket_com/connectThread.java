@@ -14,7 +14,7 @@ public class connectThread extends Thread
 
 	private Server server;
 	private DatagramSocket socket;
-	//private DatagramSocket serverSocket=server.serverSocket;
+	/*********Constructor*****************************************************/	
 	public  connectThread(Server server) throws IOException
 	{
 		this.server=server;
@@ -27,10 +27,9 @@ public class connectThread extends Thread
 	{
 		while(true)
 		{
+			/*********connecting to server via socket and listening to packets from it******************/
 			try
 			{
-
-
 				//waiting for a packet
 				byte[] incomingData = new byte[1024];
 				DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);	
@@ -62,7 +61,7 @@ public class connectThread extends Thread
 			catch(SocketTimeoutException s)
 			{
 				server.getServerLogs().add("Socket timed out!");
-				server.getPanel().update();
+				server.updatePanel();
 				break;
 			}catch(IOException e)
 			{
@@ -74,15 +73,14 @@ public class connectThread extends Thread
 			}
 		}
 	}
-
-
-
-
+	
+	
+	/*********method that process a game packet*****************************************************/	
 	private void processPacket(GamePacket packet,InetAddress IPAddress){
-		//adding new player
+		/*********packet contains a connect request******************/
 		if(packet.isConnect()){
 			if(!server.isPlayerConnected(packet.getNickName())){
-				
+
 				//creating new Player:
 				Player newPlayer=new Player(IPAddress,packet.getPlayerPort(),"");
 
@@ -91,28 +89,22 @@ public class connectThread extends Thread
 				newPlayer.setNickName(packet.getNickName());
 				newPlayer.setPassword(packet.getPassword());
 				server.addPlayer(newPlayer);
-				server.getServerLogs().add(packet.getNickName()+" has just connected!");
-				server.getPanel().update();
+				server.addToServerLog(packet.getNickName()+" has just connected!");
+
 
 				//sending ACK:
 				GamePacket ACK_packet=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.connect,"",-1);
 				SendPacketThread t=new SendPacketThread(ACK_packet,newPlayer);
 				t.start();
-
-
-
 			}
 		}
+		/*********packet contains an Hit event******************/
 		else if(packet.isHit()){
 			System.out.println("HITTTTT");
 			Game game=server.getGameByName(packet.getGameName());
 			String hitter_nickName=packet.getNickName();
-			Main.server.addToServer(game.Hit(hitter_nickName));
-
-
-
+			server.addToServerLog(game.Hit(hitter_nickName));
 			//writing object to all players except the hitter
-
 			Vector<Player> players=Main.server.getPlayers();
 			for(int i=0;i<players.size();i++){
 				if(!players.elementAt(i).getNickName().equals(hitter_nickName)){
@@ -122,16 +114,14 @@ public class connectThread extends Thread
 				}
 			}
 
-
 		}
-
+		/*********packet contains a disconnect from server request******************/
 		else if(packet.isDisconnect()){
 			System.out.println("byeeeeeeeee");
 			server.playerDisconnected(packet.getNickName());
-			Main.server.getServerLogs().add(packet.getNickName()+" has just disconnected!");
-			Main.server.getPanel().update();
-			//this.player.getSocket().close();
+			server.addToServerLog(packet.getNickName()+" has just disconnected!");
 		}
+		/*********packet contains a request for game list******************/
 		else if(packet.isGetGamesList()){
 			GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList,"",-1);
 			gamesListPacket.setGamesList(Main.server.getGamesIDs());
@@ -142,39 +132,43 @@ public class connectThread extends Thread
 			t.start();
 
 		}
+		/*********packet is a test packet******************/
 		else if(packet.isTest()){
 			GamePacket test_packet=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.testPacket,"",-1);
 			test_packet.setGamesList(Main.server.getGamesIDs());
 
-			Main.server.getServerLogs().add("test packet detected");
-			Main.server.getPanel().update();
+			server.addToServerLog("test packet detected");
+
 			//writing game List to client
 			SendPacketThread t=new SendPacketThread(test_packet,server.getPlayerByIP(IPAddress));
 			t.start();
 
 		}
+		/*********packet contains a request to join a game******************/
 		else if(packet.isJoinAGame()){
 			server.addPlayerToGame(server.getPlayerByNickName(packet.getNickName()), packet.getGameName(),packet.getTeam());
 			//sending ACK:
 			GamePacket joinGamePacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.joinGame,packet.getGameName(),-1);
 			joinGamePacket.setTeam(packet.getTeam());
-			Main.server.getPanel().update();
+			server.updatePanel();
 			SendPacketThread t=new SendPacketThread(joinGamePacket,server.getPlayerByIP(IPAddress));
 			t.start();
 		}
+		/*********packet contains a request to create new game at the server******************/
 		else if(packet.isCreateNewGame()){
 			server.addGame(new Game(packet.getGameName()));
-			Main.server.getServerLogs().add("new game: "+packet.getGameName()+"has created by: "+packet.getNickName());
-			Main.server.getPanel().update();
-			
-			
+			server.addToServerLog("new game: "+packet.getGameName()+"has created by: "+packet.getNickName());
+
+
+
 			//sending new game list
 			GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList,"",-1);
 			gamesListPacket.setGamesList(Main.server.getGamesIDs());
 			SendPacketThread t=new SendPacketThread(gamesListPacket,server.getPlayerByIP(IPAddress));
 			t.start();
-			
+
 		}
+		/*********packet contains a request for getting the info about a game******************/
 		if(packet.isGetGameInfo()){
 			GamePacket gamesInfoPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGameInfo,"",-1);
 			Game game=Main.server.getGameByName(packet.getGameName());
@@ -186,9 +180,10 @@ public class connectThread extends Thread
 			SendPacketThread t=new SendPacketThread(gamesInfoPacket,server.getPlayerByIP(IPAddress));
 			t.start();
 		}
+		/*********packet contains a request to quit a game******************/
 		if(packet.isQuitGame()){
-			Main.server.quitGame(packet.getNickName(), packet.getGameName());
-			Main.server.getPanel().update();
+			server.quitGame(packet.getNickName(), packet.getGameName());
+			server.updatePanel();	
 		}
 
 

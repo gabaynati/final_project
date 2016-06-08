@@ -27,10 +27,9 @@ public class Main {
 	
 
 		j.add(server.getPanel());
-		j.setSize(822, 973);
+		j.setSize(840, 973);
 		j.setVisible(true);
 		j.show();
-		//serverLogs.add("server started");
 
 
 		try
@@ -42,29 +41,6 @@ public class Main {
 		{
 			e.printStackTrace();
 		}
-
-
-		
-		
-		
-/*
-		Socket sock = new Socket();
-		game.addPlayer(new Player(sock,"nati"));
-		game.addPlayer(new Player(sock,"gili"));
-		
-		System.out.println(game.getSocketByNickName("gili").toString());
-		
-		
-		
-		try {
-			Main.game.addPlayer(new Player(Inet4Address.getLocalHost(), "fdfdfd"));
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		 */
-		//gameDB.connect();
-		//System.out.println(gameDB.isExists("natdfdfgf"));
 	}
 	
 

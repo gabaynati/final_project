@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +27,8 @@ public class registerActivity extends Activity {
 	TextView textResponse;
 	EditText editTextEmail, editTextNickName,editTextPassword; 
 	Button buttonRegister;
-
+	ActivityAnimation anim;
+	ImageView background;
 
 
 	@Override
@@ -35,14 +37,14 @@ public class registerActivity extends Activity {
 
 		setContentView(R.layout.register_activity);
 
-
+		background=(ImageView)findViewById(R.id.imageView);
 		buttonRegister = (Button)findViewById(R.id.register);
 		textResponse = (TextView)findViewById(R.id.response);
 		editTextNickName=(EditText)findViewById(R.id.nickname);
 		editTextPassword=(EditText)findViewById(R.id.password);
 		editTextEmail=(EditText)findViewById(R.id.email);
 		buttonRegister.setOnClickListener(buttonRegisterOnClickListener);
-
+		anim=new ActivityAnimation(getApplicationContext());
 	}
 	//connect button onClick method
 	OnClickListener buttonRegisterOnClickListener = new OnClickListener(){
@@ -58,7 +60,7 @@ public class registerActivity extends Activity {
 				textResponse.setText("You must fill all fields!");
 				return;
 			}
-		
+
 
 			//checking if user already exists:
 			String res=GameDB.isExists(nickname, password);
@@ -73,6 +75,11 @@ public class registerActivity extends Activity {
 			}
 		}};
 
+		@Override
+		protected void onResume(){
+			super.onResume();
+			anim.blink(background);
+		}
 
 
 

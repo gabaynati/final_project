@@ -11,6 +11,8 @@ public class Game {
 	private int team1_numOfPlayers=0,team2_numOfPlayers=0;
 	private String gameName;
 	private Vector<Player> players;
+	
+	/*********Constructor*****************************************************/
 	public Game(String gameName){
 		players=new Vector<Player>();
 		team1=new Team();
@@ -18,18 +20,21 @@ public class Game {
 		this.gameName=gameName;
 
 	}
-
+	/*********method returns this game name*****************************************************/
 	public String getGameName(){
 		return this.gameName;
 	}
+	/*********method that add a player to team1*****************************************************/
 	public void addPlayerToTeam1(Player player){
 		player.setTeam(team1);
 		team1_numOfPlayers++;
 	}
+	/*********method that add a player to team2*****************************************************/
 	public void addPlayerToTeam2(Player player){
 		player.setTeam(team2);
 		team2_numOfPlayers++;
 	}
+	/*********method returns whether a player is connected to this game*****************************************************/
 	public boolean isConnected(String playerNickname){
 		for(int i=0;i<players.size();i++)
 			if(players.elementAt(i).getNickName().equals(playerNickname))
@@ -39,12 +44,7 @@ public class Game {
 
 
 	}
-
-
-	/*
-	public Player getPlayerByNickName(String player_nickname){
-
-	}*/
+	/*********method that removes a player from the server*****************************************************/	
 	public void playerDisconnected(String player_nickname){
 		//removing player
 		for(int i=0;i<players.size();i++)
@@ -57,6 +57,7 @@ public class Game {
 			}
 
 	}
+	/*********method that adds a player to this game*****************************************************/
 	public void addPlayer(Player player, int team){
 		player.setCurrentGame(this);
 		if(!isConnected(player.getNickName())){
@@ -70,6 +71,7 @@ public class Game {
 
 		}
 	}
+	/*********method that removes a player from the game*****************************************************/	
 	public void quitGame(String player){
 		for(int i=0;i<players.size();i++){
 			if(players.elementAt(i).getNickName().equals(player)){
@@ -77,12 +79,7 @@ public class Game {
 			}
 		}
 	}
-	public String toString(){
-		String str="";
-		str+=team1.toString()+"\n"+team2.toString();
-		return str;
-
-	}
+	/*********method that returns team1 players*****************************************************/	
 	public Vector<Player> getTeam1Players(){
 		Vector<Player> team1Players=new Vector<Player>();
 		for(int i=0;i<players.size();i++)
@@ -90,6 +87,7 @@ public class Game {
 				team1Players.add(players.elementAt(i));
 		return team1Players;
 	}
+	/*********method that returns team2 players*****************************************************/	
 	public Vector<Player> getTeam2Players(){
 		Vector<Player> team2Players=new Vector<Player>();
 		for(int i=0;i<players.size();i++)
@@ -99,6 +97,7 @@ public class Game {
 
 
 	}
+	/*********method that returns team1 players nicknames*****************************************************/	
 	public Vector<String> getTeam1PlayersNickNames(){
 		Vector<String> team1Players=new Vector<String>();
 		for(int i=0;i<players.size();i++)
@@ -106,6 +105,7 @@ public class Game {
 				team1Players.add(players.elementAt(i).getNickName());
 		return team1Players;
 	}
+	/*********method that returns team1 players*****************************************************/	
 	public Vector<String> getTeam2PlayersNickNames(){
 		Vector<String> team2Players=new Vector<String>();
 		for(int i=0;i<players.size();i++)
@@ -113,29 +113,14 @@ public class Game {
 				team2Players.add(players.elementAt(i).getNickName());
 		return team2Players;
 	}
-
-
-
-
+	/*********method that prints hit event info*****************************************************/	
 	public String Hit(String Hitman_nickName){
-		//		InetAddress hitman_address=getIPByNickName(Hitman_nickName);
-		//		InetAddress injured_address=getIPByNickName(injured_nickName);
-
 		String print="";
-		//		if(hitman_address!=null && injured_address!=null)
-		//			print="hit detected:\n"+Hitman_nickName +" shot "+injured_nickName;
-		//		else
 		print="hit detected";
 		return print;
 
 	}
 
 
-	private InetAddress getIPByNickName(String player_nickName) {
-		for(int i=0;i<players.size();i++)
-			if(players.elementAt(i).getNickName().equals(player_nickName))
-				return players.elementAt(i).getIP();
 
-		return null;
-	}
 }

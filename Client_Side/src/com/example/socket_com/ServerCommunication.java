@@ -56,7 +56,7 @@ public class ServerCommunication {
 
 
 
-
+	/*********constructor********************************************************/
 	public ServerCommunication(){
 		try {
 			serverIP=InetAddress.getByName(MainActivity.serverIP);
@@ -67,10 +67,11 @@ public class ServerCommunication {
 
 
 	}
+	/*****************************************************************/
 
 
 
-
+	/************method that sends a packet via socket*****************************************************/
 	private String writePacket(GamePacket packet){
 		String response="true";
 
@@ -93,6 +94,7 @@ public class ServerCommunication {
 		//		}
 		return response;
 	}
+	/*****************************************************************/
 
 
 
@@ -591,4 +593,6 @@ public class ServerCommunication {
 		return result;	
 		
 	}
+	/*****************************************************************/
+
 }

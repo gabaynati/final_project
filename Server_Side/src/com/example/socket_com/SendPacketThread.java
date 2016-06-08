@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 public class SendPacketThread extends Thread  {
 	private GamePacket packet;
 	private Player player;
+	/*********Constructor*****************************************************/	
 	public SendPacketThread(GamePacket packet,Player player){
 		this.packet=packet;
 		this.player=player;
@@ -24,9 +25,7 @@ public class SendPacketThread extends Thread  {
 			res=writePacket(this.packet);
 
 	}
-
-
-	//this method is used to prevent two thread from writing to the socket simultaneously.
+	/*********method that sends a packet via the socket*****************************************************/	
 	private String writePacket(GamePacket packet){
 		String response="true";
 		try{

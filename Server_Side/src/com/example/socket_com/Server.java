@@ -16,6 +16,9 @@ public class Server {
 	private  Vector<String> serverLogs;
 	private Vector<Player> players;
 	public static int serverPort;
+	
+	
+	/*********constructor*****************************************************/	
 	public Server(int serverPort){
 
 		
@@ -37,22 +40,12 @@ public class Server {
 	
 
 		addGame(game1);
-		addGame(new Game("game 2"));
-		addGame(new Game("game 3"));
-		addGame(new Game("game 4"));
-		addGame(new Game("game 5"));
-		addGame(new Game("game 6"));
-		addGame(new Game("game 7"));
-		addGame(new Game("game 8"));
-		addGame(new Game("game 9"));
-		addGame(new Game("game 10"));
-		addGame(new Game("game 11"));
-		addGame(new Game("game 12"));
-		addGame(new Game("game 13"));
-		addGame(new Game("game 14"));
-		addGame(new Game("game 15"));
+		for(int i=0;i<10;i++){
+			addGame(new Game("game "+ i));
+		}
 		this.panel=new ServerInterface(this);
 	}
+	/*********method that adds a player to the server*****************************************************/	
 	public boolean addPlayer(Player player){
 		for (int i=0;i<players.size();i++)
 			if(player.getNickName().equals(players.elementAt(i).getNickName()))
@@ -61,6 +54,7 @@ public class Server {
 		return true;
 
 	}
+	/*********method returns whether a player is connected to ther server*****************************************************/	
 	public boolean isPlayerConnected(String player){
 		for (int i=0;i<players.size();i++)
 			if(player.equals(players.elementAt(i).getNickName()))
@@ -68,6 +62,7 @@ public class Server {
 		return false;
 
 	}
+	/*********method that adds new game to the server*****************************************************/	
 	public boolean addGame(Game game){
 		for(int i=0;i<games.size();i++)
 			if(games.elementAt(i).getGameName().equals(game.getGameName()))
@@ -76,6 +71,7 @@ public class Server {
 		this.games.add(game);
 		return true;
 	}
+	/*********method removes a player from the server*****************************************************/	
 	public void playerDisconnected(String player_nickname){
 		for (int i=0;i<players.size();i++)
 			if(player_nickname.equals(players.elementAt(i).getNickName())){
@@ -83,10 +79,8 @@ public class Server {
 					players.elementAt(i).getCurrentGame().playerDisconnected(player_nickname);
 				players.removeElementAt(i);
 			}
-
-
 	}
-	
+	/*********method that remove a player from a game*****************************************************/	
 	public void quitGame(String player_nickname,String GameName){
 		getGameByName(GameName).quitGame(player_nickname);
 		for(int i=0;i<players.size();i++){
@@ -95,13 +89,7 @@ public class Server {
 			}
 		}
 	}
-	public int getServerPort(){
-		return this.serverPort;
-	}
-	//getters
-	public Vector<Game> getGames() {
-		return games;
-	}
+	/*********method that adds a player to a game*****************************************************/	
 	public void addPlayerToGame(Player player,String gameName,int team){
 		if(isPlayerJoinedAGame(player))
 			return;
@@ -116,13 +104,7 @@ public class Server {
 		return false;
 
 	}
-	public Vector<String> getGamesIDs(){
-		Vector<String> gamesIDs=new Vector<String>();
-		for(int i=0;i<games.size();i++)
-			gamesIDs.add(games.elementAt(i).getGameName());
-		return gamesIDs;
-
-	}
+	/*********method that returns Game object by its name field*****************************************************/	
 	public Game getGameByName(String gameName){
 		for(int i=0;i<games.size();i++){
 			if(games.elementAt(i).getGameName().equals(gameName))
@@ -130,24 +112,23 @@ public class Server {
 		}
 		return null;
 	}
-	public ServerInterface getPanel() {
-		return panel;
-	}
-
-	public Vector<String> getServerLogs() {
-		return serverLogs;
-	}
-	public void addToServer(String str){
-		this.serverLogs.addElement(str);
+	/*********method that adds a new log to the server log*****************************************************/	
+	public void addToServerLog(String str){
+		if(serverLogs.size()==20){
+			serverLogs.removeAllElements();
+			this.serverLogs.add("  ");
+		}
+		
+		this.serverLogs.add(str);
 		this.panel.update();
 	}
-
-	public Vector<Player> getPlayers(){
-		return this.players;
+	/*********method that updates the panel*****************************************************/	
+	public void updatePanel(){
+		this.panel.update();
 	}
+	/*********method that displays server info*****************************************************/	
 	public void displayServerInformation(int port){
 		serverLogs.add("Server started!");
-		//serverLogs.add("server startedgffffffffffffffggfgfffffffffffffffffffffff");
 
 
 		//getting the public ip of the server
@@ -166,23 +147,50 @@ public class Server {
 		}
 
 	}
+	/*********method that returns player IP by its name*****************************************************/	
 	public InetAddress getPlayerIPByNickName(String nickName) {
 		for (int i=0;i<players.size();i++)
 			if(nickName.equals(players.elementAt(i).getNickName()))
 				return players.elementAt(i).getIP();
 		return null;
 	}
+	/*********method that returns player by its nickname*****************************************************/	
 	public Player getPlayerByNickName(String nickName) {
 		for (int i=0;i<players.size();i++)
 			if(nickName.equals(players.elementAt(i).getNickName()))
 				return players.elementAt(i);
 		return null;
 	}
+	/*********method that returns a player's object by its IP*****************************************************/	
 	public Player getPlayerByIP(InetAddress player_IP) {
 		for (int i=0;i<players.size();i++)
 			if(player_IP.equals(players.elementAt(i).getIP()))
 				return players.elementAt(i);
 		return null;
 	}
+	/*********Getters & Setters*****************************************************/	
+	public int getServerPort(){
+		return this.serverPort;
+	}
+	public Vector<Game> getGames() {
+		return games;
+	}
+	public Vector<String> getGamesIDs(){
+		Vector<String> gamesIDs=new Vector<String>();
+		for(int i=0;i<games.size();i++)
+			gamesIDs.add(games.elementAt(i).getGameName());
+		return gamesIDs;
 
+	}
+	public ServerInterface getPanel() {
+		return panel;
+	}
+	public Vector<String> getServerLogs() {
+		return serverLogs;
+	}
+	public Vector<Player> getPlayers(){
+		return this.players;
+	}
+	
+	
 }

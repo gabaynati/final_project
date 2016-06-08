@@ -20,6 +20,8 @@ public class Player {
 	private int ammunition;
 	private Team team;
 	private Game currentGame=null;
+	
+	/*********Constructor*****************************************************/	
 	public Player(InetAddress ipAddr,int port,String nickName){
 		this.ipAddr=ipAddr;
 		this.port=port;
@@ -30,8 +32,7 @@ public class Player {
 		ammunition=30;
 
 	}
-
-
+	/*********Getters and Setters*****************************************************/	
 	public InetAddress getIP(){
 		return this.ipAddr;
 	}
@@ -83,7 +84,6 @@ public class Player {
 	public void setCurrentGame(Game currentGame) {
 		this.currentGame = currentGame;
 	}
-
 	public int getPort() {
 		return this.port;
 		// TODO Auto-generated method stub

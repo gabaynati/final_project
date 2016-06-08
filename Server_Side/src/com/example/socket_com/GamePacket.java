@@ -4,6 +4,8 @@ package com.example.socket_com;
 
 import java.io.Serializable;
 import java.util.Vector;
+
+//this class defined a packet Object that exchanges information between the server and the clients
 public class GamePacket implements Serializable{
 
 	/**
@@ -23,6 +25,8 @@ public class GamePacket implements Serializable{
 	private float azimuth;
 	public float latitude, longitude;
 	
+	
+	/*********constructor*****************************************************/		
 	public GamePacket(String nickName,String password,final int packetType,String gameName,int hitArea){
 		this.packetType=packetType;
 		this.nickName=nickName;
@@ -31,12 +35,11 @@ public class GamePacket implements Serializable{
 		this.hitArea=hitArea;
 		
 	}
-	
+	/*********Getters and Setters*****************************************************/	
 	public void setGPS(float latitude, float longitude){
 		this.latitude=latitude;
 		this.longitude=longitude;
 	}
-	
 	public Vector<String> getTeam1(){
 		return this.gameTeam1Players;
 	}
@@ -73,38 +76,7 @@ public class GamePacket implements Serializable{
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-
-	public boolean isHit() {
-		return this.packetType==hit;
-	}
-	public boolean isTest() {
-		return this.packetType==testPacket;
-	}
-	
-	public boolean isConnect() {
-		return this.packetType==connect;
-	}
-	public boolean isGetGamesList(){
-		return this.packetType==getGamesList;
-	}
-	public boolean isDisconnect(){
-		return this.packetType==disconnect;
-	}
-	public boolean isJoinAGame(){
-		return this.packetType==joinGame;
-	}
-	public boolean isCreateNewGame(){
-		return this.packetType==createGame;
-	}
-	public boolean isGetGameInfo(){
-		return this.packetType==getGameInfo;
-	}
-	public boolean isQuitGame(){
-		return this.packetType==quitGame;
-	}
 	public int getType() {
-		// TODO Auto-generated method stub
 		return this.packetType;
 	}
 	public int getPlayerPort() {
@@ -137,4 +109,37 @@ public class GamePacket implements Serializable{
 	public void setLongitude(float longitude) {
 		this.longitude = longitude;
 	}
+	
+	
+	
+	/*********method that checks the packet type*****************************************************/	
+	public boolean isHit() {
+		return this.packetType==hit;
+	}
+	public boolean isTest() {
+		return this.packetType==testPacket;
+	}
+	
+	public boolean isConnect() {
+		return this.packetType==connect;
+	}
+	public boolean isGetGamesList(){
+		return this.packetType==getGamesList;
+	}
+	public boolean isDisconnect(){
+		return this.packetType==disconnect;
+	}
+	public boolean isJoinAGame(){
+		return this.packetType==joinGame;
+	}
+	public boolean isCreateNewGame(){
+		return this.packetType==createGame;
+	}
+	public boolean isGetGameInfo(){
+		return this.packetType==getGameInfo;
+	}
+	public boolean isQuitGame(){
+		return this.packetType==quitGame;
+	}
+
 }
