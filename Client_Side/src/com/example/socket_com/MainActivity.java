@@ -34,11 +34,10 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	//*********server configurations****************/
-	public static String serverIP="192.168.1.15";
+	public static String serverIP="192.168.43.191";
 	public static int serverPort=9001;
-	public static int playerPort=9009;
-	public static Player player=new Player("nati","1234");
-	public static String enemy="gili";
+	public static int playerPort=9006;
+	public static Player player=new Player("gili","1234");
 	public static String currentGame=null;
 	public static int team=-1;
 	public static boolean isJoinedAGame=false;
@@ -77,11 +76,11 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.menu_layout);
-		
 
-	
-		
-		
+
+
+
+
 		buttonDeveloperTesting=(Button)findViewById(R.id.testing);
 		buttonConnectToServer = (Button)findViewById(R.id.connectToServer);
 		buttonRegisterToSystem = (Button)findViewById(R.id.registerToSystem);
@@ -103,23 +102,23 @@ public class MainActivity extends Activity {
 		buttonMyAccount.setOnClickListener(buttonMyAccountOnClickListener);
 		buttonExit.setOnClickListener(buttonExitOnClickListener);
 		buttonDeveloperTesting.setOnClickListener(buttonDeveloperTestingClickListener);
-		
+
 		//playing audio
 		mediaPlayer_buttonClick=MediaPlayer.create(getBaseContext(), R.raw.srr61_shoot_sound);
 		mediaPlayer_background = MediaPlayer.create(getBaseContext(), R.raw.background_audio);
 		mediaPlayer_background.start();
-		
-		
+
+
 		//animation:
 		anim=new ActivityAnimation(getApplicationContext());
-		
+
 	}
 
 
-	
-	
-	
-	
+
+
+
+
 	//********buttons on clicks***********/
 
 
@@ -127,11 +126,11 @@ public class MainActivity extends Activity {
 	OnClickListener buttonLogOutOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
-			
+
 			//playing sound:
 			mediaPlayer_buttonClick.start();
-			
-			
+
+
 			String result="";
 			//disconnecting from server
 			if(!MainActivity.player.isConnectedToServer()){
@@ -172,7 +171,7 @@ public class MainActivity extends Activity {
 	};
 	//exit button onClick method
 	OnClickListener buttonMyAccountOnClickListener = new OnClickListener(){
-		
+
 		@Override
 		public void onClick(View arg0) {
 			//playing sound:
@@ -181,7 +180,7 @@ public class MainActivity extends Activity {
 			startActivity(myAccount);
 		}
 	};
-	
+
 	//join a game button onClick method
 	OnClickListener buttonJoinAGameOnClickListener = new OnClickListener(){
 		@Override
@@ -192,7 +191,7 @@ public class MainActivity extends Activity {
 			startActivity(connectToServer);
 		}
 	};
-	
+
 	//create a game button onClick method
 	OnClickListener buttonCreateAGameOnClickListener = new OnClickListener(){
 		@Override
@@ -232,7 +231,7 @@ public class MainActivity extends Activity {
 	OnClickListener buttonToGameOnClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
-			
+
 			//moving to game interface
 			Intent gameInterface = new Intent("com.example.socket_com.GAMEINTERFACE");
 			startActivity(gameInterface);
@@ -242,7 +241,7 @@ public class MainActivity extends Activity {
 	OnClickListener buttonDeveloperTestingClickListener = new OnClickListener(){
 		@Override
 		public void onClick(View arg0) {
-			
+
 			//moving to game interface
 			Intent intenet = new Intent("com.example.socket_com.TESTING_ACTIVITY");
 			startActivity(intenet);
@@ -278,11 +277,11 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onDestroy(){
-		
+
 		super.onDestroy();
 		//disconnecting from server
 		if(isConnected)
-		server_com.disconnectFromServer();
+			server_com.disconnectFromServer();
 		finish();
 		System.exit(0);
 	}

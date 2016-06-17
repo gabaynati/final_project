@@ -83,7 +83,7 @@ public class Game {
 	public Vector<Player> getTeam1Players(){
 		Vector<Player> team1Players=new Vector<Player>();
 		for(int i=0;i<players.size();i++)
-			if(players.elementAt(i).getTeam().equals(team1))
+			if(players.elementAt(i).getTeam()!=null &&players.elementAt(i).getTeam().equals(team1))
 				team1Players.add(players.elementAt(i));
 		return team1Players;
 	}
@@ -91,7 +91,7 @@ public class Game {
 	public Vector<Player> getTeam2Players(){
 		Vector<Player> team2Players=new Vector<Player>();
 		for(int i=0;i<players.size();i++)
-			if(players.elementAt(i).getTeam().equals(team2))
+			if(players.elementAt(i).getTeam()!=null &&players.elementAt(i).getTeam().equals(team2))
 				team2Players.add(players.elementAt(i));
 		return team2Players;
 
@@ -101,7 +101,7 @@ public class Game {
 	public Vector<String> getTeam1PlayersNickNames(){
 		Vector<String> team1Players=new Vector<String>();
 		for(int i=0;i<players.size();i++)
-			if(players.elementAt(i).getTeam().equals(team1))
+			if(players.elementAt(i).getTeam()!=null &&players.elementAt(i).getTeam().equals(team1))
 				team1Players.add(players.elementAt(i).getNickName());
 		return team1Players;
 	}
@@ -109,7 +109,7 @@ public class Game {
 	public Vector<String> getTeam2PlayersNickNames(){
 		Vector<String> team2Players=new Vector<String>();
 		for(int i=0;i<players.size();i++)
-			if(players.elementAt(i).getTeam().equals(team2))
+			if(players.elementAt(i).getTeam()!=null &&players.elementAt(i).getTeam().equals(team2))
 				team2Players.add(players.elementAt(i).getNickName());
 		return team2Players;
 	}

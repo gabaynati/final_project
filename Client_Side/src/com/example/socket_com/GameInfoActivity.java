@@ -1,5 +1,6 @@
 package com.example.socket_com;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 import com.example.hs.R;
@@ -23,7 +24,7 @@ public class GameInfoActivity extends Activity {
 	Vector<String> team1,team2;
 	Vector<String> tempTeam1,tempTeam2;
 	CustomListAdapter team1_adapter,team2_adapter;
-	updateGameInfo_Thread updateThread=new updateGameInfo_Thread();
+	Vector<updateGameInfo_Thread> updateThreads=new Vector<updateGameInfo_Thread>();
 	boolean isJoinedAGame=false;
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,7 +58,7 @@ public class GameInfoActivity extends Activity {
 			{
 				String value = (String)parent.getItemAtPosition(position);
 				if(value.equals("join team")){
-				
+
 					/*
 					//checking if the player is already on the team:
 					if(team1.contains(MainActivity.player.getNickName())){
@@ -90,7 +91,7 @@ public class GameInfoActivity extends Activity {
 
 					//adding adapters
 					updateLists();
-					*/
+					 */
 				}
 
 			}
@@ -127,7 +128,7 @@ public class GameInfoActivity extends Activity {
 					}	
 					//adding adapters
 					updateLists();
-					*/
+					 */
 				}
 			}
 
@@ -144,7 +145,7 @@ public class GameInfoActivity extends Activity {
 		//setting headers
 		View header1 = (View)getLayoutInflater().inflate(R.layout.listview_header_row, null);
 		( (TextView)header1.findViewById(R.id.txtHeader)).setText("Team 1");
-		
+
 		ls1.addHeaderView(header1,null, false);
 		View header2 = (View)getLayoutInflater().inflate(R.layout.listview_header_row, null);
 		( (TextView)header2.findViewById(R.id.txtHeader)).setText("Team 2");
@@ -174,8 +175,7 @@ public class GameInfoActivity extends Activity {
 
 
 
-		//statring the thread which pulls the server for change in game info
-		updateThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
 
 
 	}
@@ -207,9 +207,9 @@ public class GameInfoActivity extends Activity {
 		}
 
 	}
-	
-	
-	
+
+
+
 	private void updateLists(){
 
 		Vector<String> temp_team1=new Vector<String>();
@@ -239,11 +239,11 @@ public class GameInfoActivity extends Activity {
 		team2_adapter.notifyDataSetChanged();
 
 
-		
+
 
 
 	}
-	
+
 	OnClickListener joinTeam1=new OnClickListener() {
 
 		@Override
@@ -276,7 +276,7 @@ public class GameInfoActivity extends Activity {
 			team2_adapter.notifyDataSetChanged();
 
 		}
-		
+
 	};
 	OnClickListener joinTeam2=new OnClickListener() {
 
@@ -306,7 +306,7 @@ public class GameInfoActivity extends Activity {
 			team2_adapter.notifyDataSetChanged();
 
 		}
-		
+
 	};
 	OnClickListener joinGame=new OnClickListener() {
 
@@ -338,7 +338,7 @@ public class GameInfoActivity extends Activity {
 					Toast.makeText(getBaseContext(), "You need at least two players", Toast.LENGTH_LONG).show();
 
 
-			
+
 
 			}
 			else
@@ -357,11 +357,12 @@ public class GameInfoActivity extends Activity {
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
-		
+
 		//stopping update thread
-		updateThread.cancel(false);
-		
-		
+		stopThreads();
+
+
+
 	}
 	@Override
 	public void onBackPressed() {
@@ -375,24 +376,32 @@ public class GameInfoActivity extends Activity {
 			MainActivity.currentGameTeam2=null;
 
 		}
-		
+
 
 		//stopping update thread
-		updateThread.cancel(false);
-		
+		stopThreads();
+
+
 	}
 	@Override
 	protected void onPause(){
 		super.onPause();
-		
-				
+
+
 	}
 	@Override
 	protected void onResume(){
 		super.onResume();
 
+		//statring the thread which pulls the server for change in game info
+		updateThreads.add((updateGameInfo_Thread) new updateGameInfo_Thread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
 
-				
+		MainActivity.currentGameTeam1=null;
+		MainActivity.currentGameTeam2=null;
+		updateLists();
+
+
+
 	}
 	public  class updateGameInfo_Thread extends AsyncTask<Void, Void, String> {
 		private String response;
@@ -400,7 +409,7 @@ public class GameInfoActivity extends Activity {
 		protected String doInBackground(Void... arg0) {
 			while(true){
 				if(isCancelled())
-	                  break;  
+					break;  
 				getGameInfo();
 				publishProgress();
 				try {
@@ -428,7 +437,11 @@ public class GameInfoActivity extends Activity {
 
 	}
 
-
+	private void stopThreads(){
+		for (updateGameInfo_Thread i : updateThreads){
+			i.cancel(false);
+		}
+	}
 
 
 }

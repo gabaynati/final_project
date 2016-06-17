@@ -16,6 +16,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Timer;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -29,6 +30,7 @@ import org.opencv.video.BackgroundSubtractorMOG2;
 import android.provider.Settings;
 
 import com.example.hs.R;
+import com.example.socket_com.GameInfoActivity.updateGameInfo_Thread;
 import com.example.socket_com.ServerCommunication.MyClientTask_ListenToPakcets;
 import com.example.socket_com.ServerCommunication.MyClientTask_SendPakcet;
 import com.example.socket_com.SingleShotLocationProvider.GPSCoordinates;
@@ -78,7 +80,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener, LocationListener {
-	private HitListener_Thread hitThread;
+	private Vector<HitListener_Thread> hitThreads;
 	private int total_score=20;
 	private Context context;
 	private Logic logic;
@@ -169,9 +171,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		bestProvider = location.getBestProvider(crit, false);
 		//location.requestLocationUpdates(bestProvider, 0, 0, this);
 		/******************************************************************/
-		//running hit event listener:
-		hitThread=new HitListener_Thread();
-		hitThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		hitThreads=new Vector<HitListener_Thread>();
 
 
 		/*tar = new Location("dummyprovider");
@@ -215,7 +215,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		reload = (ImageButton)findViewById(R.id.reload);
 		target = (ImageButton)findViewById(R.id.target);
 		shoot = (ImageButton)findViewById(R.id.shoot);
-		player_life = (ProgressBar)findViewById(R.id.life_progress);
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
 		slesh = (TextView)findViewById(R.id.slesh);
@@ -234,8 +233,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		wl[1] = srr61;
 		player.setWeapons(wl);
 		shootingTime = (player.getWeapons()[player.getCurrentWeapon()]).shootingTime();
-		player_life.setMax(player.getMaxLife());
-		player_life.setProgress(player.getLife());
+
 
 		shoot_animation = (player.getWeapons()[player.getCurrent_weapon()].getAnimation("shoot"));
 		executeAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("choose"));
@@ -337,6 +335,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	@Override
 	public void onResume(){
 		super.onResume();
+		player_life = (ProgressBar)findViewById(R.id.life_progress);
+		player_life.setMax(player.getMaxLife());
+		player_life.setProgress(player.getLife());
+		
+		
+		
+		//running hit event listener:
+		hitThreads.add((HitListener_Thread) new HitListener_Thread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
+		
+		
+		
 		//the following call binds the activity with the opencv service.
 		//the third argument is a listener object that keeps track to the binding process.
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,this , mLoaderCallback);
@@ -363,10 +372,24 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			
 		}
 	}
+	private void stopThreads(){
+		for (HitListener_Thread i : hitThreads){
+			i.cancel(false);
+		}
+	}
 	@Override
 	public void onDestroy(){
 		super.onDestroy();
 		exitGameSettings();
+		stopThreads();
+		
+	}
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		exitGameSettings();
+		stopThreads();
+		finish();
 	}
 	@Override
 	public void onPause(){
@@ -649,17 +672,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				toast.show();					
 
 				//sending GPS to server:
-				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
-					@Override 
-					public void onNewLocationAvailable(GPSCoordinates location) {
-						double latitude = location.latitude;
-						double longitude = location.longitude;
-						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
-						toast.show();
-						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
-					}
-
-				});
+//				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
+//					@Override 
+//					public void onNewLocationAvailable(GPSCoordinates location) {
+//						double latitude = location.latitude;
+//						double longitude = location.longitude;
+//						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
+//						toast.show();
+//						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
+//					}
+//
+//				});
 				MainActivity.server_com.sendHitToServer(hitArea, azimuth, 0, 0);
 
 
@@ -709,7 +732,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			Toast toast = Toast.makeText(getApplicationContext(), "Game Over!", 1000);
 			toast.show();
 			exitGameSettings();
-			hitThread.stop();
+			stopThreads();
 			finish();
 		}
 		else{
@@ -1066,7 +1089,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		else
 			azimuth += 90;
 
-		total_bulletsText.setText(Float.toString(azimuth));
+		//total_bulletsText.setText(Float.toString(azimuth));
 		//sensorTest.setText(Float.toString(azimuth));
 
 		/*azimuth += geoField.getDeclination();
@@ -1149,6 +1172,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		@Override
 		protected String doInBackground(Void... arg0) {
 			while(run){
+				
+				if (isCancelled()) break;
+				
 				//blocking thread until hit packet received from server:
 				try {
 					MainActivity.hitSem.acquire();
@@ -1158,7 +1184,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				}		
 
 
-
+				 
 
 
 				publishProgress();
@@ -1179,35 +1205,35 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		@Override
 		protected void onProgressUpdate(Void... v) {
 			super.onProgressUpdate(v);
-
-			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
-				@Override 
-				public void onNewLocationAvailable(GPSCoordinates location) {
-
-
-					//Gathering this player's GPS and hitter player's GPS which has been received from server:
-					loc = new Location("thisLoc");
-					tar = new Location("hitterLoc");
-
-					loc.setLatitude(location.latitude);
-					loc.setLongitude(location.longitude);
-					tar.setLatitude(MainActivity.hitterLatitude);
-					tar.setLongitude(MainActivity.hitterLongitude);
-
-
-					float deg = logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
-
-					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
-					toast.show();
-
-					//checking if this player got shot by someone.
-					/*if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
-						hitRecvied();
-
-					}*/
-					hitRecvied();
-				}
-			});
+			hitRecvied();
+//			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
+//				@Override 
+//				public void onNewLocationAvailable(GPSCoordinates location) {
+//
+//
+//					//Gathering this player's GPS and hitter player's GPS which has been received from server:
+//					loc = new Location("thisLoc");
+//					tar = new Location("hitterLoc");
+//
+//					loc.setLatitude(location.latitude);
+//					loc.setLongitude(location.longitude);
+//					tar.setLatitude(MainActivity.hitterLatitude);
+//					tar.setLongitude(MainActivity.hitterLongitude);
+//
+//
+//					float deg = logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+//
+//					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
+//					toast.show();
+//
+//					//checking if this player got shot by someone.
+//					/*if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
+//						hitRecvied();
+//
+//					}*/
+//					hitRecvied();
+//				}
+//			});
 		}
 
 		@Override
