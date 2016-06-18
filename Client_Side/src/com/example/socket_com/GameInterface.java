@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -36,6 +37,7 @@ import com.example.socket_com.ServerCommunication.MyClientTask_SendPakcet;
 import com.example.socket_com.SingleShotLocationProvider.GPSCoordinates;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -80,7 +82,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener, LocationListener {
-	private Vector<HitListener_Thread> hitThreads;
+	//private Vector<HitListener_Thread> hitThreads;
 	private int total_score=20;
 	private Context context;
 	private Logic logic;
@@ -99,6 +101,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
 	public static final int UPPER_BODY_HIT_SCORE=50,FACE_HIT_SCORE=100,LOWER_BODY_HIT_SCORE=20;
+	
 
 	/*************Sensors****************/
 	private SensorManager mSensorManager;
@@ -171,7 +174,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		bestProvider = location.getBestProvider(crit, false);
 		//location.requestLocationUpdates(bestProvider, 0, 0, this);
 		/******************************************************************/
-		hitThreads=new Vector<HitListener_Thread>();
+		//hitThreads=new Vector<HitListener_Thread>();
 
 
 		/*tar = new Location("dummyprovider");
@@ -241,9 +244,25 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
 		shoot.setOnTouchListener(this);
+		
+		
+		
+		
+		/***service for listening to hits***/
+		//starting the service
+		Intent msgIntent = new Intent(this, HitService.class);
+		startService(msgIntent);
+
+		//creating a listener to the service 
+        IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_RESP);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        ResponseReceiver reponse = new ResponseReceiver();
+        registerReceiver(reponse, filter);
+        /*****////
 
 	}
 
+	/*****************************************************************/
 
 	//the following object is a listener object that keeps track to the binding process between the activity to the OpenCV service.
 	private BaseLoaderCallback mLoaderCallback=new BaseLoaderCallback(this) {
@@ -329,6 +348,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	};
 
+	/*****************************************************************/
 
 	//the activity must connect to the opencv service at the onResume callback.
 	//onResume is called right after it is started but before it is available to the user.
@@ -342,7 +362,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		
 		
 		//running hit event listener:
-		hitThreads.add((HitListener_Thread) new HitListener_Thread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
+		//hitThreads.add((HitListener_Thread) new HitListener_Thread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
 		
 		
 		
@@ -357,6 +377,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 	}
+	/*****************************************************************/
 
 	//we are overriding the onDestroy callback of the activity ,because we want to disable the camera when the activity is destroyed.
 	public void exitGameSettings(){
@@ -372,25 +393,24 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			
 		}
 	}
-	private void stopThreads(){
-		for (HitListener_Thread i : hitThreads){
-			i.cancel(false);
-		}
-	}
+	/*****************************************************************/
+
 	@Override
 	public void onDestroy(){
 		super.onDestroy();
 		exitGameSettings();
-		stopThreads();
 		
 	}
+	/*****************************************************************/
+
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
 		exitGameSettings();
-		stopThreads();
 		finish();
 	}
+	/*****************************************************************/
+
 	@Override
 	public void onPause(){
 		super.onPause();
@@ -405,6 +425,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	}
 	//##################CvCameraViewListener2 methods########################
+	/*****************************************************************/
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
@@ -413,6 +434,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mRgba = new Mat();
 		logic.setMats(mGray, mRgba);
 	}
+	/*****************************************************************/
 
 	@Override
 	public void onCameraViewStopped() {
@@ -425,6 +447,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//before this callback is called , the data from the camera is ripped out to a CvCameraViewFrame object, which 
 	//is passed into this callback as an argument called inputFrame.
 
+	/*****************************************************************/
 
 	//an object of CvCameraViewFrame is made of two OpenCV Mat Objects.
 	//a Mat Object is just a 2d array containing the data of the frame in two color space : RGB or gray
@@ -506,6 +529,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 
 	////############################################///
+	/*****************************************************************/
 
 	//call when the user touch the screen, implementation of OnTouchListener interface
 	@Override
@@ -605,6 +629,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		return true;
 	}
+	/*****************************************************************/
 
 	//continue shooting while the shooting button is pressing according to the current weapon shooting time  
 	private Runnable shootAction = new Runnable() {
@@ -615,6 +640,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			shootHandler.postDelayed(this, shootingTime);
 		}
 	};
+	/*****************************************************************/
 
 	//call this method when the user shoot
 	private void shoot(){
@@ -695,6 +721,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			setScreen();
 		}
 	}
+	/*****************************************************************/
 
 
 	private void drawHit(){
@@ -725,23 +752,28 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	}
 
+	/*****************************************************************/
 
 	public void hitRecvied(){
+		//player is dead
 		if(player.getLife()<=0){
 			player_life.setProgress(0);
-			Toast toast = Toast.makeText(getApplicationContext(), "Game Over!", 1000);
+			Toast toast = Toast.makeText(getApplicationContext(), "GAME OVER!!!!", 1000);
 			toast.show();
 			exitGameSettings();
-			stopThreads();
 			finish();
 		}
 		else{
 			player_life.setProgress(player.getLife());
 			Toast toast = Toast.makeText(getApplicationContext(), "YOU GOT HITTED!!!!", 1000);
 			toast.show();
+			//starting the server again
+			Intent msgIntent = new Intent(this, HitService.class);
+			startService(msgIntent);
 
 		}
 	}
+	/*****************************************************************/
 
 	//on button click, implementation of OnClickListener interface
 	@Override
@@ -807,7 +839,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		return false;
 	}
-
+	/*****************************************************************/
 
 	//operate the animation parameter anim on img
 	private void setAnimation(String anim){
@@ -844,6 +876,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			someAnimationLoad = false;
 		}
 	}
+	/*****************************************************************/
 
 	//execute the animation parameter anim once
 	private void executeAnimation(AnimationDrawable anim){
@@ -873,7 +906,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		CustomAnimation.start();
 	}
-
+	/*****************************************************************/
 	//execute the animation parameter anim once
 	private void executeReplaceAnimation(AnimationDrawable anim){
 
@@ -906,6 +939,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		CustomAnimation.start();
 	}
+	/*****************************************************************/
 
 	//execute the animation in segment_animation once
 	private void executeSegmentsAnimation(){ 
@@ -924,6 +958,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		AnimationHandler.postDelayed(animationDisplayTask, 0);
 		DrawableHandler.postDelayed(drawableTask, 0);
 	}
+	/*****************************************************************/
 
 	private Runnable animationDisplayTask = new Runnable() {
 		public void run() {          
@@ -963,6 +998,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		}
 	};
+	/*****************************************************************/
 
 	//this runnable task is for keep update the current animation array that run
 	//and clean up the bitmaps that already displayed 
@@ -994,6 +1030,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 		}
 	};
+	/*****************************************************************/
 
 	//this runnable task is for change the animations references that need to execute immediacy
 	//this task on separate thread to not disturb the camera frames continuous
@@ -1017,6 +1054,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 	};
 
+	/*****************************************************************/
 
 	//reload the weapon
 	private void reload(){
@@ -1033,6 +1071,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		sounds_frames = (player.getWeapons()[player.getCurrentWeapon()]).framesToNeedToPlay();
 	}
+	/*****************************************************************/
 
 	//switch to target state and vice versa
 	private void targetState(){
@@ -1055,6 +1094,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 	float[] mGravity;
 	float[] mGeomagnetic;
+	/*****************************************************************/
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
@@ -1108,12 +1148,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
         }*/
 
 	}
+	/*****************************************************************/
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
 
 	}
+	/*****************************************************************/
 
 	@Override
 	public void onLocationChanged(Location location) {
@@ -1142,18 +1184,21 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		total_bulletsText.setText(msg);*/
 	}
+	/*****************************************************************/
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
 
 	}
+	/*****************************************************************/
 
 	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
 
 	}
+	/*****************************************************************/
 
 	@Override
 	public void onProviderDisabled(String provider) {
@@ -1165,82 +1210,95 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 	/*****************************************************************/
-	//this thread used to check if this player got shot by someone
-	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
-		private String response;
-		private boolean run=true;
+//	//this thread used to check if this player got shot by someone
+//	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
+//		private String response;
+//		private boolean run=true;
+//		@Override
+//		protected String doInBackground(Void... arg0) {
+//			while(run){
+//				
+////				if (isCancelled()) break;
+////				
+////				//blocking thread until hit packet received from server:
+////				try {
+////					MainActivity.hitSem.acquire();
+////				} catch (InterruptedException e) {
+////					// TODO Auto-generated catch block
+////					e.printStackTrace();
+////				}		
+////
+////
+////				 
+////
+////
+////				publishProgress();
+//
+//			}
+//			return response;
+//		}
+//
+//
+//
+//		public void stop() {
+//			run=false;
+//			
+//		}
+//
+//
+//
+//		@Override
+//		protected void onProgressUpdate(Void... v) {
+//			super.onProgressUpdate(v);
+//			hitRecvied();
+////			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
+////				@Override 
+////				public void onNewLocationAvailable(GPSCoordinates location) {
+////
+////
+////					//Gathering this player's GPS and hitter player's GPS which has been received from server:
+////					loc = new Location("thisLoc");
+////					tar = new Location("hitterLoc");
+////
+////					loc.setLatitude(location.latitude);
+////					loc.setLongitude(location.longitude);
+////					tar.setLatitude(MainActivity.hitterLatitude);
+////					tar.setLongitude(MainActivity.hitterLongitude);
+////
+////
+////					float deg = logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+////
+////					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
+////					toast.show();
+////
+////					//checking if this player got shot by someone.
+////					/*if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
+////						hitRecvied();
+////
+////					}*/
+////					hitRecvied();
+////				}
+////			});
+//		}
+//
+//		@Override
+//		protected void onPostExecute(String result) {
+//			super.onPostExecute(result);
+//		}
+//
+//	}
+	/*****************************************************************/
+	//this class is a listener to the hit service
+	public class ResponseReceiver extends BroadcastReceiver {
+		  
+		    
+		   public static final String ACTION_RESP = "hit";
+
 		@Override
-		protected String doInBackground(Void... arg0) {
-			while(run){
+		    public void onReceive(Context context, Intent intent) {
+				hitRecvied();
 				
-				if (isCancelled()) break;
-				
-				//blocking thread until hit packet received from server:
-				try {
-					MainActivity.hitSem.acquire();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}		
-
-
-				 
-
-
-				publishProgress();
-
-			}
-			return response;
+		    }
 		}
-
-
-
-		public void stop() {
-			run=false;
-			
-		}
-
-
-
-		@Override
-		protected void onProgressUpdate(Void... v) {
-			super.onProgressUpdate(v);
-			hitRecvied();
-//			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
-//				@Override 
-//				public void onNewLocationAvailable(GPSCoordinates location) {
-//
-//
-//					//Gathering this player's GPS and hitter player's GPS which has been received from server:
-//					loc = new Location("thisLoc");
-//					tar = new Location("hitterLoc");
-//
-//					loc.setLatitude(location.latitude);
-//					loc.setLongitude(location.longitude);
-//					tar.setLatitude(MainActivity.hitterLatitude);
-//					tar.setLongitude(MainActivity.hitterLongitude);
-//
-//
-//					float deg = logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
-//
-//					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
-//					toast.show();
-//
-//					//checking if this player got shot by someone.
-//					/*if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
-//						hitRecvied();
-//
-//					}*/
-//					hitRecvied();
-//				}
-//			});
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-		}
-
-	}
 	/*****************************************************************/
 }

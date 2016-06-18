@@ -40,7 +40,8 @@ public class Logic {
 		if(checkForLowerBody(lowerBodyArrayWhileShoot))
 			return LOWER_BODY_HIT;
 		
-		
+		if(checkForFace(facesArrayWhileShoot))
+			return FACE_HIT;
 		/*
 		if(checkForLowerBody(lowerBodyArrayWhileShoot)){
 			facesArrayWhileShoot = null;
