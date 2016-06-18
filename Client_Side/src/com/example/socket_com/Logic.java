@@ -14,32 +14,32 @@ public class Logic {
 	private JavaCameraView mOpenCvCameraView;
 	private Mat mGray, mRgba;
 	private int rectSize;
-	
-	
+	private float bearing;
+
 	//private Rect[] facesArrayWhileShoot, upperBodyArrayWhileShoot, lowerBodyArrayWhileShoot;
-	
+
 	public Logic(JavaCameraView CameraView){
-		
+
 		this.mOpenCvCameraView = CameraView;
 	}
-	
+
 	public void setMats(Mat mGray, Mat mRgba){
 		this.mGray = mGray;
 		this.mRgba = mRgba;
 	}
-	
+
 	public int getSizeOfRect(){
 		return rectSize;
 	}
 
 	public int isHit(Rect[] facesArrayWhileShoot, Rect[] upperBodyArrayWhileShoot, Rect[] lowerBodyArrayWhileShoot){
 
-			if(checkForUpperBody(upperBodyArrayWhileShoot))
+		if(checkForUpperBody(upperBodyArrayWhileShoot))
 			return UPPER_BODY_HIT;
-		
+
 		if(checkForLowerBody(lowerBodyArrayWhileShoot))
 			return LOWER_BODY_HIT;
-		
+
 		if(checkForFace(facesArrayWhileShoot))
 			return FACE_HIT;
 		/*
@@ -144,25 +144,29 @@ public class Logic {
 		else 
 			return -1;
 	}
-	
+
 	public boolean isInjured(Location myLocation, Location otherLocation, float azimuth){
-		
+
 		//float epsilon = 10;
 		float degree = otherLocation.bearingTo(myLocation);
+		bearing=degree;
 		return Math.abs(degree)>=85 && Math.abs(degree)<=95;
 		//float digression = Math.abs(degree - azimuth);
-		
+
 		//return digression <= epsilon;
 
 	}
-/*	
+	public float getBearing(){
+		return this.bearing;
+	}
+	/*
 	//catch the detection rectangles on current time
 		public void catchRect(Rect[] facesArray, Rect[] upperBodyArray, Rect[] lowerBodyArray){
 
 			//for all faces, only if there is any faces in the current camera frame
 			if(facesArray != null){
 				facesArrayWhileShoot = new Rect[facesArray.length];
-				
+
 				for(int i = 0; i < facesArray.length; i++)
 					facesArrayWhileShoot[i] = new Rect(facesArray[i].tl(), facesArray[i].br());
 			}
@@ -174,7 +178,7 @@ public class Logic {
 				for (int i = 0; i < upperBodyArray.length; i++)
 					upperBodyArrayWhileShoot[i] = new Rect(upperBodyArray[i].tl(), upperBodyArray[i].br());
 			}
-			
+
 			//for all lower bodies, only if there is any upper bodies in the current camera frame
 			if(lowerBodyArray != null){
 				lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];

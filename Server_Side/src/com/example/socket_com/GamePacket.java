@@ -23,7 +23,7 @@ public class GamePacket implements Serializable{
 	private int team;
 	//GPS COORDINATES:
 	private float azimuth;
-	public float latitude, longitude;
+	public double latitude, longitude;
 	
 	
 	/*********constructor*****************************************************/		
@@ -36,9 +36,9 @@ public class GamePacket implements Serializable{
 		
 	}
 	/*********Getters and Setters*****************************************************/	
-	public void setGPS(float latitude, float longitude){
-		this.latitude=latitude;
-		this.longitude=longitude;
+	public void setGPS(double latitude2, double longitude2){
+		this.latitude=latitude2;
+		this.longitude=longitude2;
 	}
 	public Vector<String> getTeam1(){
 		return this.gameTeam1Players;
@@ -97,13 +97,13 @@ public class GamePacket implements Serializable{
 	public void setAzimuth(float azimuth) {
 		this.azimuth = azimuth;
 	}
-	public float getLatitude() {
+	public double getLatitude() {
 		return latitude;
 	}
 	public void setLatitude(float latitude) {
 		this.latitude = latitude;
 	}
-	public float getLongitude() {
+	public double getLongitude() {
 		return longitude;
 	}
 	public void setLongitude(float longitude) {

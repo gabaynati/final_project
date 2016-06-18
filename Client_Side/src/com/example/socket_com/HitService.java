@@ -7,7 +7,9 @@ import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.widget.Toast;
 //this class is a service for listening to hits 
 public class HitService extends IntentService{
@@ -27,48 +29,50 @@ public class HitService extends IntentService{
 			e.printStackTrace();
 		}		
 
-		
-		
+
+
 		SingleShotLocationProvider.requestSingleUpdate(getBaseContext(), new SingleShotLocationProvider.LocationCallback() {
-		Logic logic;
-		@Override 
-		public void onNewLocationAvailable(GPSCoordinates location) {
+			@Override 
+			public void onNewLocationAvailable(GPSCoordinates location) {
 
 
-			//Gathering this player's GPS and hitter player's GPS which has been received from server:
-			Location loc = new Location("thisLoc");
-			Location tar = new Location("hitterLoc");
+				//Gathering this player's GPS and hitter player's GPS which has been received from server:
+				Location loc = new Location("thisLoc");
+				Location tar = new Location("hitterLoc");
 
-			loc.setLatitude(location.latitude);
-			loc.setLongitude(location.longitude);
-			tar.setLatitude(MainActivity.hitterLatitude);
-			tar.setLongitude(MainActivity.hitterLongitude);
+				loc.setLatitude(location.latitude);
+				loc.setLongitude(location.longitude);
+				tar.setLatitude(MainActivity.hitterLatitude);
+				tar.setLongitude(MainActivity.hitterLongitude);
 
-			boolean isHit = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+				boolean isHit = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
 
-//			Toast toast = Toast.makeText(getApplicationContext(), "azim, 10000);
-//			toast.show();
-
-			//checking if this player got shot by someone.
-			if(isHit){
-				//sending message that the player got hit
-				Intent broadcastIntent = new Intent();
-				broadcastIntent.setAction(ResponseReceiver.ACTION_RESP);
-				broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-				sendBroadcast(broadcastIntent);
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(getApplicationContext(), "bearing= " +MainActivity.logic.getBearing(), Toast.LENGTH_LONG).show();
+					}
+				});
+				//checking if this player got shot by someone.
+				if(isHit){
+					//sending message that the player got hit
+					Intent broadcastIntent = new Intent();
+					broadcastIntent.setAction(ResponseReceiver.ACTION_RESP);
+					broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+					sendBroadcast(broadcastIntent);
+				}
 			}
-		}
 
-	
-	});
-		
-	
-		
-		
-		
-		
-		
-		
+
+		});
+
+
+
+
+
+
+
+
 	}
 
 
