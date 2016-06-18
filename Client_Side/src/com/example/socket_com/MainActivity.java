@@ -35,8 +35,8 @@ public class MainActivity extends Activity {
 
 	//*********server configurations****************/
 	public static String serverIP="192.168.1.15";
-	public static int serverPort=9001;
-	public static int playerPort=9004;
+	public static int serverPort=9002;
+	public static int playerPort=9005;
 	public static Player player=new Player("gili","1234");
 	public static String currentGame=null;
 	public static int team=-1;
@@ -52,9 +52,10 @@ public class MainActivity extends Activity {
 	public static Semaphore hitSem=new Semaphore(0);
 	public static boolean flag;
 	public static float hitterAzimuth;
-	public static float hitterLatitude;
-	public static float hitterLongitude;
+	public static double hitterLatitude;
+	public static double hitterLongitude;
 	public static boolean isConnected=false;
+	public static Logic logic;
 
 	//*************************************************/
 

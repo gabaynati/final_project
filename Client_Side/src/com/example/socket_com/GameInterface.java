@@ -85,7 +85,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//private Vector<HitListener_Thread> hitThreads;
 	private int total_score=20;
 	private Context context;
-	private Logic logic;
+	//private MainActivity.logic MainActivity.logic;
 	private final int ramBurden = 5;
 	private FrameLayout frame;
 	private TextView current_bulletsText, total_bulletsText, slesh;
@@ -205,7 +205,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//***************************************///
 
 
-		logic = new Logic(mOpenCvCameraView);
+		MainActivity.logic = new Logic(mOpenCvCameraView);
 
 		touched = false;
 
@@ -432,7 +432,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//Initializing the intermediate Mat object which is in use for frame processing
 		mGray = new Mat();
 		mRgba = new Mat();
-		logic.setMats(mGray, mRgba);
+		MainActivity.logic.setMats(mGray, mRgba);
 	}
 	/*****************************************************************/
 
@@ -457,7 +457,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mRgba=inputFrame.rgba();
 		mGray=inputFrame.gray();
 
-		logic.setMats(mGray, mRgba);
+		MainActivity.logic.setMats(mGray, mRgba);
 		if(!someAnimationRun && touched){
 
 			if (mAbsoluteDetectorSize_lower == 0) {
@@ -654,10 +654,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			player.getWeapons()[player.getCurrentWeapon()].shoot();
 
 			//catch the detection rectangles on shoot time
-			//logic.catchRect();
+			//MainActivity.logic.catchRect();
 
 			//if this player hits someone
-			final int hitArea = logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
+			final int hitArea = MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
 			String hit_area="";
 			switch(hitArea){
 			case Logic.UPPER_BODY_HIT:
@@ -698,18 +698,18 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				toast.show();					
 
 				//sending GPS to server:
-//				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
-//					@Override 
-//					public void onNewLocationAvailable(GPSCoordinates location) {
-//						double latitude = location.latitude;
-//						double longitude = location.longitude;
-//						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
-//						toast.show();
-//						//MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
-//					}
-//
-//				});
-				MainActivity.server_com.sendHitToServer(hitArea, azimuth, 0, 0);
+				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
+					@Override 
+					public void onNewLocationAvailable(GPSCoordinates location) {
+						double latitude = location.latitude;
+						double longitude = location.longitude;
+						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
+						toast.show();
+						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
+					}
+
+				});
+				//MainActivity.server_com.sendHitToServer(hitArea, azimuth, 0, 0);
 
 
 				/**********************************/
@@ -736,7 +736,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		};
 
-		int size = logic.getSizeOfRect();
+		int size = MainActivity.logic.getSizeOfRect();
 		bullet_hit = new ImageView(getApplicationContext());
 		bullet_hit.setImageResource(R.drawable.bullet_hit);
 		bullet_hit.setX(mOpenCvCameraView.getWidth()/2 - bullet_hit.getWidth()/2);
@@ -1266,13 +1266,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 ////					tar.setLongitude(MainActivity.hitterLongitude);
 ////
 ////
-////					float deg = logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+////					float deg = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
 ////
 ////					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
 ////					toast.show();
 ////
 ////					//checking if this player got shot by someone.
-////					/*if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
+////					/*if(MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
 ////						hitRecvied();
 ////
 ////					}*/

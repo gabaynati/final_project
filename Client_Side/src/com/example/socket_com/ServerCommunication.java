@@ -447,7 +447,7 @@ public class ServerCommunication {
 	 * @param f 
 	 * @param d 
 	 * @param azimut ***************************************************************/
-	public String sendHitToServer(int hitArea, float azimuth, float latitude, float longitude) {
+	public String sendHitToServer(int hitArea, float azimuth, double latitude, double longitude) {
 		MyClientTask_SendPakcet sendHit=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
@@ -593,6 +593,5 @@ public class ServerCommunication {
 		return result;	
 		
 	}
-	/*****************************************************************/
 
 }

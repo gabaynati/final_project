@@ -145,11 +145,11 @@ public class Logic {
 			return -1;
 	}
 	
-	public float isInjured(Location myLocation, Location otherLocation, float azimuth){
+	public boolean isInjured(Location myLocation, Location otherLocation, float azimuth){
 		
-		float epsilon = 0.5f;
+		//float epsilon = 10;
 		float degree = otherLocation.bearingTo(myLocation);
-		return degree;
+		return Math.abs(degree)>=85 && Math.abs(degree)<=95;
 		//float digression = Math.abs(degree - azimuth);
 		
 		//return digression <= epsilon;

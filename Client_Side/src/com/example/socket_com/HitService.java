@@ -29,45 +29,45 @@ public class HitService extends IntentService{
 
 		
 		
-//		SingleShotLocationProvider.requestSingleUpdate(getBaseContext(), new SingleShotLocationProvider.LocationCallback() {
-//		@Override 
-//		public void onNewLocationAvailable(GPSCoordinates location) {
-//
-//
-//			//Gathering this player's GPS and hitter player's GPS which has been received from server:
-//			loc = new Location("thisLoc");
-//			tar = new Location("hitterLoc");
-//
-//			loc.setLatitude(location.latitude);
-//			loc.setLongitude(location.longitude);
-//			tar.setLatitude(MainActivity.hitterLatitude);
-//			tar.setLongitude(MainActivity.hitterLongitude);
-//
-//
-//			float deg = logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
-//
-//			Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
+		SingleShotLocationProvider.requestSingleUpdate(getBaseContext(), new SingleShotLocationProvider.LocationCallback() {
+		Logic logic;
+		@Override 
+		public void onNewLocationAvailable(GPSCoordinates location) {
+
+
+			//Gathering this player's GPS and hitter player's GPS which has been received from server:
+			Location loc = new Location("thisLoc");
+			Location tar = new Location("hitterLoc");
+
+			loc.setLatitude(location.latitude);
+			loc.setLongitude(location.longitude);
+			tar.setLatitude(MainActivity.hitterLatitude);
+			tar.setLongitude(MainActivity.hitterLongitude);
+
+			boolean isHit = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+
+//			Toast toast = Toast.makeText(getApplicationContext(), "azim, 10000);
 //			toast.show();
-//
-//			//checking if this player got shot by someone.
-//			/*if(logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
-//
-//			}*/
-//		}
-//
-//	
-//	});
+
+			//checking if this player got shot by someone.
+			if(isHit){
+				//sending message that the player got hit
+				Intent broadcastIntent = new Intent();
+				broadcastIntent.setAction(ResponseReceiver.ACTION_RESP);
+				broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+				sendBroadcast(broadcastIntent);
+			}
+		}
+
+	
+	});
 		
 	
 		
 		
 		
 		
-		//sending message that the player got hit
-		Intent broadcastIntent = new Intent();
-		broadcastIntent.setAction(ResponseReceiver.ACTION_RESP);
-		broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-		sendBroadcast(broadcastIntent);
+		
 		
 	}
 
