@@ -189,8 +189,8 @@ public class MainActivity extends Activity {
 		public void onClick(View arg0) {
 			//playing sound:
 			mediaPlayer_buttonClick.start();
-			Intent connectToServer = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
-			startActivity(connectToServer);
+			Intent gameInfo = new Intent("com.example.socket_com.COLORSELECTOR");
+			startActivity(gameInfo);
 		}
 	};
 

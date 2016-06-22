@@ -8,8 +8,8 @@ public class RGB implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private int red, green,blue;
-	public RGB(int red, int green, int blue){
+	private double red, green,blue;
+	public RGB(double red, double green, double blue){
 		this.setRed(red);
 		this.setBlue(blue);
 		this.setGreen(green);
@@ -17,22 +17,28 @@ public class RGB implements Serializable {
 	//	public int getColorInt(){ 
 	//		return Color.
 	//	}
-	public int getGreen() {
+	public double getGreen() {
 		return green;
 	}
-	public void setGreen(int green) {
+	public void setGreen(double green) {
 		this.green = green;
 	}
-	public int getBlue() {
+	public double getBlue() {
 		return blue;
 	}
-	public void setBlue(int blue) {
+	public void setBlue(double blue) {
 		this.blue = blue;
 	}
-	public int getRed() {
+	public double getRed() {
 		return red;
 	}
-	public void setRed(int red) {
+	public void setRed(double red) {
 		this.red = red;
+	}
+	@Override
+	public String toString(){
+		String str="";
+		str="red: "+this.red+"\n"+"blue: "+this.blue+"\n"+"green: "+this.green+"\n";
+		return str;
 	}
 }

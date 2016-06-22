@@ -148,6 +148,8 @@ public class connectThread extends Thread
 		}
 		/*********packet contains a request to join a game******************/
 		else if(packet.isJoinAGame()){
+			System.out.println(packet.getPlayerColor().toString());
+
 			server.addPlayerToGame(server.getPlayerByNickName(packet.getNickName()), packet.getGameName(),packet.getTeam());
 			//sending ACK:
 			GamePacket joinGamePacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.joinGame,packet.getGameName(),-1);

@@ -318,7 +318,7 @@ public class GameInfoActivity extends Activity {
 
 			//joining the game
 			//Toast.makeText(getBaseContext(), "please wait...", Toast.LENGTH_LONG).show();
-			MainActivity.server_com.JoinGame(MainActivity.currentGame, MainActivity.team);
+			MainActivity.server_com.JoinGame(MainActivity.currentGame, MainActivity.team,MainActivity.player.getPlayerColor());
 			try {
 				MainActivity.joinGameSem.acquire();
 			} catch (InterruptedException e) {

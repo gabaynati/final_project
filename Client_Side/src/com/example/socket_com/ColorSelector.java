@@ -17,6 +17,7 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
 import com.example.hs.R;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -212,7 +213,9 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 			 *   G - mBlobColorRgba.val[1]
 			 *   B - mBlobColorRgba.val[2]
 			 */
-
+			MainActivity.player.setPlayerColor(new RGB(mBlobColorRgba.val[0], mBlobColorRgba.val[1], mBlobColorRgba.val[2]));
+			Intent gameInfo = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
+			startActivity(gameInfo);
 			break;
 		}
 	}

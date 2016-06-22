@@ -338,10 +338,11 @@ public class ServerCommunication {
 
 
 	/*****************************************************************/
-	public String JoinGame(String gameName,int team){
+	public String JoinGame(String gameName,int team,RGB playerColor){
 		MyClientTask_SendPakcet joinGame_thread=new MyClientTask_SendPakcet();
 		GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.joinGame, gameName,-1);
 		packet.setTeam(team);
+		packet.setPlayerColor(playerColor);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {

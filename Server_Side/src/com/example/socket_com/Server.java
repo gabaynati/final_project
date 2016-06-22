@@ -28,10 +28,10 @@ public class Server {
 		this.serverLogs=new Vector<String>();
 		displayServerInformation(serverPort);
 		this.serverPort=serverPort;
-//		Game game1=new Game("game 1",3,new GPSLocation(0, 0));
+		Game game1=new Game("game 1",3,new GPSLocation(0, 0));
 //		try {
-//			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "David",new GPSLocation(0, 0)),1);
-//			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "Nadav",new GPSLocation(0, 0)),2);
+////			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "David",new GPSLocation(0, 0)),1);
+////			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "Nadav",new GPSLocation(0, 0)),2);
 //		} catch (UnknownHostException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
@@ -39,7 +39,7 @@ public class Server {
 
 
 
-	//	addGame(game1);
+		addGame(game1);
 //		for(int i=0;i<10;i++){
 //			addGame(new Game("game "+ i,4));
 //		}
