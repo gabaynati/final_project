@@ -22,7 +22,7 @@ public class Player {
 	private String nickName;
 	private String password;
 	private boolean isConnectedToServer=false;
-
+	private RGB playerColor;
 	public Player(Weapon[] weaponsList){
 
 		life = maxLife;
@@ -143,5 +143,13 @@ public class Player {
 
 	public String getPassword() {
 		return this.password;
+	}
+
+	public RGB getPlayerColor() {
+		return playerColor;
+	}
+
+	public void setPlayerColor(RGB playerColor) {
+		this.playerColor = playerColor;
 	}
 }

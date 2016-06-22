@@ -82,7 +82,7 @@ public class connectThread extends Thread
 			if(!server.isPlayerConnected(packet.getNickName())){
 
 				//creating new Player:
-				Player newPlayer=new Player(IPAddress,packet.getPlayerPort(),"",packet.getPlayer_loc());
+				Player newPlayer=new Player(IPAddress,packet.getPlayerPort(),packet.getNickName(),packet.getPlayer_loc(),packet.getPlayerColor());
 
 				System.out.println("new player ,port=:" + packet.getPlayerPort());
 				System.out.println("gps ,lat=:" + packet.getPlayer_loc().getLatitude());

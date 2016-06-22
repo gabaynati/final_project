@@ -17,6 +17,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -55,6 +56,7 @@ public class MainActivity extends Activity {
 	public static boolean isConnected=false;
 	public static Logic logic;
 	public static GPSLocation loc;
+	public static Vector<RGB> currentGamePlayersColors;
 
 	//*************************************************/
 

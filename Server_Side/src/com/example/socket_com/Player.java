@@ -16,6 +16,7 @@ public class Player {
 	private Team team;
 	private Game currentGame=null;
 	private GPSLocation loc;
+	private RGB playerColor;
 	public GPSLocation getLoc() {
 		return loc;
 	}
@@ -23,12 +24,13 @@ public class Player {
 		this.loc = loc;
 	}
 	/*********Constructor*****************************************************/	
-	public Player(InetAddress ipAddr,int port,String nickName,GPSLocation loc){
+	public Player(InetAddress ipAddr,int port,String nickName,GPSLocation loc,RGB color){
 		this.ipAddr=ipAddr;
 		this.port=port;
 	
 		this.nickName=nickName;
 		this.loc=loc;
+		this.playerColor=color;
 
 	}
 	/*********Getters and Setters*****************************************************/	
@@ -64,6 +66,12 @@ public class Player {
 	public int getPort() {
 		return this.port;
 		// TODO Auto-generated method stub
+	}
+	public RGB getPlayerColor() {
+		return playerColor;
+	}
+	public void setPlayerColor(RGB playerColor) {
+		this.playerColor = playerColor;
 	}
 
 

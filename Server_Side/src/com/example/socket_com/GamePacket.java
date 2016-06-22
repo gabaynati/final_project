@@ -22,7 +22,7 @@ public class GamePacket implements Serializable{
 	private Vector<String> gameTeam1Players,gameTeam2Players;
 	private int hitArea;
 	private int team;
-
+	private RGB playerColor;
 	private GPSLocation player_loc,game_loc;
 	
 
@@ -137,6 +137,12 @@ public class GamePacket implements Serializable{
 	}
 	public void setGame_loc(GPSLocation game_loc) {
 		this.game_loc = game_loc;
+	}
+	public RGB getPlayerColor() {
+		return playerColor;
+	}
+	public void setPlayerColor(RGB playerColor) {
+		this.playerColor = playerColor;
 	}
 
 }
