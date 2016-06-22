@@ -403,7 +403,7 @@ public class GameInfoActivity extends Activity {
 
 
 	}
-	public  class updateGameInfo_Thread extends AsyncTask<Void, Void, String> {
+	public class updateGameInfo_Thread extends AsyncTask<Void, Void, String> {
 		private String response;
 		@Override
 		protected String doInBackground(Void... arg0) {

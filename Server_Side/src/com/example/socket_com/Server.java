@@ -16,33 +16,33 @@ public class Server {
 	private  Vector<String> serverLogs;
 	private Vector<Player> players;
 	public static int serverPort;
-	
-	
+	public static final int gameMaxRadius=1000;
+
 	/*********constructor*****************************************************/	
 	public Server(int serverPort){
 
-		
-		
+
+
 		this.players=new Vector<Player>();
 		this.games=new Vector<Game>();
 		this.serverLogs=new Vector<String>();
 		displayServerInformation(serverPort);
 		this.serverPort=serverPort;
-		Game game1=new Game("game 1");
+		Game game1=new Game("game 1",3,new GPSLocation(0, 0));
 		try {
-			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "David"),1);
-			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "Nadav"),2);
+			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "David",new GPSLocation(0, 0)),1);
+			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "Nadav",new GPSLocation(0, 0)),2);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
-	
+
+
 
 		addGame(game1);
-		for(int i=0;i<10;i++){
-			addGame(new Game("game "+ i));
-		}
+//		for(int i=0;i<10;i++){
+//			addGame(new Game("game "+ i,4));
+//		}
 		this.panel=new ServerInterface(this);
 	}
 	/*********method that adds a player to the server*****************************************************/	
@@ -118,7 +118,7 @@ public class Server {
 			serverLogs.removeAllElements();
 			this.serverLogs.add("  ");
 		}
-		
+
 		this.serverLogs.add(str);
 		this.panel.update();
 	}
@@ -175,10 +175,20 @@ public class Server {
 	public Vector<Game> getGames() {
 		return games;
 	}
-	public Vector<String> getGamesIDs(){
+	public Vector<Game> getGamesByLocation(GPSLocation Playerloc) {
+		Vector<Game> gameByLoc=new Vector<Game>();
+		for(Game i: games){
+			if(isDistanceOKBetweenPlayerToGame(i.getLoc(), Playerloc))
+				gameByLoc.add(i);
+		}
+		return gameByLoc;
+	}
+	public Vector<String> getGamesIDsByLocation(Player player){
+		GPSLocation Playerloc=player.getLoc();
 		Vector<String> gamesIDs=new Vector<String>();
-		for(int i=0;i<games.size();i++)
-			gamesIDs.add(games.elementAt(i).getGameName());
+		for(Game i : games)
+			if(isDistanceOKBetweenPlayerToGame(i.getLoc(), Playerloc))
+				gamesIDs.add(i.getGameName());
 		return gamesIDs;
 
 	}
@@ -191,6 +201,45 @@ public class Server {
 	public Vector<Player> getPlayers(){
 		return this.players;
 	}
-	
-	
+
+
+
+	public boolean isDistanceOKBetweenPlayerToGame(GPSLocation gameLoc,GPSLocation playerLoc){
+
+		return distance(gameLoc,playerLoc)<=gameMaxRadius;
+	}
+
+
+
+	private static double distance(GPSLocation one,GPSLocation two) {
+		double lat1,lon1, lat2, lon2;
+		lat1=one.getLatitude();
+		lon1=one.getLongitude();
+		lat2=two.getLatitude();
+		lon2=two.getLongitude();
+
+		double theta = lon1 - lon2;
+		double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+		dist = Math.acos(dist);
+		dist = rad2deg(dist);
+		dist = dist * 60 * 1.1515;
+
+		dist = dist * 1.609344;
+
+
+		return (dist)*1000;
+	}
+	/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+	/*::	This function converts decimal degrees to radians						 :*/
+	/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+	private static double deg2rad(double deg) {
+		return (deg * Math.PI / 180.0);
+	}
+
+	/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+	/*::	This function converts radians to decimal degrees						 :*/
+	/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+	private static double rad2deg(double rad) {
+		return (rad * 180 / Math.PI);
+	}
 }

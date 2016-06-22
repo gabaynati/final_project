@@ -51,11 +51,9 @@ public class MainActivity extends Activity {
 	public static mySemaphore testSem=new mySemaphore(0);
 	public static Semaphore hitSem=new Semaphore(0);
 	public static boolean flag;
-	public static float hitterAzimuth;
-	public static double hitterLatitude;
-	public static double hitterLongitude;
 	public static boolean isConnected=false;
 	public static Logic logic;
+	public static GPSLocation loc;
 
 	//*************************************************/
 

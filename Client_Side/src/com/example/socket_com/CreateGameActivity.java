@@ -51,7 +51,7 @@ public class CreateGameActivity extends Activity {
 				return;
 			}
 				
-			String res=MainActivity.server_com.createNewGame(gameName,Integer.parseInt(NumOfPlayers));
+			String res=MainActivity.server_com.createNewGame(gameName,Integer.parseInt(NumOfPlayers),MainActivity.loc);
 			try {
 				MainActivity.getGameListSem.acquire();
 			} catch (InterruptedException e) {

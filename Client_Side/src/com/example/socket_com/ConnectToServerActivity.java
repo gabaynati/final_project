@@ -2,7 +2,9 @@ package com.example.socket_com;
 
 
 
+
 import com.example.hs.R;
+import com.example.socket_com.SingleShotLocationProvider.GPSCoordinates;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 
@@ -57,7 +60,12 @@ public class ConnectToServerActivity extends Activity {
 		//zoom();
 		//move();
 		anim=new ActivityAnimation(getApplicationContext());
+		
+		GPSTracker gps = new GPSTracker(getBaseContext());
 
+		if(gps.canGetLocation()){ // gps enabled} // return boolean true/false
+			MainActivity.loc=new GPSLocation(gps.getLatitude(), gps.getLongitude());
+		}
 
 	}
 	private void setProgressByTimer(){
@@ -182,9 +190,22 @@ if(!isExists.equals("exists")){
 			MainActivity.server_com.setlistener();
 
 
-
+		
+//			//getting gps coordinates:
+//			SingleShotLocationProvider.requestSingleUpdate(getBaseContext(), new SingleShotLocationProvider.LocationCallback() {
+//			@Override 
+//			public void onNewLocationAvailable(GPSCoordinates location) {
+//
+//
+//				//Gathering this player's GPS and hitter player's GPS which has been received from server:
+//				loc=new GPSLocation(location.latitude, location.longitude);
+//		
+//			}
+//		});
+			
+			
 			//trying to connect to server
-			res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password);
+			res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password,MainActivity.loc);
 			//blocking thread until the server responses with the data or until timeout occur.
 
 

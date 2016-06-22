@@ -18,14 +18,14 @@ public class GamePacket implements Serializable{
 	private int playerPort;
 	private Vector<String> gamesList;
 	private String gameName;
+	private int gameNumOfPlayers;
 	private Vector<String> gameTeam1Players,gameTeam2Players;
 	private int hitArea;
 	private int team;
-	//GPS COORDINATES:
-	private float azimuth;
-	public double latitude, longitude;
+
+	private GPSLocation player_loc,game_loc;
 	
-	
+
 	/*********constructor*****************************************************/		
 	public GamePacket(String nickName,String password,final int packetType,String gameName,int hitArea){
 		this.packetType=packetType;
@@ -36,10 +36,6 @@ public class GamePacket implements Serializable{
 		
 	}
 	/*********Getters and Setters*****************************************************/	
-	public void setGPS(double latitude2, double longitude2){
-		this.latitude=latitude2;
-		this.longitude=longitude2;
-	}
 	public Vector<String> getTeam1(){
 		return this.gameTeam1Players;
 	}
@@ -91,25 +87,8 @@ public class GamePacket implements Serializable{
 	public void setTeam(int team) {
 		this.team = team;
 	}
-	public float getAzimuth() {
-		return azimuth;
-	}
-	public void setAzimuth(float azimuth) {
-		this.azimuth = azimuth;
-	}
-	public double getLatitude() {
-		return latitude;
-	}
-	public void setLatitude(float latitude) {
-		this.latitude = latitude;
-	}
-	public double getLongitude() {
-		return longitude;
-	}
-	public void setLongitude(float longitude) {
-		this.longitude = longitude;
-	}
 	
+
 	
 	
 	/*********method that checks the packet type*****************************************************/	
@@ -140,6 +119,24 @@ public class GamePacket implements Serializable{
 	}
 	public boolean isQuitGame(){
 		return this.packetType==quitGame;
+	}
+	public int getGameNumOfPlayers() {
+		return gameNumOfPlayers;
+	}
+	public void setGameNumOfPlayers(int gameNumOfPlayers) {
+		this.gameNumOfPlayers = gameNumOfPlayers;
+	}
+	public GPSLocation getPlayer_loc() {
+		return player_loc;
+	}
+	public void setPlayer_loc(GPSLocation player_loc) {
+		this.player_loc = player_loc;
+	}
+	public GPSLocation getGame_loc() {
+		return game_loc;
+	}
+	public void setGame_loc(GPSLocation game_loc) {
+		this.game_loc = game_loc;
 	}
 
 }

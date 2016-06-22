@@ -11,14 +11,31 @@ public class Game {
 	private int team1_numOfPlayers=0,team2_numOfPlayers=0;
 	private String gameName;
 	private Vector<Player> players;
+	private int numOfPlayers;
+	private GPSLocation loc;
 	
+	
+	public GPSLocation getLoc() {
+		return loc;
+	}
+	public void setLoc(GPSLocation loc) {
+		this.loc = loc;
+	}
 	/*********Constructor*****************************************************/
-	public Game(String gameName){
+	public Game(String gameName,int numOfPlayers,GPSLocation loc){
 		players=new Vector<Player>();
 		team1=new Team();
 		team2=new Team();
 		this.gameName=gameName;
+		this.numOfPlayers=numOfPlayers;
+		this.loc=loc;
 
+	}
+	public int getNumOfPlayers() {
+		return numOfPlayers;
+	}
+	public void setNumOfPlayers(int numOfPlayers) {
+		this.numOfPlayers = numOfPlayers;
 	}
 	/*********method returns this game name*****************************************************/
 	public String getGameName(){

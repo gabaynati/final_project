@@ -221,9 +221,7 @@ public class ServerCommunication {
 
 			else if(packet.isHit()){
 				MainActivity.player.Hit(packet.getHitArea());
-				MainActivity.hitterLatitude=packet.getLatitude();
-				MainActivity.hitterLongitude=packet.getLongitude();
-				MainActivity.hitterAzimuth=packet.getAzimuth();
+
 
 				MainActivity.hitSem.release();
 
@@ -311,10 +309,11 @@ public class ServerCommunication {
 
 
 	/*****************************************************************/
-	public String ConnectToServer(String addr, int port,String nickname,String password){
+	public String ConnectToServer(String addr, int port,String nickname,String password,GPSLocation loc){
 		MyClientTask_SendPakcet connect_thread=new MyClientTask_SendPakcet();
 		GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"",-1);
 		packet.setPlayerPort(MainActivity.playerPort);
+		packet.setPlayer_loc(loc);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
 		try {
@@ -452,8 +451,7 @@ public class ServerCommunication {
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, MainActivity.currentGame, hitArea);
-			packet.setGPS(latitude, longitude);
-			packet.setAzimuth(azimuth);
+	
 			res = sendHit.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -478,11 +476,13 @@ public class ServerCommunication {
 	
 
 	/*****************************************************************/
-	public String createNewGame(String newGameName,int numOfPlayers){
+	public String createNewGame(String newGameName,int numOfPlayers,GPSLocation gameLoc){
 		MyClientTask_SendPakcet createNewGame=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.createGame, newGameName, -1);
+			packet.setGameNumOfPlayers(numOfPlayers);
+			packet.setGame_loc(gameLoc);
 			res = createNewGame.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

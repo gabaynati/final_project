@@ -82,9 +82,12 @@ public class connectThread extends Thread
 			if(!server.isPlayerConnected(packet.getNickName())){
 
 				//creating new Player:
-				Player newPlayer=new Player(IPAddress,packet.getPlayerPort(),"");
+				Player newPlayer=new Player(IPAddress,packet.getPlayerPort(),"",packet.getPlayer_loc());
 
 				System.out.println("new player ,port=:" + packet.getPlayerPort());
+				System.out.println("gps ,lat=:" + packet.getPlayer_loc().getLatitude());
+				System.out.println("gps ,lon=:" + packet.getPlayer_loc().getLongitude());
+
 				//adding to server
 				newPlayer.setNickName(packet.getNickName());
 				newPlayer.setPassword(packet.getPassword());
@@ -124,7 +127,7 @@ public class connectThread extends Thread
 		/*********packet contains a request for game list******************/
 		else if(packet.isGetGamesList()){
 			GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList,"",-1);
-			gamesListPacket.setGamesList(Main.server.getGamesIDs());
+			gamesListPacket.setGamesList(Main.server.getGamesIDsByLocation(server.getPlayerByNickName(packet.getNickName())));
 
 
 			//writing game List to client
@@ -135,7 +138,6 @@ public class connectThread extends Thread
 		/*********packet is a test packet******************/
 		else if(packet.isTest()){
 			GamePacket test_packet=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.testPacket,"",-1);
-			test_packet.setGamesList(Main.server.getGamesIDs());
 
 			server.addToServerLog("test packet detected");
 
@@ -156,14 +158,14 @@ public class connectThread extends Thread
 		}
 		/*********packet contains a request to create new game at the server******************/
 		else if(packet.isCreateNewGame()){
-			server.addGame(new Game(packet.getGameName()));
+			server.addGame(new Game(packet.getGameName(),packet.getGameNumOfPlayers(),packet.getGame_loc()));
 			server.addToServerLog("new game: "+packet.getGameName()+"has created by: "+packet.getNickName());
 
 
 
 			//sending new game list
 			GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList,"",-1);
-			gamesListPacket.setGamesList(Main.server.getGamesIDs());
+			gamesListPacket.setGamesList(Main.server.getGamesIDsByLocation(server.getPlayerByNickName(packet.getNickName())));
 			SendPacketThread t=new SendPacketThread(gamesListPacket,server.getPlayerByIP(IPAddress));
 			t.start();
 

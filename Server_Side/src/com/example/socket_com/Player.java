@@ -13,23 +13,22 @@ public class Player {
 	private InetAddress ipAddr;
 	private int port;
 	private String nickName,password;
-	private int life;
-	private int gameScore;
-	private int killCount;
-	@SuppressWarnings("unused")
-	private int ammunition;
 	private Team team;
 	private Game currentGame=null;
-	
+	private GPSLocation loc;
+	public GPSLocation getLoc() {
+		return loc;
+	}
+	public void setLoc(GPSLocation loc) {
+		this.loc = loc;
+	}
 	/*********Constructor*****************************************************/	
-	public Player(InetAddress ipAddr,int port,String nickName){
+	public Player(InetAddress ipAddr,int port,String nickName,GPSLocation loc){
 		this.ipAddr=ipAddr;
 		this.port=port;
-		life=100;
-		gameScore=0;
-		killCount=0;
+	
 		this.nickName=nickName;
-		ammunition=30;
+		this.loc=loc;
 
 	}
 	/*********Getters and Setters*****************************************************/	
@@ -42,18 +41,7 @@ public class Player {
 	public String getPassword() {
 		return password;
 	}
-	public int getLife() {
-		return life;
-	}
-	public int getGameScore() {
-		return gameScore;
-	}
-	public int getKillCount() {
-		return killCount;
-	}
-	public int getAmmunition() {
-		return ammunition;
-	}
+
 	public Team getTeam() {
 		return team;
 	}
@@ -66,18 +54,7 @@ public class Player {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public void setLife(int life) {
-		this.life = life;
-	}
-	public void setGameScore(int gameScore) {
-		this.gameScore = gameScore;
-	}
-	public void setKillCount(int killCount) {
-		this.killCount = killCount;
-	}
-	public void setAmmunition(int ammunition) {
-		this.ammunition = ammunition;
-	}
+
 	public void setTeam(Team team) {
 		this.team = team;
 	}

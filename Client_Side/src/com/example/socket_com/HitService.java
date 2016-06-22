@@ -42,11 +42,11 @@ public class HitService extends IntentService{
 
 				loc.setLatitude(location.latitude);
 				loc.setLongitude(location.longitude);
-				tar.setLatitude(MainActivity.hitterLatitude);
-				tar.setLongitude(MainActivity.hitterLongitude);
+//				tar.setLatitude(MainActivity.hitterLatitude);
+//				tar.setLongitude(MainActivity.hitterLongitude);
 
-				boolean isHit = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
-
+				//boolean isHit = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+				boolean isHit=true;
 				new Handler(Looper.getMainLooper()).post(new Runnable() {
 					@Override
 					public void run() {
