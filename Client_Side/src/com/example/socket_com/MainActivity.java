@@ -39,6 +39,7 @@ public class MainActivity extends Activity {
 	public static int playerPort=9009;
 	public static Player player=new Player("nati","1234");
 	public static String currentGame=null;
+	public static int currentGameNumOfPlayers=-1;
 	public static int team=-1;
 	public static boolean isJoinedAGame=false;
 	public static Vector<String> currentGameTeam1,currentGameTeam2;

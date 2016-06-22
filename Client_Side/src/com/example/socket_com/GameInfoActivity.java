@@ -327,15 +327,20 @@ public class GameInfoActivity extends Activity {
 			if(!MainActivity.joinGameSem.isTimedOut()){
 				isJoinedAGame=true;
 				MainActivity.isJoinedAGame=true;
-				if(team1.size()>=1 && team2.size()>=1){
+				//				if(team1.size()<1 || team2.size()<1){
+				//					Toast.makeText(getBaseContext(), "You need at least two players", Toast.LENGTH_LONG).show();
+				//
+				//				}
+				//				else 
+				if((team1.size()+team2.size())<MainActivity.currentGameNumOfPlayers)
+					Toast.makeText(getBaseContext(), "Wait for more: "+(MainActivity.currentGameNumOfPlayers-(team1.size()+team2.size()))+" to join", Toast.LENGTH_LONG).show();
+				else{
 					//moving to game interface
 					Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
 					startActivity(gameInfo);
 					finish();
 					return;
 				}
-				else
-					Toast.makeText(getBaseContext(), "You need at least two players", Toast.LENGTH_LONG).show();
 
 
 

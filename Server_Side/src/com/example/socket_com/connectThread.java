@@ -177,6 +177,7 @@ public class connectThread extends Thread
 			System.out.println("game info:"+packet.getGameName());
 			gamesInfoPacket.setTeam1(game.getTeam1PlayersNickNames());
 			gamesInfoPacket.setTeam2(game.getTeam2PlayersNickNames());
+			gamesInfoPacket.setGameNumOfPlayers(game.getNumOfPlayers());
 
 			//writing game List to client
 			SendPacketThread t=new SendPacketThread(gamesInfoPacket,server.getPlayerByIP(IPAddress));

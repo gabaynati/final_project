@@ -234,6 +234,7 @@ public class ServerCommunication {
 			else if(packet.isGetGameInfo()){
 				MainActivity.currentGameTeam1=packet.getTeam1();
 				MainActivity.currentGameTeam2=packet.getTeam2();
+				MainActivity.currentGameNumOfPlayers=packet.getGameNumOfPlayers();
 				//waking the blocked thread which request the data
 				MainActivity.getGameInfoSem.release();
 			}
