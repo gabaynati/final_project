@@ -75,6 +75,7 @@ import android.widget.TextView;
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.core.CvType;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -103,6 +104,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	public static final int UPPER_BODY_HIT_SCORE=50,FACE_HIT_SCORE=100,LOWER_BODY_HIT_SCORE=20;
 	
 
+	private RGB rgb = new RGB(154.75, 73.671875, 219.734375);
+	private Scalar scalar = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
+	
 	/*************Sensors****************/
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -147,6 +151,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Rect[]                 facesArray, facesArrayWhileShoot;
 	private Rect[]                 upperBodyArray, upperBodyArrayWhileShoot;
 	private Rect[]                 lowerBodyArray, lowerBodyArrayWhileShoot;
+	
+	
+	//colors detector
+	private Mat                  mHsv;
+	private ColorBlobDetector    mDetector;
+	private Mat                  mSpectrum;
+	private Size                 SPECTRUM_SIZE;
+	private Scalar               CONTOUR_COLOR;
 
 	/*********************************************************/////
 
@@ -432,6 +444,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//Initializing the intermediate Mat object which is in use for frame processing
 		mGray = new Mat();
 		mRgba = new Mat();
+		
+		mHsv = new Mat(height, width, CvType.CV_8UC4);
+		mDetector = new ColorBlobDetector();
+		mSpectrum = new Mat();
+		SPECTRUM_SIZE = new Size(200, 64);
+		CONTOUR_COLOR = new Scalar(0,255,0,255);
+		
 		MainActivity.logic.setMats(mGray, mRgba);
 	}
 	/*****************************************************************/
@@ -441,6 +460,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//releasing them
 		mGray.release();
 		mRgba.release();
+		mHsv.release();
 	}
 
 	//this method is called when the camera delivers a frame.
