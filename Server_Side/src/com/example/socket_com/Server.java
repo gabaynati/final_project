@@ -28,7 +28,7 @@ public class Server {
 		this.serverLogs=new Vector<String>();
 		displayServerInformation(serverPort);
 		this.serverPort=serverPort;
-		Game game1=new Game("game 1",3,new GPSLocation(0, 0));
+		Game game1=new Game("game 1",3,new GPSLocation(31.82168121, 35.245622));
 //		try {
 ////			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.1"), 4343, "David",new GPSLocation(0, 0)),1);
 ////			game1.addPlayer(new Player(InetAddress.getByName("192.168.2.2"), 4343, "Nadav",new GPSLocation(0, 0)),2);
@@ -54,7 +54,7 @@ public class Server {
 		return true;
 
 	}
-	/*********method returns whether a player is connected to ther server*****************************************************/	
+	/*********method returns whether a player is connected to the server*****************************************************/	
 	public boolean isPlayerConnected(String player){
 		for (int i=0;i<players.size();i++)
 			if(player.equals(players.elementAt(i).getNickName()))
@@ -201,7 +201,13 @@ public class Server {
 	public Vector<Player> getPlayers(){
 		return this.players;
 	}
-
+	public Player getPlayerByColor(RGB color){
+		for(Player p: players){
+			if(p.getPlayerColor().equals(color))
+				return p;
+		}
+		return null;
+	}
 
 
 	public boolean isDistanceOKBetweenPlayerToGame(GPSLocation gameLoc,GPSLocation playerLoc){

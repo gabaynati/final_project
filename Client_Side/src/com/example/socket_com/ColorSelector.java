@@ -216,6 +216,7 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 			MainActivity.player.setPlayerColor(new RGB(mBlobColorRgba.val[0], mBlobColorRgba.val[1], mBlobColorRgba.val[2]));
 			Intent gameInfo = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
 			startActivity(gameInfo);
+			finish();
 			break;
 		}
 	}

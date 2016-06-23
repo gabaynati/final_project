@@ -34,8 +34,7 @@ public class ConnectToServerActivity extends Activity {
 	ImageView background;
 	EditText editTextNickName,editTextPassword; 
 	Button buttonConnect;
-	String nickname;
-	String password;
+
 	ProgressBar progBar;
 	private int prgBarProgress=10;
 	boolean isTryingToConnect=false;
@@ -60,7 +59,7 @@ public class ConnectToServerActivity extends Activity {
 		//zoom();
 		//move();
 		anim=new ActivityAnimation(getApplicationContext());
-		
+
 		GPSTracker gps = new GPSTracker(getBaseContext());
 
 		if(gps.canGetLocation()){ // gps enabled} // return boolean true/false
@@ -163,25 +162,33 @@ public class ConnectToServerActivity extends Activity {
 
 
 
+			
+	
 
-
+			//server info
 			String addr=MainActivity.serverIP;
 			int port=MainActivity.serverPort;
-			//nickname=editTextNickName.getText().toString();
-			//password=editTextPassword.getText().toString();
-			nickname=MainActivity.player.getNickName();
-			password=MainActivity.player.getPassword();
+			String nickname="";
+			String password="";
+			//player info
+			nickname=editTextNickName.getText().toString();
+			password=editTextPassword.getText().toString();
+			if(nickname.equals("")||password.equals("")){
+				textResponse.setText("please fill all fields!");
+				return null;
+			}
+			//checking if the user name exists in DB, if so his assigned port is returned
+			int isExists=GameDB.isExists(nickname,password);
+			if(isExists==GameDB.USER_NOT_EXISTS){
+				textResponse.setText("User name not registered!");
+				return null;
+
+			}
+			MainActivity.player=new Player(nickname, password,isExists);
+			
 
 
-			/*
-//checking if the user name exists in DB
-String isExists=GameDB.isExists(nickname,password);
-if(!isExists.equals("exists")){
-	textResponse.setText("User name not registered!");
-	return;
 
-}
-			 */
 
 
 			String res="";
@@ -190,20 +197,20 @@ if(!isExists.equals("exists")){
 			MainActivity.server_com.setlistener();
 
 
-		
-//			//getting gps coordinates:
-//			SingleShotLocationProvider.requestSingleUpdate(getBaseContext(), new SingleShotLocationProvider.LocationCallback() {
-//			@Override 
-//			public void onNewLocationAvailable(GPSCoordinates location) {
-//
-//
-//				//Gathering this player's GPS and hitter player's GPS which has been received from server:
-//				loc=new GPSLocation(location.latitude, location.longitude);
-//		
-//			}
-//		});
-			
-			
+
+			//			//getting gps coordinates:
+			//			SingleShotLocationProvider.requestSingleUpdate(getBaseContext(), new SingleShotLocationProvider.LocationCallback() {
+			//			@Override 
+			//			public void onNewLocationAvailable(GPSCoordinates location) {
+			//
+			//
+			//				//Gathering this player's GPS and hitter player's GPS which has been received from server:
+			//				loc=new GPSLocation(location.latitude, location.longitude);
+			//		
+			//			}
+			//		});
+
+
 			//trying to connect to server
 			res=MainActivity.server_com.ConnectToServer(addr, port, nickname, password,MainActivity.loc);
 			//blocking thread until the server responses with the data or until timeout occur.

@@ -107,16 +107,19 @@ public class connectThread extends Thread
 			Game game=server.getGameByName(packet.getGameName());
 			String hitter_nickName=packet.getNickName();
 			server.addToServerLog(game.Hit(hitter_nickName));
-			//writing object to all players except the hitter
-			Vector<Player> players=Main.server.getPlayers();
-			for(int i=0;i<players.size();i++){
-				if(!players.elementAt(i).getNickName().equals(hitter_nickName)){
-					GamePacket gotHitPacket=new GamePacket(players.elementAt(i).getNickName(), players.elementAt(i).getPassword(), GamePacket.hit,game.getGameName(),packet.getHitArea());
-					SendPacketThread t=new SendPacketThread(gotHitPacket,players.elementAt(i));
-					t.start();
-				}
+			
+			
+			//writing object to all the player who got hit
+			Player player=server.getPlayerByColor(packet.getHitPlayerColor());
+			if(player==null)
+				return;
+			else
+			{
+				GamePacket gotHitPacket=new GamePacket(player.getNickName(), player.getPassword(), GamePacket.hit,game.getGameName(),packet.getHitArea());
+				SendPacketThread t=new SendPacketThread(gotHitPacket,player);
+				t.start();
 			}
-
+	
 		}
 		/*********packet contains a disconnect from server request******************/
 		else if(packet.isDisconnect()){
@@ -127,7 +130,9 @@ public class connectThread extends Thread
 		/*********packet contains a request for game list******************/
 		else if(packet.isGetGamesList()){
 			GamePacket gamesListPacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.getGamesList,"",-1);
-			gamesListPacket.setGamesList(Main.server.getGamesIDsByLocation(server.getPlayerByNickName(packet.getNickName())));
+			Vector<String> games=server.getGamesIDsByLocation(server.getPlayerByNickName(packet.getNickName()));
+			System.out.println("games: "+games.toString());
+			gamesListPacket.setGamesList(games);
 
 
 			//writing game List to client
@@ -154,6 +159,10 @@ public class connectThread extends Thread
 			//sending ACK:
 			GamePacket joinGamePacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.joinGame,packet.getGameName(),-1);
 			joinGamePacket.setTeam(packet.getTeam());
+			Game game_=server.getGameByName(packet.getGameName());
+			if(game_.isGameFull()){
+				joinGamePacket.setGamePlayersColors(game_.getGamePlayersColors());
+			}
 			server.updatePanel();
 			SendPacketThread t=new SendPacketThread(joinGamePacket,server.getPlayerByIP(IPAddress));
 			t.start();

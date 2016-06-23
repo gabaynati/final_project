@@ -3,6 +3,7 @@ package com.example.socket_com;
 
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Vector;
 
 //this class defined a packet Object that exchanges information between the server and the clients
@@ -23,8 +24,9 @@ public class GamePacket implements Serializable{
 	private int hitArea;
 	private int team;
 	private RGB playerColor;
+	private RGB hitPlayerColor;
 	private GPSLocation player_loc,game_loc;
-	
+	private HashMap<String,RGB> gamePlayersColors;
 
 	/*********constructor*****************************************************/		
 	public GamePacket(String nickName,String password,final int packetType,String gameName,int hitArea){
@@ -144,5 +146,18 @@ public class GamePacket implements Serializable{
 	public void setPlayerColor(RGB playerColor) {
 		this.playerColor = playerColor;
 	}
+	public HashMap<String,RGB> getGamePlayersColors() {
+		return gamePlayersColors;
+	}
+	public void setGamePlayersColors(HashMap<String,RGB> gamePlayersColors) {
+		this.gamePlayersColors = gamePlayersColors;
+	}
+	public RGB getHitPlayerColor() {
+		return hitPlayerColor;
+	}
+	public void setHitPlayerColor(RGB hitPlayerColor) {
+		this.hitPlayerColor = hitPlayerColor;
+	}
+
 
 }

@@ -188,10 +188,10 @@ public class Testing_Activity extends Activity {
 
 		int number_of_queries=10; 
 		int success_attempts=0;
-		String res="";
+		int res;
 		for(int i=0;i<number_of_queries;i++){
 			res=GameDB.isExists("nati", "1234");
-			if(res.equals("exists"))
+			if(res!=GameDB.DBERROR)
 				success_attempts++;
 
 		}
@@ -211,10 +211,10 @@ public class Testing_Activity extends Activity {
 		//sending packet
 
 
-		String res="";
+		int res;
 
 		res=GameDB.isExists("nati", "1234");
-		if(res.equals("exists"))
+		if(res!=GameDB.DBERROR)
 			str="test queries sent succesfully!"+"\n"+ "time in milliseconds: "+(System.currentTimeMillis()-start);
 		else
 			str="error communicating with DB server";

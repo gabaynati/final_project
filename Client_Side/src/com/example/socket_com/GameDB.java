@@ -18,14 +18,14 @@ public class GameDB {
 	public static Statement stmt = null;
 	public static ResultSet rs = null;
 	public static String dbConnectionString="jdbc:jtds:sqlserver://hns.database.windows.net:1433/hns;database=hns;integratedSecurity=true;user=hns;password=Seattle12";
+	public static final int USER_EXISTS=1,DBERROR=2,USER_NOT_EXISTS=3,REGISTRATION_SUCCEEDED=4;
 
 
-	
-	
-	
-	
-	
-	
+
+
+
+
+
 	//Threads which communicate with DB
 	/********M***************S*****************************************************/
 	/**********E************D*****************************************************/
@@ -40,7 +40,7 @@ public class GameDB {
 		protected Vector<Object> doInBackground(String... arg0) {
 			Vector<Object> res=null;
 			try {
-				
+
 				// Establish the connection.
 				Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
 				con = DriverManager.getConnection(dbConnectionString,"","");
@@ -82,33 +82,25 @@ public class GameDB {
 	}
 	/*****************************************************************/
 
-	
+
 
 	/*****************************************************************/
-	public static class registerToDBThread extends AsyncTask<String, Void, String> {
+	public static class registerToDBThread extends AsyncTask<String, Void, Integer> {
 
 
-		String res;
 
 		@Override
-		protected String doInBackground(String... arg0) {
-			String dbMessage="";
-			dbMessage=addPlayer((String)arg0[0], (String)arg0[0], (String)arg0[0]);
-			if(dbMessage.equals("success")){
-				res="Registration has completed successfully!\nYou are now redirected to H&S Menu";
-			}
-			else
-				res="there was an error: "+dbMessage;
+		protected Integer doInBackground(String... arg0) {
+			return  addPlayer((String)arg0[0], (String)arg0[1], (String)arg0[2]);
 
-			return res;
 		}
 
 		@Override
-		protected void onPostExecute(String result) {
+		protected void onPostExecute(Integer result) {
 			super.onPostExecute(result);
 		}
-		private String addPlayer(String nickname,String password,String email){
-		
+		private int addPlayer(String nickname,String password,String email){
+
 			try {
 				StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 				StrictMode.setThreadPolicy(policy);
@@ -122,17 +114,20 @@ public class GameDB {
 				stmt.executeUpdate(SQL);
 			}
 			// Handle any errors that may have occurred.
+			catch(SQLException se){
+				return USER_EXISTS;		
+			}
 			catch (Exception e) {
 				Log.e("YOUR_APP_LOG_TAG", "I got an error", e);
 
-				return e.getMessage();
+				return DBERROR;
 			}
 			finally {
 				if (rs != null) try { rs.close(); } catch(Exception e) {}
 				if (stmt != null) try { stmt.close(); } catch(Exception e) {}
 				if (con != null) try { con.close(); } catch(Exception e) {}
 			}
-			return "success";
+			return REGISTRATION_SUCCEEDED;
 
 		}
 
@@ -140,46 +135,51 @@ public class GameDB {
 	}
 	/*****************************************************************/
 
-	
+
 	/*****************************************************************/
-	public static class checkIsExistsInDBThread extends AsyncTask<String, Void, String> {
+	public static class checkIsExistsInDBThread extends AsyncTask<String, Void, Integer> {
 
 		@Override
-		protected String doInBackground(String... params) {
+		protected Integer doInBackground(String... params) {
 			try {
 				// Establish the connection.
 				Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
 				con = DriverManager.getConnection(dbConnectionString,"","");
 
 				// Create and execute an SQL statement that returns some data.
-				String SQL = "select * from Players where player_nickname='"+params[0]+"'";
+				String SQL = "select * from Players where player_nickname='"+params[0]+"' and player_password='"+params[1]+"'";
 				stmt = con.createStatement();
 				rs=stmt.executeQuery(SQL);
 				if(rs.next())
-					return "exists";
+					return rs.getInt("player_port");
 
 			}
 			// Handle any errors that may have occurred.
 			catch (Exception e) {
 				e.printStackTrace();
 				Log.e("YOUR_APP_LOG_TAG", "I got an error", e);
-				return "error";
-					
+				return DBERROR;
+
 			}
 			finally {
 				if (rs != null) try { rs.close(); } catch(Exception e) {}
 				if (stmt != null) try { stmt.close(); } catch(Exception e) {}
 				if (con != null) try { con.close(); } catch(Exception e) {}
 			}
-			return "notExists";
+			return USER_NOT_EXISTS;
 
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			super.onPostExecute(result);
 		}
 
 
 	}
 	/*****************************************************************/
 
-	
+
 
 	/*****************************************************************/
 	public static class updateScoreInDBThread extends AsyncTask<Object, Void, String> {
@@ -218,36 +218,160 @@ public class GameDB {
 
 
 
+	public static class PrintDBThread extends AsyncTask<String, Void, Vector<Vector<Object>> > {
+
+
+
+		@Override
+		protected Vector<Vector<Object>> doInBackground(String... arg0) {
+			Vector<Vector<Object>> res=new Vector<Vector<Object>>();
+			try {
+
+				// Establish the connection.
+				Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
+				con = DriverManager.getConnection(dbConnectionString,"","");
+
+				// Create and execute an SQL statement that returns some data.
+				String SQL = "select * from Players";
+				stmt = con.createStatement();
+				rs=stmt.executeQuery(SQL);
+				while(rs.next()){
+					Vector<Object> user=new Vector<Object>();
+
+					user.add(rs.getString("player_nickname"));
+					user.add(rs.getString("player_password "));
+					user.add(rs.getString("player_email"));
+					user.add(rs.getInt("player_rank"));
+					user.add(rs.getInt("player_score"));
+					user.add(rs.getInt("player_port"));
+					res.add(user);
+				}
+
+			}
+			// Handle any errors that may have occurred.
+			catch (Exception e) {
+				e.printStackTrace();
+				Log.e("YOUR_APP_LOG_TAG", "I got an error", e);
+				return null;
+			}
+			finally {
+				if (rs != null) try { rs.close(); } catch(Exception e) {}
+				if (stmt != null) try { stmt.close(); } catch(Exception e) {}
+				if (con != null) try { con.close(); } catch(Exception e) {}
+			}
+			return res;
+
+		}
+
+		@Override
+		protected void onPostExecute(Vector<Vector<Object>> result) {
+			super.onPostExecute(result);
+		}
+
+	}
+
+
+
+	/*****************************************************************/
+
+
+
+
+
 
 	//Methods which uses above threads to communicate the DB
 	/********M***************S*****************************************************/
 	/**********E************D*****************************************************/
 	/*************T*******O*******************************************************/
 	/*****************H***********************************************************/
-	
-	
+
+
 	/*****************************************************************/
-	public static String isExists(String nickname,String password){
+	public static int isExists(String nickname,String password){
 		checkIsExistsInDBThread DB_thread=new checkIsExistsInDBThread();
-		String res="";
+		int res=0;
 		try {
 			res = DB_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,nickname,password).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			res="InterruptedException: "+e.toString();
+			res=DBERROR;
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
-			res="ExecutionException: "+e.toString();
+			res=DBERROR;
 		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
-			res="TimeoutException: "+e.toString();
+			res=DBERROR;
 		}
 		return res;
 	}
 	/*****************************************************************/
 
-	
-	
+	/*****************************************************************/
+	//	public static String clearDB(){
+	//		checkIsExistsInDBThread DB_thread=new checkIsExistsInDBThread();
+	//		String res="";
+	//		try {
+	//			res = DB_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get(4000, TimeUnit.MILLISECONDS);
+	//		} catch (InterruptedException e) {
+	//			// TODO Auto-generated catch block
+	//			res="InterruptedException: "+e.toString();
+	//		} catch (ExecutionException e) {
+	//			// TODO Auto-generated catch block
+	//			res="ExecutionException: "+e.toString();
+	//		} catch (TimeoutException e) {
+	//			// TODO Auto-generated catch block
+	//			res="TimeoutException: "+e.toString();
+	//		}
+	//		return res;
+	//	}
+	/*****************************************************************/
+	/*****************************************************************/
+	//	public static String getAllUsers(){
+	//		checkIsExistsInDBThread DB_thread=new checkIsExistsInDBThread();
+	//		String res="";
+	//		try {
+	//			res = DB_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get(4000, TimeUnit.MILLISECONDS);
+	//		} catch (InterruptedException e) {
+	//			// TODO Auto-generated catch block
+	//			res="InterruptedException: "+e.toString();
+	//		} catch (ExecutionException e) {
+	//			// TODO Auto-generated catch block
+	//			res="ExecutionException: "+e.toString();
+	//		} catch (TimeoutException e) {
+	//			// TODO Auto-generated catch block
+	//			res="TimeoutException: "+e.toString();
+	//		}
+	//		return res;
+	//	}
+	/*****************************************************************/
+	/*****************************************************************/
+	public static Vector<Vector<Object>> printDB(){
+		PrintDBThread DB_thread=new PrintDBThread();
+		Vector<Vector<Object>> db = null;
+		try {
+			db = DB_thread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get(4000, TimeUnit.MILLISECONDS);
+
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			//	res="InterruptedException: "+e.toString();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			//	res="ExecutionException: "+e.toString();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			//res="TimeoutException: "+e.toString();
+		}
+		return db;
+	}
+	/*****************************************************************/
+
+
+
+
+
+
+
+
 	/*****************************************************************/
 	public static Vector<Object> getPlayerInfo(String nickname){
 		Vector<Object> res=null;
@@ -269,7 +393,7 @@ public class GameDB {
 	}
 	/*****************************************************************/
 
-	
+
 	/*****************************************************************/
 	public static boolean connect(){
 
@@ -306,30 +430,30 @@ public class GameDB {
 	} 
 	/*****************************************************************/
 
-	
-	
+
+
 	/*****************************************************************/
-	public static String registerToDB(String nickname,String password,String email){
+	public static int registerToDB(String nickname,String password,String email){
 		registerToDBThread regDB=new registerToDBThread();
-		String res="";
+		int res;
 		try {
 			res = regDB.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,nickname,password,email).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			res="InterruptedException: "+e.toString();
+			res=DBERROR;
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
-			res="ExecutionException: "+e.toString();
+			res=DBERROR;
 		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
-			res="TimeoutException: "+e.toString();
+			res=DBERROR;
 		}
 		return res;
 
 	}
 	/*****************************************************************/
 
-	
+
 	/*****************************************************************/
 	public static String updateScoreInDB(String nickname,int newScore){
 		updateScoreInDBThread regDB=new updateScoreInDBThread();

@@ -698,18 +698,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				toast.show();					
 
 				//sending GPS to server:
-				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
-					@Override 
-					public void onNewLocationAvailable(GPSCoordinates location) {
-						double latitude = location.latitude;
-						double longitude = location.longitude;
-						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
-						toast.show();
-						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
-					}
-
-				});
-				//MainActivity.server_com.sendHitToServer(hitArea, azimuth, 0, 0);
+//				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
+//					@Override 
+//					public void onNewLocationAvailable(GPSCoordinates location) {
+//						double latitude = location.latitude;
+//						double longitude = location.longitude;
+//						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
+//						toast.show();
+//						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
+//					}
+//
+//				});
+				RGB hitPlayerColor = null;
+				MainActivity.server_com.sendHitToServer(hitArea,hitPlayerColor);
 
 
 				/**********************************/

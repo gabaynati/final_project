@@ -107,7 +107,7 @@ public class ServerCommunication {
 		@Override
 		protected String doInBackground(Void... arg0) {
 			try{
-				socket=new DatagramSocket(MainActivity.playerPort);
+				socket=new DatagramSocket(MainActivity.player.getPlayerPort());
 				
 			 //   SocketAddress sockaddr = new InetSocketAddress(serverIP, serverPort);
 				//socket.connect(sockaddr);
@@ -313,7 +313,7 @@ public class ServerCommunication {
 	public String ConnectToServer(String addr, int port,String nickname,String password,GPSLocation loc){
 		MyClientTask_SendPakcet connect_thread=new MyClientTask_SendPakcet();
 		GamePacket packet=new GamePacket(nickname, password,GamePacket.connect,"",-1);
-		packet.setPlayerPort(MainActivity.playerPort);
+		packet.setPlayerPort(MainActivity.player.getPlayerPort());
 		packet.setPlayer_loc(loc);
 		String result = "";
 		//execute returns the AsyncTask itself and get() returns the result from doInBackground() with timeout
@@ -448,12 +448,12 @@ public class ServerCommunication {
 	 * @param f 
 	 * @param d 
 	 * @param azimut ***************************************************************/
-	public String sendHitToServer(int hitArea, float azimuth, double latitude, double longitude) {
+	public String sendHitToServer(int hitArea,RGB color ) {
 		MyClientTask_SendPakcet sendHit=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, MainActivity.currentGame, hitArea);
-	
+			packet.setHitPlayerColor(color);
 			res = sendHit.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

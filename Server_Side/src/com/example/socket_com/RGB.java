@@ -41,4 +41,10 @@ public class RGB implements Serializable {
 		str="red: "+this.red+"\n"+"blue: "+this.blue+"\n"+"green: "+this.green+"\n";
 		return str;
 	}
+	@Override
+	public boolean equals(Object obj){
+		if(this.red==((RGB)obj).getRed()  &&this.blue==((RGB)obj).getBlue() && this.green==((RGB)obj).getGreen())
+			return true;
+		return false;
+	}
 }

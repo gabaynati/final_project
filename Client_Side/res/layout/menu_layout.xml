@@ -79,6 +79,15 @@
             android:text="to Testing(Developer)"
             android:textColor="@color/material_grey_100"
             android:textStyle="bold" />
+            <Button
+            android:id="@+id/manager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#88676767"
+            android:drawableLeft="@drawable/ic_functions_white_48dp"
+            android:text="to GameManager(Developer)"
+            android:textColor="@color/material_grey_100"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/joinAGame"

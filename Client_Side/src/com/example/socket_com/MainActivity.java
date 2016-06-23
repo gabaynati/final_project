@@ -37,8 +37,7 @@ public class MainActivity extends Activity {
 	//*********server configurations****************/
 	public static String serverIP="192.168.1.15";
 	public static int serverPort=9002;
-	public static int playerPort=9009;
-	public static Player player=new Player("nati","1234");
+	public static Player player;
 	public static String currentGame=null;
 	public static int currentGameNumOfPlayers=-1;
 	public static int team=-1;
@@ -69,6 +68,7 @@ public class MainActivity extends Activity {
 	Button buttonExit;
 	Button buttonMyAccount;
 	Button buttonDeveloperTesting;
+	Button buttonDeveloperManager;
 	TextView txtResponse;
 	ImageView background;
 	private MediaPlayer mediaPlayer_background,mediaPlayer_buttonClick;
@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
 
 
 
-
+		buttonDeveloperManager=(Button)findViewById(R.id.manager);
 		buttonDeveloperTesting=(Button)findViewById(R.id.testing);
 		buttonConnectToServer = (Button)findViewById(R.id.connectToServer);
 		buttonRegisterToSystem = (Button)findViewById(R.id.registerToSystem);
@@ -104,6 +104,7 @@ public class MainActivity extends Activity {
 		buttonMyAccount.setOnClickListener(buttonMyAccountOnClickListener);
 		buttonExit.setOnClickListener(buttonExitOnClickListener);
 		buttonDeveloperTesting.setOnClickListener(buttonDeveloperTestingClickListener);
+		buttonDeveloperManager.setOnClickListener(buttonDeveloperManagerClickListener);
 
 		//playing audio
 		mediaPlayer_buttonClick=MediaPlayer.create(getBaseContext(), R.raw.srr61_shoot_sound);
@@ -250,6 +251,16 @@ public class MainActivity extends Activity {
 
 		}
 	};
+	OnClickListener buttonDeveloperManagerClickListener = new OnClickListener(){
+		@Override
+		public void onClick(View arg0) {
+
+			//moving to game interface
+			Intent intenet = new Intent("com.example.socket_com.GAMEMANAGERACTIVITY");
+			startActivity(intenet);
+
+		}
+	};
 	/*************************************/
 
 
@@ -298,14 +309,16 @@ public class MainActivity extends Activity {
 		super.onResume();
 		anim.fade(background);
 		mediaPlayer_background.start();
-		if(MainActivity.player.isConnectedToServer()){
-			txtResponse.setText("Logged in as: "+MainActivity.player.getNickName());
-			buttonJoinAGame.setVisibility(View.VISIBLE);
-			buttonCreateAGame.setVisibility(View.VISIBLE);
-			buttonLogOut.setVisibility(View.VISIBLE);
-			buttonConnectToServer.setVisibility(View.GONE);
-			buttonRegisterToSystem.setVisibility(View.GONE);
-			buttonMyAccount.setVisibility(View.VISIBLE);
+		if(MainActivity.player!=null){
+			if(MainActivity.player.isConnectedToServer()){
+				txtResponse.setText("Logged in as: "+MainActivity.player.getNickName());
+				buttonJoinAGame.setVisibility(View.VISIBLE);
+				buttonCreateAGame.setVisibility(View.VISIBLE);
+				buttonLogOut.setVisibility(View.VISIBLE);
+				buttonConnectToServer.setVisibility(View.GONE);
+				buttonRegisterToSystem.setVisibility(View.GONE);
+				buttonMyAccount.setVisibility(View.VISIBLE);
+			}
 		}
 
 	}

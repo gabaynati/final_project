@@ -7,5 +7,6 @@
     <string name="title_activity_find_game">FindGameActivity</string>
     <string name="title_activity_my_account">MyAccountActivity</string>
     <string name="title_activity_testing_">Testing_Activity</string>
+    <string name="title_activity_game_manager">GameManagerActivity</string>
 
 </resources>

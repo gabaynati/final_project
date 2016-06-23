@@ -23,6 +23,7 @@ public class Player {
 	private String password;
 	private boolean isConnectedToServer=false;
 	private RGB playerColor;
+	private int playerPort;
 	public Player(Weapon[] weaponsList){
 
 		life = maxLife;
@@ -30,7 +31,7 @@ public class Player {
 		weapons = weaponsList;
 	}
 
-	public Player(String nickName,String password){
+	public Player(String nickName,String password,int port){
 
 		life = maxLife;
 		current_weapon = 0;
@@ -39,6 +40,7 @@ public class Player {
 		this.nickName=nickName;
 		this.password=password;
 		ammunition=30;
+		this.playerPort=port;
 	}
 	public void setConnectedToServer(boolean bool){
 		isConnectedToServer=bool;
@@ -151,5 +153,13 @@ public class Player {
 
 	public void setPlayerColor(RGB playerColor) {
 		this.playerColor = playerColor;
+	}
+
+	public int getPlayerPort() {
+		return playerPort;
+	}
+
+	public void setPlayerPort(int playerPort) {
+		this.playerPort = playerPort;
 	}
 }

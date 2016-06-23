@@ -63,16 +63,20 @@ public class registerActivity extends Activity {
 
 
 			//checking if user already exists:
-			String res=GameDB.isExists(nickname, password);
-			if(res.equals("exists")){
-				textResponse.setText("User name is already taken\nPlease choose another one");
-				return;
+			int res=GameDB.registerToDB(nickname, password, email);
+			String respnse="";
+			switch(res){
+			case GameDB.DBERROR:
+				respnse="ERROR in DB";
+				break;
+			case GameDB.REGISTRATION_SUCCEEDED:
+				respnse="You registred successfully to the server!";
+				break;
+			case GameDB.USER_EXISTS:
+				respnse="User name is already taken\nPlease choose another one";
+				break;
 			}
-			//user not exists:
-			else{
-				res=GameDB.registerToDB(nickname, password, email);
-				textResponse.setText(res);
-			}
+			textResponse.setText(respnse);
 		}};
 
 		@Override

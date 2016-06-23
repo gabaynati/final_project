@@ -3,6 +3,7 @@ package com.example.socket_com;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.HashMap;
 import java.util.Vector;
 
 public class Game {
@@ -138,6 +139,15 @@ public class Game {
 
 	}
 
-
+	public HashMap<String,RGB> getGamePlayersColors(){
+	      HashMap<String, RGB> hmap = new HashMap<String, RGB>();
+	      for(Player p: players){
+	    	  hmap.put(p.getNickName(), p.getPlayerColor());
+	      }
+	      return hmap;
+	}
+	public boolean isGameFull(){
+		return this.players.size()==this.numOfPlayers;
+	}
 
 }
