@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.DatagramSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
@@ -55,7 +56,7 @@ public class MainActivity extends Activity {
 	public static boolean isConnected=false;
 	public static Logic logic;
 	public static GPSLocation loc;
-	public static Vector<RGB> currentGamePlayersColors;
+	public static HashMap<String,RGB> currentGamePlayersColors;
 
 	//*************************************************/
 

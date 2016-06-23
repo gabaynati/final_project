@@ -242,6 +242,7 @@ public class ServerCommunication {
 				MainActivity.team=packet.getTeam();
 				//waking the blocked thread which request the data
 				MainActivity.joinGameSem.release();
+				MainActivity.currentGamePlayersColors=packet.getGamePlayersColors();
 			}
 			else if(packet.isTest()){
 				MainActivity.testSem.release();

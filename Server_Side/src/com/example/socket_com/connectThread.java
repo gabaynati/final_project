@@ -73,8 +73,8 @@ public class connectThread extends Thread
 			}
 		}
 	}
-	
-	
+
+
 	/*********method that process a game packet*****************************************************/	
 	private void processPacket(GamePacket packet,InetAddress IPAddress){
 		/*********packet contains a connect request******************/
@@ -107,8 +107,8 @@ public class connectThread extends Thread
 			Game game=server.getGameByName(packet.getGameName());
 			String hitter_nickName=packet.getNickName();
 			server.addToServerLog(game.Hit(hitter_nickName));
-			
-			
+
+
 			//writing object to all the player who got hit
 			Player player=server.getPlayerByColor(packet.getHitPlayerColor());
 			if(player==null)
@@ -119,7 +119,7 @@ public class connectThread extends Thread
 				SendPacketThread t=new SendPacketThread(gotHitPacket,player);
 				t.start();
 			}
-	
+
 		}
 		/*********packet contains a disconnect from server request******************/
 		else if(packet.isDisconnect()){
@@ -154,14 +154,17 @@ public class connectThread extends Thread
 		/*********packet contains a request to join a game******************/
 		else if(packet.isJoinAGame()){
 			System.out.println(packet.getPlayerColor().toString());
-
-			server.addPlayerToGame(server.getPlayerByNickName(packet.getNickName()), packet.getGameName(),packet.getTeam());
+			Player player=server.getPlayerByNickName(packet.getNickName());
+			player.setPlayerColor(packet.getPlayerColor());
+			server.addPlayerToGame(player, packet.getGameName(),packet.getTeam());
 			//sending ACK:
 			GamePacket joinGamePacket=new GamePacket(packet.getNickName(),packet.getPassword(), GamePacket.joinGame,packet.getGameName(),-1);
 			joinGamePacket.setTeam(packet.getTeam());
 			Game game_=server.getGameByName(packet.getGameName());
 			if(game_.isGameFull()){
-				joinGamePacket.setGamePlayersColors(game_.getGamePlayersColors(packet.getNickName()));
+				if(game_.getGamePlayersColors(packet.getNickName())!=null)
+					System.out.println(game_.getGamePlayersColors(packet.getNickName()));
+				//joinGamePacket.setGamePlayersColors(game_.getGamePlayersColors(packet.getNickName()));
 			}
 			server.updatePanel();
 			SendPacketThread t=new SendPacketThread(joinGamePacket,server.getPlayerByIP(IPAddress));

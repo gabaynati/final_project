@@ -337,9 +337,10 @@ public class GameInfoActivity extends Activity {
 					Toast.makeText(getBaseContext(), "Wait for more: "+(MainActivity.currentGameNumOfPlayers-(team1.size()+team2.size()))+" to join", Toast.LENGTH_LONG).show();
 				else{
 					//moving to game interface
-					Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
-					startActivity(gameInfo);
-					finish();
+					Toast.makeText(getBaseContext(), MainActivity.currentGamePlayersColors.toString(), Toast.LENGTH_LONG).show();
+//					Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
+//					startActivity(gameInfo);
+//					finish();
 					return;
 				}
 
