@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Vector;
 
 public class Server {
@@ -208,7 +209,13 @@ public class Server {
 		}
 		return null;
 	}
-
+	public HashMap<String,RGB> getGamePlayersColors(String gameName,String player){
+		for(Game g: games){
+			if(g.getGameName().equals(gameName))
+				return g.getGamePlayersColors(player);
+		}
+		return null;
+	}
 
 	public boolean isDistanceOKBetweenPlayerToGame(GPSLocation gameLoc,GPSLocation playerLoc){
 

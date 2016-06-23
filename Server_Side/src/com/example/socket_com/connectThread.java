@@ -161,7 +161,7 @@ public class connectThread extends Thread
 			joinGamePacket.setTeam(packet.getTeam());
 			Game game_=server.getGameByName(packet.getGameName());
 			if(game_.isGameFull()){
-				joinGamePacket.setGamePlayersColors(game_.getGamePlayersColors());
+				joinGamePacket.setGamePlayersColors(game_.getGamePlayersColors(packet.getNickName()));
 			}
 			server.updatePanel();
 			SendPacketThread t=new SendPacketThread(joinGamePacket,server.getPlayerByIP(IPAddress));
