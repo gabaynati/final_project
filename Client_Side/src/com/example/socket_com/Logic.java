@@ -74,7 +74,6 @@ public class Logic {
 					List<Point> listOfPoints = mp.toList();            
 					Point sightPoint = getSightPoint();
 					for(Point p: listOfPoints){
-
 						if(p.equals(sightPoint))
 							return s;
 					}
@@ -82,7 +81,7 @@ public class Logic {
 				}
 			}
 		}
-		return null;
+		return str;
 	}
 
 	//check if hit at some face in the frame, if yes return true, else return false

@@ -165,7 +165,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Scalar                        CONTOUR_COLOR;
 	private String[]                      players;
 	private HashMap<String,List<MatOfPoint>>  colorsFounds;
-
+	private HashMap<String, Boolean> pepe=new HashMap<String, Boolean>();
 	/*********************************************************/////
 
 
@@ -494,38 +494,26 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		MainActivity.logic.setMats(mGray, mRgba);
 
-		//iterate every player to find it's color
-		//if the color is found ,then it saves it's image points where it found
-		for(int i = 0; i < players.length; i++){
 
-			RGB rgb = MainActivity.currentGamePlayersColors.get(players[i]);
-			Scalar hsv = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
-			
-			mDetector.setHsvColor(hsv);
-
-			mDetector.process(mRgba);
-			List<MatOfPoint> contours = mDetector.getContours();//gets list of image points where the color was found
-			Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);//drawing circle near the points
-
-			colorsFounds.put(players[i], contours);
-		}
 		
 		if(!someAnimationRun && touched){//shoot time
 
-			for(int i = 0; i < players.length; i++){
-
-				RGB rgb = MainActivity.currentGamePlayersColors.get(players[i]);
+			//iterate every player to find it's color
+			//if the color is found ,then it saves it's image points where it found
+			for(String s: players){
+	
+				RGB rgb = MainActivity.currentGamePlayersColors.get(s);
 				Scalar hsv = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
-
+				
 				mDetector.setHsvColor(hsv);
-
+	
 				mDetector.process(mRgba);
-				List<MatOfPoint> contours = mDetector.getContours();//get the mat of points which the hsv color was found there
-				Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
-
-				colorsFounds.put(players[i], contours);
+				List<MatOfPoint> contours = mDetector.getContours();//gets list of image points where the color was found
+				Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);//drawing circle near the points
+	
+				colorsFounds.put(s, contours);
+				pepe.put(s, mDetector.isColorFound());
 			}
-			
 			
 			if (mAbsoluteDetectorSize_lower == 0) {
 				int height = mGray.rows();
@@ -726,7 +714,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			//MainActivity.logic.catchRect();
 
 			//if this player hits someone
-//			final int hitArea = MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
+			//final int hitArea = MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
 //			String hit_area="";
 //			switch(hitArea){
 //			case Logic.UPPER_BODY_HIT:
@@ -746,15 +734,20 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			//hit was detected
 			//if(hitArea != -1){
+//				if(colorsFounds.get("nati")!=null)
+//					Toast.makeText(getApplicationContext(), "nati: " + colorsFounds.get("nati").get(0).size(), 1000).show();
+//				if(colorsFounds.get("gili")!=null)
+//					Toast.makeText(getApplicationContext(), "gili: " + colorsFounds.get("gili").get(0).size(), 1000).show();
+				Toast.makeText(getApplicationContext(), pepe.toString(), 1000).show();
 
-				String name = MainActivity.logic.specificHit(colorsFounds, players);
-
-				if(name == null)
-					name = "null";
-				
-				Toast toast2 = Toast.makeText(getApplicationContext(), "HIT: " + name, 1000);
-				toast2.show();
-				
+//				String name = MainActivity.logic.specificHit(colorsFounds, players);
+//
+//				if(name == null)
+//					name = "null";
+//				
+//				Toast toast2 = Toast.makeText(getApplicationContext(), "HIT: " + name, 1000);
+//				toast2.show();
+//				
 //				switch(hitArea){
 //				case Logic.UPPER_BODY_HIT:
 //					total_score+=UPPER_BODY_HIT_SCORE;

@@ -22,7 +22,7 @@ public class ColorBlobDetector {
     private Scalar mColorRadius = new Scalar(25,50,50,0);
     private Mat mSpectrum = new Mat();
     private List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
-
+    private boolean isColorFound=false;
     // Cache
     Mat mPyrDownMat = new Mat();
     Mat mHsvMat = new Mat();
@@ -85,6 +85,7 @@ public class ColorBlobDetector {
         double maxArea = 0;
         Iterator<MatOfPoint> each = contours.iterator();
         while (each.hasNext()) {
+        	setColorFound(true);
             MatOfPoint wrapper = each.next();
             double area = Imgproc.contourArea(wrapper);
             if (area > maxArea)
@@ -103,7 +104,17 @@ public class ColorBlobDetector {
         }
     }
 
-    public List<MatOfPoint> getContours() {
+    private void setColorFound(boolean b) {
+    	this.isColorFound=b;
+	}
+
+	public List<MatOfPoint> getContours() {
         return mContours;
     }
+
+	public boolean isColorFound() {
+		return isColorFound;
+	}
+
+
 }
