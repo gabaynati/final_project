@@ -1,5 +1,6 @@
 package com.example.socket_com;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -62,22 +63,22 @@ public class Logic {
 		return -1;
 	}
 
-	public String specificHit(Map<String,List<MatOfPoint>> colors, String[] players){
+	public String specificHit(HashMap<String,List<MatOfPoint>> colors, String[] players){
+		String str="";
+		for(String s: players){
 
-		for(int i = 0; i < players.length; i++){
-			
-			List<MatOfPoint> list = colors.get(players[i]);
+			List<MatOfPoint> list = colors.get(s);//gets the mat of points of a player
+			if(list!=null){
 
-			for (ListIterator<MatOfPoint> iter = list.listIterator(); iter.hasNext(); ) {
+				for (MatOfPoint mp: list ) {//checking if there is a p
+					List<Point> listOfPoints = mp.toList();            
+					Point sightPoint = getSightPoint();
+					for(Point p: listOfPoints){
 
-				MatOfPoint element = iter.next();
-				List<Point> listOfPoints = element.toList();            
+						if(p.equals(sightPoint))
+							return s;
+					}
 
-				Iterator<Point> iterator = listOfPoints.iterator();         
-				while(iterator.hasNext()){
-					Point p = iterator.next();
-					if(p.inside(hitRect))
-						return players[i];
 				}
 			}
 		}

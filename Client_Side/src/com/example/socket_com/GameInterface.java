@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -163,13 +164,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Size                          SPECTRUM_SIZE;
 	private Scalar                        CONTOUR_COLOR;
 	private String[]                      players;
-	private Map<String,List<MatOfPoint>>  colorsFounds;
+	private HashMap<String,List<MatOfPoint>>  colorsFounds;
 
 	/*********************************************************/////
 
-
-	RGB rgb = new RGB(154.75, 73.671875, 219.734375);
-	Scalar scalar = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
 
 
 
@@ -263,24 +261,32 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		/*****////
 
 
+		
+		
+		
+		/****color detection*****************/
 		/*RGB rgb = new RGB(154.75, 73.671875, 219.734375);
     	Scalar scalar = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());*/
 
 		MainActivity.currentGamePlayersColors = new HashMap<String,RGB>();
-		//MainActivity.currentGamePlayersColors.put("gili", new RGB(168.125, 78.65625, 68.921875));
-		MainActivity.currentGamePlayersColors.put("gili", new RGB(255, 212.546875, 191.34375));
+		MainActivity.currentGamePlayersColors.put("nati", new RGB(89.671875, 226.75, 158.734375));
+		MainActivity.currentGamePlayersColors.put("gili", new RGB(29.203125, 244.859375, 194.359375));
 
 
 		players = new String[MainActivity.currentGamePlayersColors.size()];
 		colorsFounds = new HashMap<String,List<MatOfPoint>>();
 
-		Iterator<Map.Entry<String, RGB>> it = MainActivity.currentGamePlayersColors.entrySet().iterator();
-
+		Iterator<Map.Entry<String,RGB>> it = MainActivity.currentGamePlayersColors.entrySet().iterator();
+			
 		int i = 0;
 		while (it.hasNext()) {
-			Map.Entry<String, RGB> entry = it.next();
-			players[i++] = entry.getKey();
+			Map.Entry<String,RGB> entry = (Map.Entry<String,RGB>)it.next();
+			players[i++] = (String) entry.getKey();
 		}
+		/**************************************************/
+
+		
+		
 	}
 
 	/*****************************************************************/
@@ -488,22 +494,23 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		MainActivity.logic.setMats(mGray, mRgba);
 
-		
+		//iterate every player to find it's color
+		//if the color is found ,then it saves it's image points where it found
 		for(int i = 0; i < players.length; i++){
 
 			RGB rgb = MainActivity.currentGamePlayersColors.get(players[i]);
 			Scalar hsv = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
-
+			
 			mDetector.setHsvColor(hsv);
 
 			mDetector.process(mRgba);
-			List<MatOfPoint> contours = mDetector.getContours();
-			Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
+			List<MatOfPoint> contours = mDetector.getContours();//gets list of image points where the color was found
+			Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);//drawing circle near the points
 
-			//colorsFounds.put(players[i], contours);
+			colorsFounds.put(players[i], contours);
 		}
 		
-		if(!someAnimationRun && touched){
+		if(!someAnimationRun && touched){//shoot time
 
 			for(int i = 0; i < players.length; i++){
 
@@ -513,7 +520,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				mDetector.setHsvColor(hsv);
 
 				mDetector.process(mRgba);
-				List<MatOfPoint> contours = mDetector.getContours();
+				List<MatOfPoint> contours = mDetector.getContours();//get the mat of points which the hsv color was found there
 				Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
 
 				colorsFounds.put(players[i], contours);
@@ -719,52 +726,52 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			//MainActivity.logic.catchRect();
 
 			//if this player hits someone
-			final int hitArea = MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
-			String hit_area="";
-			switch(hitArea){
-			case Logic.UPPER_BODY_HIT:
-				hit_area="Upper body";
-				break;
-			case Logic.FACE_HIT:
-				hit_area="Head shot";
-				break;
-			case Logic.LOWER_BODY_HIT:
-				hit_area="Lower body";
-				break;
-
-
-
-
-			}	
+//			final int hitArea = MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
+//			String hit_area="";
+//			switch(hitArea){
+//			case Logic.UPPER_BODY_HIT:
+//				hit_area="Upper body";
+//				break;
+//			case Logic.FACE_HIT:
+//				hit_area="Head shot";
+//				break;
+//			case Logic.LOWER_BODY_HIT:
+//				hit_area="Lower body";
+//				break;
+//
+//
+//
+//
+//			}	
 
 			//hit was detected
-			if(hitArea != -1){
+			//if(hitArea != -1){
 
 				String name = MainActivity.logic.specificHit(colorsFounds, players);
-				
+
 				if(name == null)
 					name = "null";
 				
 				Toast toast2 = Toast.makeText(getApplicationContext(), "HIT: " + name, 1000);
 				toast2.show();
 				
-				switch(hitArea){
-				case Logic.UPPER_BODY_HIT:
-					total_score+=UPPER_BODY_HIT_SCORE;
-					break;
-				case Logic.FACE_HIT:
-					total_score+=FACE_HIT_SCORE;
-					break;
-				case Logic.LOWER_BODY_HIT:
-					total_score+=LOWER_BODY_HIT_SCORE;
-					break;
-				}
-				//updating the socre:
-				score_lbl.setText("Score: " + total_score);
-
-				//	drawHit();
-				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
-				toast.show();					
+//				switch(hitArea){
+//				case Logic.UPPER_BODY_HIT:
+//					total_score+=UPPER_BODY_HIT_SCORE;
+//					break;
+//				case Logic.FACE_HIT:
+//					total_score+=FACE_HIT_SCORE;
+//					break;
+//				case Logic.LOWER_BODY_HIT:
+//					total_score+=LOWER_BODY_HIT_SCORE;
+//					break;
+//				}
+//				//updating the socre:
+//				score_lbl.setText("Score: " + total_score);
+//
+//				//	drawHit();
+//				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
+//				toast.show();					
 
 				//sending GPS to server:
 				//				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
@@ -790,7 +797,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			setScreen();
 		}
-	}
+	//}
 	/*****************************************************************/
 
 
