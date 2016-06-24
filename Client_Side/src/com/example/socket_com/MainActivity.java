@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
@@ -14,6 +15,7 @@ import com.example.hs.R;
 import com.example.hs.R.id;
 import com.example.hs.R.layout;
 import com.example.hs.R.menu;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -56,7 +58,7 @@ public class MainActivity extends Activity {
 	public static boolean isConnected=false;
 	public static Logic logic;
 	public static GPSLocation loc;
-	public static HashMap<String,RGB> currentGamePlayersColors;
+	public static Map<String,RGB> currentGamePlayersColors;
 
 	//*************************************************/
 

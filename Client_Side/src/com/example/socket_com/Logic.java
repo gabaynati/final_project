@@ -1,7 +1,13 @@
 package com.example.socket_com;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+
 import org.opencv.android.JavaCameraView;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
@@ -15,6 +21,7 @@ public class Logic {
 	private Mat mGray, mRgba;
 	private int rectSize;
 	private float bearing;
+	private Rect hitRect;
 
 	//private Rect[] facesArrayWhileShoot, upperBodyArrayWhileShoot, lowerBodyArrayWhileShoot;
 
@@ -55,6 +62,28 @@ public class Logic {
 		return -1;
 	}
 
+	public String specificHit(Map<String,List<MatOfPoint>> colors, String[] players){
+
+		for(int i = 0; i < players.length; i++){
+			
+			List<MatOfPoint> list = colors.get(players[i]);
+
+			for (ListIterator<MatOfPoint> iter = list.listIterator(); iter.hasNext(); ) {
+
+				MatOfPoint element = iter.next();
+				List<Point> listOfPoints = element.toList();            
+
+				Iterator<Point> iterator = listOfPoints.iterator();         
+				while(iterator.hasNext()){
+					Point p = iterator.next();
+					if(p.inside(hitRect))
+						return players[i];
+				}
+			}
+		}
+		return null;
+	}
+
 	//check if hit at some face in the frame, if yes return true, else return false
 	private boolean checkForFace(Rect[] facesArrayWhileShoot){
 
@@ -82,6 +111,7 @@ public class Logic {
 			for (int i = 0; i < upperBodyArrayWhileShoot.length; i++){
 				if(sightPoint.inside(upperBodyArrayWhileShoot[i])){
 					rectSize = upperBodyArrayWhileShoot[i].width;
+					hitRect = upperBodyArrayWhileShoot[i];
 					return true;
 				}
 			}
@@ -114,6 +144,7 @@ public class Logic {
 			for (int i = 0; i < lowerBodyArrayWhileShoot.length; i++){
 				if(sightPoint.inside(lowerBodyArrayWhileShoot[i])){
 					rectSize = lowerBodyArrayWhileShoot[i].width;
+					hitRect = lowerBodyArrayWhileShoot[i];
 					return true;
 				}
 			}

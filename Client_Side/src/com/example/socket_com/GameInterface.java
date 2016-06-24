@@ -15,6 +15,11 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.Timer;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -76,6 +81,7 @@ import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.core.CvType;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -102,11 +108,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
 	public static final int UPPER_BODY_HIT_SCORE=50,FACE_HIT_SCORE=100,LOWER_BODY_HIT_SCORE=20;
-	
 
-	private RGB rgb = new RGB(154.75, 73.671875, 219.734375);
-	private Scalar scalar = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
-	
+
 	/*************Sensors****************/
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -151,18 +154,22 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Rect[]                 facesArray, facesArrayWhileShoot;
 	private Rect[]                 upperBodyArray, upperBodyArrayWhileShoot;
 	private Rect[]                 lowerBodyArray, lowerBodyArrayWhileShoot;
-	
-	
+
+
 	//colors detector
-	private Mat                  mHsv;
-	private ColorBlobDetector    mDetector;
-	private Mat                  mSpectrum;
-	private Size                 SPECTRUM_SIZE;
-	private Scalar               CONTOUR_COLOR;
+	private Mat                           mHsv;
+	private ColorBlobDetector             mDetector;
+	private Mat                           mSpectrum;
+	private Size                          SPECTRUM_SIZE;
+	private Scalar                        CONTOUR_COLOR;
+	private String[]                      players;
+	private Map<String,List<MatOfPoint>>  colorsFounds;
 
 	/*********************************************************/////
 
 
+	RGB rgb = new RGB(154.75, 73.671875, 219.734375);
+	Scalar scalar = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
 
 
 
@@ -187,23 +194,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//location.requestLocationUpdates(bestProvider, 0, 0, this);
 		/******************************************************************/
 		//hitThreads=new Vector<HitListener_Thread>();
-
-
-		/*tar = new Location("dummyprovider");
-		loc = new Location("dummyprovider");
-
-		tar.setLatitude(31.7971001);
-		tar.setLongitude(35.0626474);
-
-		loc.setLatitude(31.7970121);
-		loc.setLongitude(35.0626729);
-
-        //loc = location.getLastKnownLocation(bestProvider);
-		degree = loc.bearingTo(tar);
-
-
-		Toast toast = Toast.makeText(getApplicationContext(), "degree = " + degree, 300000);
-		toast.show();*/
 
 
 		///*************OpenCV***********************///
@@ -256,22 +246,41 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		reload.setOnClickListener(this);
 		target.setOnClickListener(this);
 		shoot.setOnTouchListener(this);
-		
-		
-		
-		
+
+
+
+
 		/***service for listening to hits***/
 		//starting the service
 		Intent msgIntent = new Intent(this, HitService.class);
 		startService(msgIntent);
 
 		//creating a listener to the service 
-        IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_RESP);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        ResponseReceiver reponse = new ResponseReceiver();
-        registerReceiver(reponse, filter);
-        /*****////
+		IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_RESP);
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		ResponseReceiver reponse = new ResponseReceiver();
+		registerReceiver(reponse, filter);
+		/*****////
 
+
+		/*RGB rgb = new RGB(154.75, 73.671875, 219.734375);
+    	Scalar scalar = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());*/
+
+		MainActivity.currentGamePlayersColors = new HashMap<String,RGB>();
+		//MainActivity.currentGamePlayersColors.put("gili", new RGB(168.125, 78.65625, 68.921875));
+		MainActivity.currentGamePlayersColors.put("gili", new RGB(255, 212.546875, 191.34375));
+
+
+		players = new String[MainActivity.currentGamePlayersColors.size()];
+		colorsFounds = new HashMap<String,List<MatOfPoint>>();
+
+		Iterator<Map.Entry<String, RGB>> it = MainActivity.currentGamePlayersColors.entrySet().iterator();
+
+		int i = 0;
+		while (it.hasNext()) {
+			Map.Entry<String, RGB> entry = it.next();
+			players[i++] = entry.getKey();
+		}
 	}
 
 	/*****************************************************************/
@@ -370,14 +379,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		player_life = (ProgressBar)findViewById(R.id.life_progress);
 		player_life.setMax(player.getMaxLife());
 		player_life.setProgress(player.getLife());
-		
-		
-		
+
+
+
 		//running hit event listener:
 		//hitThreads.add((HitListener_Thread) new HitListener_Thread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
-		
-		
-		
+
+
+
 		//the following call binds the activity with the opencv service.
 		//the third argument is a listener object that keeps track to the binding process.
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,this , mLoaderCallback);
@@ -402,7 +411,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			MainActivity.server_com.quitGame();
 			//saving total score at DB
 			GameDB.updateScoreInDB(player.getNickName(), total_score);
-			
+
 		}
 	}
 	/*****************************************************************/
@@ -411,7 +420,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	public void onDestroy(){
 		super.onDestroy();
 		exitGameSettings();
-		
+
 	}
 	/*****************************************************************/
 
@@ -444,13 +453,13 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//Initializing the intermediate Mat object which is in use for frame processing
 		mGray = new Mat();
 		mRgba = new Mat();
-		
+
 		mHsv = new Mat(height, width, CvType.CV_8UC4);
 		mDetector = new ColorBlobDetector();
 		mSpectrum = new Mat();
 		SPECTRUM_SIZE = new Size(200, 64);
 		CONTOUR_COLOR = new Scalar(0,255,0,255);
-		
+
 		MainActivity.logic.setMats(mGray, mRgba);
 	}
 	/*****************************************************************/
@@ -478,8 +487,39 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mGray=inputFrame.gray();
 
 		MainActivity.logic.setMats(mGray, mRgba);
+
+		
+		for(int i = 0; i < players.length; i++){
+
+			RGB rgb = MainActivity.currentGamePlayersColors.get(players[i]);
+			Scalar hsv = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
+
+			mDetector.setHsvColor(hsv);
+
+			mDetector.process(mRgba);
+			List<MatOfPoint> contours = mDetector.getContours();
+			Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
+
+			//colorsFounds.put(players[i], contours);
+		}
+		
 		if(!someAnimationRun && touched){
 
+			for(int i = 0; i < players.length; i++){
+
+				RGB rgb = MainActivity.currentGamePlayersColors.get(players[i]);
+				Scalar hsv = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
+
+				mDetector.setHsvColor(hsv);
+
+				mDetector.process(mRgba);
+				List<MatOfPoint> contours = mDetector.getContours();
+				Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
+
+				colorsFounds.put(players[i], contours);
+			}
+			
+			
 			if (mAbsoluteDetectorSize_lower == 0) {
 				int height = mGray.rows();
 				if (Math.round(height * mRelativeDetectorSize_lower) > 0) {
@@ -541,6 +581,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			for (int i = 0; i < lowerBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
 			 */
+
+			
 			touched = false;
 		}
 		return mRgba;
@@ -698,7 +740,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			//hit was detected
 			if(hitArea != -1){
 
-
+				String name = MainActivity.logic.specificHit(colorsFounds, players);
+				
+				if(name == null)
+					name = "null";
+				
+				Toast toast2 = Toast.makeText(getApplicationContext(), "HIT: " + name, 1000);
+				toast2.show();
+				
 				switch(hitArea){
 				case Logic.UPPER_BODY_HIT:
 					total_score+=UPPER_BODY_HIT_SCORE;
@@ -718,19 +767,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				toast.show();					
 
 				//sending GPS to server:
-//				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
-//					@Override 
-//					public void onNewLocationAvailable(GPSCoordinates location) {
-//						double latitude = location.latitude;
-//						double longitude = location.longitude;
-//						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
-//						toast.show();
-//						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
-//					}
-//
-//				});
-				RGB hitPlayerColor = null;
-				MainActivity.server_com.sendHitToServer(hitArea,hitPlayerColor);
+				//				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
+				//					@Override 
+				//					public void onNewLocationAvailable(GPSCoordinates location) {
+				//						double latitude = location.latitude;
+				//						double longitude = location.longitude;
+				//						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
+				//						toast.show();
+				//						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
+				//					}
+				//
+				//				});
+				/*RGB hitPlayerColor = null;
+				MainActivity.server_com.sendHitToServer(hitArea,hitPlayerColor);*/
 
 
 				/**********************************/
@@ -1231,95 +1280,95 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 	/*****************************************************************/
-//	//this thread used to check if this player got shot by someone
-//	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
-//		private String response;
-//		private boolean run=true;
-//		@Override
-//		protected String doInBackground(Void... arg0) {
-//			while(run){
-//				
-////				if (isCancelled()) break;
-////				
-////				//blocking thread until hit packet received from server:
-////				try {
-////					MainActivity.hitSem.acquire();
-////				} catch (InterruptedException e) {
-////					// TODO Auto-generated catch block
-////					e.printStackTrace();
-////				}		
-////
-////
-////				 
-////
-////
-////				publishProgress();
-//
-//			}
-//			return response;
-//		}
-//
-//
-//
-//		public void stop() {
-//			run=false;
-//			
-//		}
-//
-//
-//
-//		@Override
-//		protected void onProgressUpdate(Void... v) {
-//			super.onProgressUpdate(v);
-//			hitRecvied();
-////			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
-////				@Override 
-////				public void onNewLocationAvailable(GPSCoordinates location) {
-////
-////
-////					//Gathering this player's GPS and hitter player's GPS which has been received from server:
-////					loc = new Location("thisLoc");
-////					tar = new Location("hitterLoc");
-////
-////					loc.setLatitude(location.latitude);
-////					loc.setLongitude(location.longitude);
-////					tar.setLatitude(MainActivity.hitterLatitude);
-////					tar.setLongitude(MainActivity.hitterLongitude);
-////
-////
-////					float deg = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
-////
-////					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
-////					toast.show();
-////
-////					//checking if this player got shot by someone.
-////					/*if(MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
-////						hitRecvied();
-////
-////					}*/
-////					hitRecvied();
-////				}
-////			});
-//		}
-//
-//		@Override
-//		protected void onPostExecute(String result) {
-//			super.onPostExecute(result);
-//		}
-//
-//	}
+	//	//this thread used to check if this player got shot by someone
+	//	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
+	//		private String response;
+	//		private boolean run=true;
+	//		@Override
+	//		protected String doInBackground(Void... arg0) {
+	//			while(run){
+	//				
+	////				if (isCancelled()) break;
+	////				
+	////				//blocking thread until hit packet received from server:
+	////				try {
+	////					MainActivity.hitSem.acquire();
+	////				} catch (InterruptedException e) {
+	////					// TODO Auto-generated catch block
+	////					e.printStackTrace();
+	////				}		
+	////
+	////
+	////				 
+	////
+	////
+	////				publishProgress();
+	//
+	//			}
+	//			return response;
+	//		}
+	//
+	//
+	//
+	//		public void stop() {
+	//			run=false;
+	//			
+	//		}
+	//
+	//
+	//
+	//		@Override
+	//		protected void onProgressUpdate(Void... v) {
+	//			super.onProgressUpdate(v);
+	//			hitRecvied();
+	////			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
+	////				@Override 
+	////				public void onNewLocationAvailable(GPSCoordinates location) {
+	////
+	////
+	////					//Gathering this player's GPS and hitter player's GPS which has been received from server:
+	////					loc = new Location("thisLoc");
+	////					tar = new Location("hitterLoc");
+	////
+	////					loc.setLatitude(location.latitude);
+	////					loc.setLongitude(location.longitude);
+	////					tar.setLatitude(MainActivity.hitterLatitude);
+	////					tar.setLongitude(MainActivity.hitterLongitude);
+	////
+	////
+	////					float deg = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+	////
+	////					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
+	////					toast.show();
+	////
+	////					//checking if this player got shot by someone.
+	////					/*if(MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
+	////						hitRecvied();
+	////
+	////					}*/
+	////					hitRecvied();
+	////				}
+	////			});
+	//		}
+	//
+	//		@Override
+	//		protected void onPostExecute(String result) {
+	//			super.onPostExecute(result);
+	//		}
+	//
+	//	}
 	/*****************************************************************/
 	//this class is a listener to the hit service
 	public class ResponseReceiver extends BroadcastReceiver {
-		  
-		    
-		   public static final String ACTION_RESP = "hit";
+
+
+		public static final String ACTION_RESP = "hit";
 
 		@Override
-		    public void onReceive(Context context, Intent intent) {
-				hitRecvied();
-				
-		    }
+		public void onReceive(Context context, Intent intent) {
+			hitRecvied();
+
 		}
+	}
 	/*****************************************************************/
 }

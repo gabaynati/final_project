@@ -1,6 +1,7 @@
 package com.example.socket_com;
 
 import java.util.List;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.JavaCameraView;
@@ -15,7 +16,9 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
+
 import com.example.hs.R;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,6 +30,7 @@ import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.view.SurfaceView;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 public class ColorSelector extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2 {
@@ -213,10 +217,13 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 			 *   G - mBlobColorRgba.val[1]
 			 *   B - mBlobColorRgba.val[2]
 			 */
-			MainActivity.player.setPlayerColor(new RGB(mBlobColorRgba.val[0], mBlobColorRgba.val[1], mBlobColorRgba.val[2]));
+			Toast toast = Toast.makeText(getApplicationContext(), mBlobColorHsv.val[0] + " " + mBlobColorHsv.val[1] + " " + mBlobColorHsv.val[2], 1000);
+			toast.show();
+			
+			/*MainActivity.player.setPlayerColor(new RGB(mBlobColorRgba.val[0], mBlobColorRgba.val[1], mBlobColorRgba.val[2]));
 			Intent gameInfo = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
 			startActivity(gameInfo);
-			finish();
+			finish();*/
 			break;
 		}
 	}
