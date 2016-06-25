@@ -428,6 +428,21 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		MainActivity.logic.setMats(mGray, mRgba);
 		
+		for(int i = 0; i < players.length; i++){
+
+			RGB rgb = MainActivity.currentGamePlayersColors.get(players[i]);
+			Scalar hsv = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
+
+			mDetector.setHsvColor(hsv);
+
+			//search the color on the input frame
+			mDetector.process(mRgba);
+			List<MatOfPoint> contours = mDetector.getContours();
+
+			/**************draw the contours on the screen - test only**********/
+			Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
+		}
+		
 		//on shooting time
 		if(touched){
 
@@ -447,7 +462,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				List<MatOfPoint> contours = mDetector.getContours();
 
 				/*************draw the contours on the screen - test only**********/
-				Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
+				//Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
 
 				//if color found add it to the map
 				if(!contours.isEmpty())
@@ -507,16 +522,16 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			lowerBodyArray = lowerBodies.toArray();
 			
 			/*******************************drawing rectangles - test only***********************************/
-			for (int i = 0; i < lowerBodyArray.length; i++)
-				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+			//for (int i = 0; i < lowerBodyArray.length; i++)
+				//Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
 			/************************************************************************************************/
 
 			//get array of points
 			upperBodyArray = upperBodies.toArray();
 			
 			/*******************************drawing rectangles - test only***********************************/
-			for (int i = 0; i < upperBodyArray.length; i++)
-				Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
+			//for (int i = 0; i < upperBodyArray.length; i++)
+				//Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
 			/************************************************************************************************/
 
 			//get array of points

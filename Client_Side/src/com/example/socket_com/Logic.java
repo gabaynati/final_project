@@ -24,7 +24,7 @@ public class Logic {
 	private JavaCameraView mOpenCvCameraView;      //openCV camera
 	private Mat mGray, mRgba;                      //input camera frames
 	private int rectSize;                          //size of current hit rectangle
-	private Rect hitRect[];                          //current hit rectangle                        
+	private Rect hitRect;                          //current hit rectangle                        
 	private boolean isLowerBody;
 
 
@@ -94,10 +94,10 @@ public class Logic {
 					Point corP = getCorrectPoint(p);
 
 					//enough that one point is in the current hit rectangle
-					for(int i = 0; i < hitRect.length; i++){
-						if(corP.inside(hitRect[i]))
-							return entry.getKey();
-					}
+
+					if(corP.inside(hitRect) || p.inside(hitRect))
+						return entry.getKey();
+
 				}
 			}
 		}
@@ -132,7 +132,7 @@ public class Logic {
 			for (int i = 0; i < upperBodyArrayWhileShoot.length; i++){
 				if(sightPoint.inside(upperBodyArrayWhileShoot[i])){
 					rectSize = upperBodyArrayWhileShoot[i].width;
-					hitRect = upperBodyArrayWhileShoot;
+					hitRect = upperBodyArrayWhileShoot[i];
 					isLowerBody = false;
 					return true;
 				}
@@ -166,7 +166,7 @@ public class Logic {
 			for (int i = 0; i < lowerBodyArrayWhileShoot.length; i++){
 				if(sightPoint.inside(lowerBodyArrayWhileShoot[i])){
 					rectSize = lowerBodyArrayWhileShoot[i].width;
-					hitRect = lowerBodyArrayWhileShoot;
+					hitRect = lowerBodyArrayWhileShoot[i];
 					isLowerBody = true;
 					return true;
 				}
