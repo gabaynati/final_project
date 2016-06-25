@@ -31,6 +31,7 @@ public class Player {
 		weapons = weaponsList;
 	}
 
+	//constructor
 	public Player(String nickName,String password,int port){
 
 		life = maxLife;
@@ -42,19 +43,13 @@ public class Player {
 		ammunition=30;
 		this.playerPort=port;
 	}
+	
+	/*******************gets and sets methods*****************************/
 	public void setConnectedToServer(boolean bool){
 		isConnectedToServer=bool;
 	}
 	public boolean isConnectedToServer(){
 		return this.isConnectedToServer;
-	}
-	public void Hit(int hitArea){
-		if(hitArea == UPPER_BODY_HIT)
-			this.life = this.life - this.upperBody_hit;
-		else if(hitArea == LOWER_BODY_HIT)
-			this.life = this.life - this.lowerBody_hit;
-		else if(hitArea == FACE_HIT)
-			this.life = 0;
 	}
 
 	public String getRank() {
@@ -125,24 +120,6 @@ public class Player {
 		life = newLife;
 	}
 
-	/*
-	 * set the current weapon index at the weapons array
-	 * if i = 1 take the next weapon
-	 * if i = -1 take the previous weapon
-	 * else do nothing
-	 */
-	public void chengeCurrentWeapon(int i){
-
-		if(i == 1)
-			current_weapon = (current_weapon + i) % weapons.length;
-
-		else if(i == -1){
-			current_weapon = current_weapon + i;
-			if(current_weapon < 0)
-				current_weapon = weapons.length - 1;
-		}
-	}
-
 	public String getPassword() {
 		return this.password;
 	}
@@ -161,5 +138,35 @@ public class Player {
 
 	public void setPlayerPort(int playerPort) {
 		this.playerPort = playerPort;
+	}
+	
+	/**********************************************************************/
+	
+	/*
+	 * set the current weapon index at the weapons array
+	 * if i = 1 take the next weapon
+	 * if i = -1 take the previous weapon
+	 * else do nothing
+	 */
+	public void chengeCurrentWeapon(int i){
+
+		if(i == 1)
+			current_weapon = (current_weapon + i) % weapons.length;
+
+		else if(i == -1){
+			current_weapon = current_weapon + i;
+			if(current_weapon < 0)
+				current_weapon = weapons.length - 1;
+		}
+	}
+	
+	//after the player injured method
+	public void Hit(int hitArea){
+		if(hitArea == UPPER_BODY_HIT)
+			this.life = this.life - this.upperBody_hit;
+		else if(hitArea == LOWER_BODY_HIT)
+			this.life = this.life - this.lowerBody_hit;
+		else if(hitArea == FACE_HIT)
+			this.life = 0;
 	}
 }

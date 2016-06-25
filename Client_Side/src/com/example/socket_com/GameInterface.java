@@ -10,21 +10,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.Vector;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Semaphore;
 
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,35 +22,16 @@ import android.content.IntentFilter;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.objdetect.CascadeClassifier;
-import org.opencv.video.BackgroundSubtractorMOG2;
-
-import android.provider.Settings;
 
 import com.example.hs.R;
-import com.example.socket_com.GameInfoActivity.updateGameInfo_Thread;
-import com.example.socket_com.ServerCommunication.MyClientTask_ListenToPakcets;
-import com.example.socket_com.ServerCommunication.MyClientTask_SendPakcet;
-import com.example.socket_com.SingleShotLocationProvider.GPSCoordinates;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.AnimationDrawable;
-import android.hardware.GeomagneticField;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -74,7 +45,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TableRow;
 import android.widget.Toast;
 import android.widget.TextView;
 
@@ -84,66 +54,48 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.core.CvType;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfRect;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2, SensorEventListener, LocationListener {
+public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2 {
+
 	//private Vector<HitListener_Thread> hitThreads;
 	private int total_score=20;
 	private Context context;
 	//private MainActivity.logic MainActivity.logic;
 	private final int ramBurden = 5;
 	private FrameLayout frame;
-	private TextView current_bulletsText, total_bulletsText, slesh;
+	private TextView current_bulletsText, total_bulletsText, slesh, score_lbl;
 	private ProgressBar player_life;
 	private ImageButton reload, target, shoot;
 	private ImageView img, bullet_hit, sight_img, board_num1, board_num2;
 	private int anim_index, soundIndex, state, unUsed, shootingTime;
 	private float x1, x2;
 	private AnimationDrawable shoot_animation, stand_animation;
-	private boolean someAnimationRun, someAnimationLoad, pressed, touched;
+	private boolean someAnimationRun, someAnimationLoad, pressed, touched, write;
 	private Player player=MainActivity.player;
 	private Handler AnimationHandler, DrawableHandler, changeAnimation, shootHandler;
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
+	private Semaphore semaphore;
 	public static final int UPPER_BODY_HIT_SCORE=50,FACE_HIT_SCORE=100,LOWER_BODY_HIT_SCORE=20;
 
 
-	/*************Sensors****************/
-	private SensorManager mSensorManager;
-	private Sensor mAccelerometer;
-	private Sensor mMagnetometer;
+	/**********************************OpenCV configurations***************************************/
 
-	private float azimuth = 0;
-	private TextView sensorTest;
-	/********************************************/
-
-	/*******************GPS********************/
-	private TextView gpsTest,score_lbl;
-	private LocationManager location;
-	private String bestProvider;
-
-	private Location loc;
-	private Location tar;
-
-	private float degree;
-	/******************************************/
+	//OpenCV Object for handling the camera
+	private JavaCameraView mOpenCvCameraView;
+	protected static final String TAG = null;
+	private Mat mGray,mRgba;
 
 
-
-
-
-
-	/*************OpenCV configurations********************/
+	//human detectors - haar cascade algorithm
 	private final String face_xml_res = "lbpcascade_frontalface";
 	private final String lowerBody_xml_res = "haarcascade_lowerbody";
 	private final String upperBody_xml_res = "haarcascade_upperbody";
-	protected static final String TAG = null;
-	private Mat mGray,mRgba;
-	//OpenCV Object for handling the camera
-	private JavaCameraView mOpenCvCameraView;
+
+
 	//files for face detection
 	private File                   faceCascadeFile, uBodyCascadeFile, lBodyCascadeFile;
 	private CascadeClassifier      faceDetector, uBodyDetector, lBodyDetector;
@@ -158,43 +110,31 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 	//colors detector
-	private Mat                           mHsv;
-	private ColorBlobDetector             mDetector;
-	private Mat                           mSpectrum;
-	private Size                          SPECTRUM_SIZE;
-	private Scalar                        CONTOUR_COLOR;
-	private String[]                      players;
+	private Mat                               mHsv;
+	private ColorBlobDetector                 mDetector;
+	private Mat                               mSpectrum;
+	private Size                              SPECTRUM_SIZE;
+	private Scalar                            CONTOUR_COLOR;
+	private String[]                          players;
 	private HashMap<String,List<MatOfPoint>>  colorsFounds;
-	private HashMap<String, Boolean> pepe=new HashMap<String, Boolean>();
-	/*********************************************************/////
+
+	/****************************************************************************************************/
 
 
 
 
+	//called when the activity created at first time
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);	
 		setContentView(R.layout.game_layout);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		context = this.getApplicationContext();
-		/***************************Sensors*************************************/
-		mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-		/******************************************************************/
-
-		/******************************GPS*********************************/
-		location = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-		Criteria crit = new Criteria();
-		crit.setAccuracy(Criteria.ACCURACY_FINE);
-		bestProvider = location.getBestProvider(crit, false);
-		//location.requestLocationUpdates(bestProvider, 0, 0, this);
-		/******************************************************************/
-		//hitThreads=new Vector<HitListener_Thread>();
 
 
-		///*************OpenCV***********************///
+		/******************OpenCV***********************/
 		//binding the OpenCV camera object to the layout
 		mOpenCvCameraView=(JavaCameraView)findViewById(R.id.cameraPreview);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
@@ -202,14 +142,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//because we are implementing a camera listener object ,we are using "this" as argument
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.setOnTouchListener(this);
-		//***************************************///
+		/***********************************************/
 
 
-		MainActivity.logic = new Logic(mOpenCvCameraView);
-
-		touched = false;
-
-
+		/**************************Layout components*****************************/
 		frame = (FrameLayout)findViewById(R.id.game_layout);
 		img = (ImageView)findViewById(R.id.weaponView);
 		sight_img = (ImageView)findViewById(R.id.sight);
@@ -221,13 +157,23 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		total_bulletsText = (TextView)findViewById(R.id.bullets_total);
 		current_bulletsText = (TextView)findViewById(R.id.bullets_condition);
 		slesh = (TextView)findViewById(R.id.slesh);
+		/************************************************************************/
+
+
+		MainActivity.logic = new Logic(mOpenCvCameraView);
+
+		someAnimationRun = false;
+		touched = false;
+
 		score_lbl=(TextView)findViewById(R.id.score_lbl);
 		score_lbl.setText("Score: " + total_score);
+
 		AnimationHandler = new Handler();
 		DrawableHandler = new Handler();
 		changeAnimation = new Handler();
 
-		someAnimationRun = false;
+		semaphore = new Semaphore(1);
+
 
 		Weapon mp412 = new Mp412(getApplicationContext(), "mp412", 60);
 		Weapon srr61 = new Srr61(getApplicationContext(), "srr61", 60);
@@ -248,7 +194,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-		/***service for listening to hits***/
+		/*************service for listening to hits*****************/
 		//starting the service
 		Intent msgIntent = new Intent(this, HitService.class);
 		startService(msgIntent);
@@ -258,26 +204,24 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		ResponseReceiver reponse = new ResponseReceiver();
 		registerReceiver(reponse, filter);
-		/*****////
+		/***********************************************************/
 
 
-		
-		
-		
+
+
+
 		/****color detection*****************/
-		/*RGB rgb = new RGB(154.75, 73.671875, 219.734375);
-    	Scalar scalar = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());*/
 
 		MainActivity.currentGamePlayersColors = new HashMap<String,RGB>();
-		MainActivity.currentGamePlayersColors.put("nati", new RGB(89.671875, 226.75, 158.734375));
-		MainActivity.currentGamePlayersColors.put("gili", new RGB(29.203125, 244.859375, 194.359375));
+		MainActivity.currentGamePlayersColors.put("nati", new RGB(168.125, 78.65625, 68.921875));
+		MainActivity.currentGamePlayersColors.put("gili", new RGB(255, 212.546875, 191.34375));
 
 
 		players = new String[MainActivity.currentGamePlayersColors.size()];
 		colorsFounds = new HashMap<String,List<MatOfPoint>>();
 
 		Iterator<Map.Entry<String,RGB>> it = MainActivity.currentGamePlayersColors.entrySet().iterator();
-			
+
 		int i = 0;
 		while (it.hasNext()) {
 			Map.Entry<String,RGB> entry = (Map.Entry<String,RGB>)it.next();
@@ -285,8 +229,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		}
 		/**************************************************/
 
-		
-		
+
+
 	}
 
 	/*****************************************************************/
@@ -386,23 +330,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		player_life.setMax(player.getMaxLife());
 		player_life.setProgress(player.getLife());
 
-
-
 		//running hit event listener:
 		//hitThreads.add((HitListener_Thread) new HitListener_Thread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
-
-
 
 		//the following call binds the activity with the opencv service.
 		//the third argument is a listener object that keeps track to the binding process.
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,this , mLoaderCallback);
-
-
-
-		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
-
-
 	}
 	/*****************************************************************/
 
@@ -438,45 +371,47 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	}
 	/*****************************************************************/
 
+	//called when the activity goes to background
 	@Override
 	public void onPause(){
 		super.onPause();
 		if (mOpenCvCameraView!=null)
 			mOpenCvCameraView.disableView();
-
-
-		mSensorManager.unregisterListener(this, mAccelerometer);
-		mSensorManager.unregisterListener(this, mMagnetometer);
-
-
-
 	}
-	//##################CvCameraViewListener2 methods########################
-	/*****************************************************************/
 
+	/******************************CvCameraViewListener2 methods*******************************/
+
+	//called when the openCV camera component is started
 	@Override
 	public void onCameraViewStarted(int width, int height) {
+
 		//Initializing the intermediate Mat object which is in use for frame processing
 		mGray = new Mat();
 		mRgba = new Mat();
 
+		/***********colors detector components****************/
 		mHsv = new Mat(height, width, CvType.CV_8UC4);
 		mDetector = new ColorBlobDetector();
 		mSpectrum = new Mat();
 		SPECTRUM_SIZE = new Size(200, 64);
 		CONTOUR_COLOR = new Scalar(0,255,0,255);
+		/*****************************************************/
 
 		MainActivity.logic.setMats(mGray, mRgba);
 	}
 	/*****************************************************************/
 
+	//called when the openCV camera component is stopped
 	@Override
 	public void onCameraViewStopped() {
-		//releasing them
+
+		//releasing Mats object
 		mGray.release();
 		mRgba.release();
 		mHsv.release();
 	}
+
+
 
 	//this method is called when the camera delivers a frame.
 	//before this callback is called , the data from the camera is ripped out to a CvCameraViewFrame object, which 
@@ -495,26 +430,33 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		MainActivity.logic.setMats(mGray, mRgba);
 
 
-		
-		if(!someAnimationRun && touched){//shoot time
+		//shoot time
+		if(!someAnimationRun && touched){
 
-			//iterate every player to find it's color
-			//if the color is found ,then it saves it's image points where it found
-			for(String s: players){
-	
-				RGB rgb = MainActivity.currentGamePlayersColors.get(s);
+			//clear all colors from the map (not relevant contours)
+			colorsFounds.clear();
+
+			//for each player search is specific color
+			for(int i = 0; i < players.length; i++){
+
+				RGB rgb = MainActivity.currentGamePlayersColors.get(players[i]);
 				Scalar hsv = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
-				
+
 				mDetector.setHsvColor(hsv);
-	
+
+				//search the color on the input frame
 				mDetector.process(mRgba);
-				List<MatOfPoint> contours = mDetector.getContours();//gets list of image points where the color was found
-				Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);//drawing circle near the points
-	
-				colorsFounds.put(s, contours);
-				pepe.put(s, mDetector.isColorFound());
+				List<MatOfPoint> contours = mDetector.getContours();
+
+				/*************draw the contours on the screen - test only**********/
+				Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
+
+				//if color found add it to the map
+				if(!contours.isEmpty())
+					colorsFounds.put(players[i], contours);
 			}
-			
+
+
 			if (mAbsoluteDetectorSize_lower == 0) {
 				int height = mGray.rows();
 				if (Math.round(height * mRelativeDetectorSize_lower) > 0) {
@@ -530,9 +472,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			}
 
 
+			//allocate new catch mats for the human detectors
 			MatOfRect lowerBodies = new MatOfRect();
 			MatOfRect upperBodies = new MatOfRect();
 			//MatOfRect lowerBodies = new MatOfRect();
+
+			System.gc();
 
 
 			//running face detecting on the frame:
@@ -559,6 +504,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			 */
 
+			/*******************************drawing rectangles - test only***********************************/
 			//drawing rectangles around each lower body in the frame.
 			lowerBodyArray = lowerBodies.toArray();
 			for (int i = 0; i < lowerBodyArray.length; i++)
@@ -570,19 +516,21 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			for (int i = 0; i < upperBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
 
-			/*
+
 			//drawing rectangles around each lower body in the frame.
 			lowerBodyArray = upperBodies.toArray();
 			for (int i = 0; i < lowerBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
-			 */
 
-			
+
+			/**********************************************************************************************/
+
 			touched = false;
+
+
 		}
+
 		return mRgba;
-
-
 	}
 
 	////############################################///
@@ -662,6 +610,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			{
 				if(!someAnimationRun && !someAnimationLoad){
 
+					touched = true;
 					shootHandler = new Handler();
 					shootHandler.postDelayed(shootAction, shootingTime);
 					shoot();
@@ -702,7 +651,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//call this method when the user shoot
 	private void shoot(){
 
-		touched = true;
 
 		int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
 		if(currentBullets > 0){
@@ -713,90 +661,70 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			//catch the detection rectangles on shoot time
 			//MainActivity.logic.catchRect();
 
-			//if this player hits someone
-			//final int hitArea = MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
-//			String hit_area="";
-//			switch(hitArea){
-//			case Logic.UPPER_BODY_HIT:
-//				hit_area="Upper body";
-//				break;
-//			case Logic.FACE_HIT:
-//				hit_area="Head shot";
-//				break;
-//			case Logic.LOWER_BODY_HIT:
-//				hit_area="Lower body";
-//				break;
-//
-//
-//
-//
-//			}	
+
+			//if this player hits someone - hitArea = area index
+			final int hitArea = MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
+
+			String hit_area="";
+			switch(hitArea){
+			case Logic.UPPER_BODY_HIT:
+				hit_area="Upper body";
+				break;
+			case Logic.FACE_HIT:
+				hit_area="Head shot";
+				break;
+			case Logic.LOWER_BODY_HIT:
+				hit_area="Lower body";
+				break;
+			}	
 
 			//hit was detected
-			//if(hitArea != -1){
-//				if(colorsFounds.get("nati")!=null)
-//					Toast.makeText(getApplicationContext(), "nati: " + colorsFounds.get("nati").get(0).size(), 1000).show();
-//				if(colorsFounds.get("gili")!=null)
-//					Toast.makeText(getApplicationContext(), "gili: " + colorsFounds.get("gili").get(0).size(), 1000).show();
-				Toast.makeText(getApplicationContext(), pepe.toString(), 1000).show();
+			if(hitArea != -1){
 
-//				String name = MainActivity.logic.specificHit(colorsFounds, players);
-//
-//				if(name == null)
-//					name = "null";
-//				
-//				Toast toast2 = Toast.makeText(getApplicationContext(), "HIT: " + name, 1000);
-//				toast2.show();
-//				
-//				switch(hitArea){
-//				case Logic.UPPER_BODY_HIT:
-//					total_score+=UPPER_BODY_HIT_SCORE;
-//					break;
-//				case Logic.FACE_HIT:
-//					total_score+=FACE_HIT_SCORE;
-//					break;
-//				case Logic.LOWER_BODY_HIT:
-//					total_score+=LOWER_BODY_HIT_SCORE;
-//					break;
-//				}
-//				//updating the socre:
-//				score_lbl.setText("Score: " + total_score);
-//
-//				//	drawHit();
-//				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
-//				toast.show();					
+				String name = MainActivity.logic.specificHit(colorsFounds);
 
-				//sending GPS to server:
-				//				SingleShotLocationProvider.requestSingleUpdate(this, new SingleShotLocationProvider.LocationCallback() {
-				//					@Override 
-				//					public void onNewLocationAvailable(GPSCoordinates location) {
-				//						double latitude = location.latitude;
-				//						double longitude = location.longitude;
-				//						Toast toast = Toast.makeText(getApplicationContext(), "latitude = " + location.latitude + "longitude " + location.longitude, 10000);
-				//						toast.show();
-				//						MainActivity.server_com.sendHitToServer(hitArea, azimuth, location.latitude, location.longitude);
-				//					}
-				//
-				//				});
-				/*RGB hitPlayerColor = null;
-				MainActivity.server_com.sendHitToServer(hitArea,hitPlayerColor);*/
+				if(name == null)
+					name = "null";
+
+				Toast toast2 = Toast.makeText(getApplicationContext(), "HIT: " + name, 1000);
+				toast2.show();
+
+				switch(hitArea){
+				case Logic.UPPER_BODY_HIT:
+					total_score+=UPPER_BODY_HIT_SCORE;
+					break;
+				case Logic.FACE_HIT:
+					total_score+=FACE_HIT_SCORE;
+					break;
+				case Logic.LOWER_BODY_HIT:
+					total_score+=LOWER_BODY_HIT_SCORE;
+					break;
+				}
+				//updating the socre:
+				score_lbl.setText("Score: " + total_score);
+
+				drawHit();
+				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
+				toast.show();					
+
+
+				//MainActivity.server_com.sendHitToServer(hitArea,hitPlayerColor);*/
 
 
 				/**********************************/
-
-
 			}
 
-
+			//update screen
 			setScreen();
 		}
-	//}
+	}
 	/*****************************************************************/
 
 
+	//drawing bullet hole when there is a hit
 	private void drawHit(){
 
-		Timer timer = new Timer() {
+		Timer timer = new Timer(200) {
 
 			public void onFinish() {
 				// TODO Auto-generated method stub
@@ -817,9 +745,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		bullet_hit.setLayoutParams(params);
 		frame.addView(bullet_hit);
 
-		((Animatable) timer).start();
 
-
+		timer.start();
 	}
 
 	/*****************************************************************/
@@ -1015,57 +942,78 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private void executeSegmentsAnimation(){ 
 
 		segment_animation = new Bitmap[drawableResources.length];
-		for(int i = 0; i < ramBurden; i++)
-			segment_animation[i] = BitmapFactory.decodeResource(getResources(), drawableResources[i]);
 
-		state = ramBurden;
+		state = 0;
 		unUsed = 0;
 		anim_index = 0;
 		soundIndex = 0;
 		sight_img.setVisibility(View.INVISIBLE);
 
 		someAnimationRun = true;
-		AnimationHandler.postDelayed(animationDisplayTask, 0);
+		write = false;
+
+		//start threads
 		DrawableHandler.postDelayed(drawableTask, 0);
+		AnimationHandler.postDelayed(animationDisplayTask, 0);
 	}
 	/*****************************************************************/
 
+	//display the already images of the animation
 	private Runnable animationDisplayTask = new Runnable() {
 		public void run() {          
 
 			android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
 
-			if(soundIndex < sounds_frames.length){
-				if(anim_index == sounds_frames[soundIndex]){
-					player.getWeapons()[player.getCurrent_weapon()].playSound(sounds_frames[soundIndex]);
-					soundIndex++;
+			if(write){
+
+				try {
+					semaphore.acquire();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
+
+				if(soundIndex < sounds_frames.length){
+					if(anim_index == sounds_frames[soundIndex]){
+						player.getWeapons()[player.getCurrent_weapon()].playSound(sounds_frames[soundIndex]);
+						soundIndex++;
+					}
+				}
+
+				if(anim_index < segment_animation.length){
+					img.setBackgroundDrawable(null);
+					img.setImageBitmap(segment_animation[anim_index]);
+
+					if(anim_index > 0)
+						segment_animation[anim_index - 1] = null;
+					anim_index++;
+
+					System.gc();
+				}
+
+				//if the animation ended
+				else{
+					segment_animation = null;
+					drawableResources = null;      
+					sounds_frames = null;         
+					System.gc();	
+					setAnimation("stand");	
+					setScreen();
+					sight_img.setVisibility(View.VISIBLE);
+
+					if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState())
+						changeAnimation.post(changeAnimationTask);		
+
+					someAnimationRun = false;
+					AnimationHandler.removeCallbacks(animationDisplayTask);    //kill this thread
+				}
+
+				
+				AnimationHandler.postDelayed(animationDisplayTask, 0);    //return on that task again after 60 milliseconds
+
+				write = false;
+				semaphore.release();
 			}
-
-			img.setBackgroundDrawable(null);
-			img.setImageBitmap(segment_animation[anim_index]);
-			anim_index++;
-
-			//if the animation ended
-			if(anim_index == segment_animation.length){
-				segment_animation = null;
-				drawableResources = null;      
-				sounds_frames = null;         
-				System.gc();	
-				setAnimation("stand");	
-				setScreen();
-				sight_img.setVisibility(View.VISIBLE);
-
-				if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState())
-					changeAnimation.post(changeAnimationTask);		
-
-				someAnimationRun = false;
-				AnimationHandler.removeCallbacks(animationDisplayTask);    //kill this thread
-			}
-
-			else
-				AnimationHandler.postDelayed(animationDisplayTask, 60);    //return on that task again after 60 milliseconds
-
 		}
 	};
 	/*****************************************************************/
@@ -1075,28 +1023,41 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private Runnable drawableTask = new Runnable() {
 		public void run() {
 
-			android.os.Process.setThreadPriority(Thread.MIN_PRIORITY);
+			android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
 
-			//clean up the bitmaps that already displayed
-			for(int i = unUsed; i < anim_index; i++){
-				segment_animation[i] = null;
-				unUsed++;
-			}
+			if(!write){
 
-			System.gc();
+				try {
+					semaphore.acquire();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
-			//if there is more bitmaps to update
-			if(state < segment_animation.length){
-				//add one more bitmap to segment animation array
-				segment_animation[state] = BitmapFactory.decodeResource(getResources(), drawableResources[state]);
-				state += 1;
-				DrawableHandler.postDelayed(drawableTask, 0);         ////return on that task again immediately
-			}
+				/*//clean up the bitmaps that already displayed
+				for(int i = unUsed; i < anim_index; i++){
+					segment_animation[i] = null;
+					unUsed++;
+				}*/
 
-			else{
-				DrawableHandler.removeCallbacks(drawableTask);        //kill this thread
+				//System.gc();
 
-				System.gc();
+				//if there is more bitmaps to update
+				if(state < segment_animation.length){
+					//add one more bitmap to segment animation array
+					segment_animation[state] = BitmapFactory.decodeResource(getResources(), drawableResources[state]);
+					state ++;
+					DrawableHandler.postDelayed(drawableTask, 0);         ////return on that task again immediately
+				}
+
+				else{
+					write = true;
+					semaphore.release();
+					DrawableHandler.removeCallbacks(drawableTask);        //kill this thread
+				}
+
+				write = true;
+				semaphore.release();
 			}
 		}
 	};
@@ -1161,122 +1122,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			sight_img.setVisibility(View.INVISIBLE);
 		}	
 	}
-
-	float[] mGravity;
-	float[] mGeomagnetic;
-	/*****************************************************************/
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-
-
-
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-			mGravity = event.values;
-
-		if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-			mGeomagnetic = event.values;
-
-		if (mGravity != null && mGeomagnetic != null) {
-			float R[] = new float[9];
-			float I[] = new float[9];
-			boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
-			if (success) {
-				float orientation[] = new float[3];
-				SensorManager.getOrientation(R, orientation);
-				azimuth = orientation[0]; // orientation contains: azimuth, pitch and roll
-
-			}
-		}
-		azimuth = (float)Math.toDegrees(azimuth);
-
-		if(azimuth > 90 && azimuth <= 180){
-			azimuth += 90;
-			float offset = Math.abs(180 - azimuth);
-			azimuth = (180 - offset) * -1;
-		}
-
-		else
-			azimuth += 90;
-
-		//total_bulletsText.setText(Float.toString(azimuth));
-		//sensorTest.setText(Float.toString(azimuth));
-
-		/*azimuth += geoField.getDeclination();
-
-		azimuth = azimuth - degree;*/
-
-		//		sensorTest.setText(Float.toString(azimuth));
-		/*if (event.sensor == mAccelerometer){
-			//total_bulletsText.setText(Float.toString(event.values[1]));
-		}
-
-		else if (event.sensor == mMagnetometer) {
-            //System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
-           // mLastMagnetometerSet = true;
-			//total_bulletsText.setText(Float.toString(event.values[0]) + "," + Float.toString(event.values[1]) + "," + Float.toString(event.values[2]));
-        }*/
-
-	}
-	/*****************************************************************/
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
-
-	}
-	/*****************************************************************/
-
-	@Override
-	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
-
-
-		/*GeomagneticField geoField = new GeomagneticField(
-		             (float) location.getLatitude(),
-		             (float) location.getLongitude(),
-		             (float) location.getAltitude(),
-		             System.currentTimeMillis());
-
-			azimuth += geoField.getDeclination();
-
-			tar.setLatitude(location.getLatitude()-1);
-			tar.setLongitude(location.getLongitude());
-
-			float bearing = location.bearingTo(tar);
-
-
-			gpsTest.setText(Float.toString(bearing));
-			sensorTest.setText(Float.toString(azimuth));*/
-
-		/*String msg = "New Latitude: " + location.getLatitude()
-				+ ",New Longitude: " + location.getLongitude();
-
-		total_bulletsText.setText(msg);*/
-	}
-	/*****************************************************************/
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
-
-	}
-	/*****************************************************************/
-
-	@Override
-	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-
-	}
-	/*****************************************************************/
-
-	@Override
-	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-		Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-		startActivity(intent);
-	}
-
 
 
 	/*****************************************************************/

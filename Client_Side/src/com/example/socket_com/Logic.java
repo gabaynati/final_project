@@ -1,3 +1,7 @@
+/*
+ * game logic class
+ */
+
 package com.example.socket_com;
 
 import java.util.HashMap;
@@ -12,25 +16,24 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
-import android.location.Location;
 
 public class Logic {
 
 	public static final int FACE_HIT = 1, UPPER_BODY_HIT = 2, LOWER_BODY_HIT = 3;
 
-	private JavaCameraView mOpenCvCameraView;
-	private Mat mGray, mRgba;
-	private int rectSize;
-	private float bearing;
-	private Rect hitRect;
+	private JavaCameraView mOpenCvCameraView;      //openCV camera
+	private Mat mGray, mRgba;                      //input camera frames
+	private int rectSize;                          //size of current hit rectangle
+	private Rect hitRect;                          //current hit rectangle
 
-	//private Rect[] facesArrayWhileShoot, upperBodyArrayWhileShoot, lowerBodyArrayWhileShoot;
 
+	//constructor
 	public Logic(JavaCameraView CameraView){
 
 		this.mOpenCvCameraView = CameraView;
 	}
 
+	//set mats
 	public void setMats(Mat mGray, Mat mRgba){
 		this.mGray = mGray;
 		this.mRgba = mRgba;
@@ -40,6 +43,7 @@ public class Logic {
 		return rectSize;
 	}
 
+	//check if the player hit someone and return the area index, if not hit return -1 
 	public int isHit(Rect[] facesArrayWhileShoot, Rect[] upperBodyArrayWhileShoot, Rect[] lowerBodyArrayWhileShoot){
 
 		if(checkForUpperBody(upperBodyArrayWhileShoot))
@@ -63,25 +67,34 @@ public class Logic {
 		return -1;
 	}
 
-	public String specificHit(HashMap<String,List<MatOfPoint>> colors, String[] players){
-		String str="";
-		for(String s: players){
+	//after the hit check the specific player is injured and return is nick name, if is not defined player return null
+	public String specificHit(HashMap<String,List<MatOfPoint>> colors){
 
-			List<MatOfPoint> list = colors.get(s);//gets the mat of points of a player
-			if(list!=null){
+		Iterator<Map.Entry<String, List<MatOfPoint>>> it = colors.entrySet().iterator();
 
-				for (MatOfPoint mp: list ) {//checking if there is a p
-					List<Point> listOfPoints = mp.toList();            
-					Point sightPoint = getSightPoint();
-					for(Point p: listOfPoints){
-						if(p.equals(sightPoint))
-							return s;
-					}
+		while (it.hasNext()) {
 
+			Map.Entry<String, List<MatOfPoint>> entry = it.next();
+
+			List<MatOfPoint> list = entry.getValue();
+
+			for (ListIterator<MatOfPoint> iter = list.listIterator(); iter.hasNext(); ) {
+
+				MatOfPoint element = iter.next();
+				//get the point collection as list
+				List<Point> listOfPoints = element.toList();            
+
+				Iterator<Point> iterator = listOfPoints.iterator();         
+				while(iterator.hasNext()){
+					Point p = iterator.next();
+					//enough that one point is in the current hit rectangle
+					if(p.inside(hitRect))
+						return entry.getKey();
 				}
 			}
 		}
-		return str;
+
+		return null;
 	}
 
 	//check if hit at some face in the frame, if yes return true, else return false
@@ -175,47 +188,4 @@ public class Logic {
 		else 
 			return -1;
 	}
-
-	public boolean isInjured(Location myLocation, Location otherLocation, float azimuth){
-
-		//float epsilon = 10;
-		float degree = otherLocation.bearingTo(myLocation);
-		bearing=degree;
-		return Math.abs(degree)>=85 && Math.abs(degree)<=95;
-		//float digression = Math.abs(degree - azimuth);
-
-		//return digression <= epsilon;
-
-	}
-	public float getBearing(){
-		return this.bearing;
-	}
-	/*
-	//catch the detection rectangles on current time
-		public void catchRect(Rect[] facesArray, Rect[] upperBodyArray, Rect[] lowerBodyArray){
-
-			//for all faces, only if there is any faces in the current camera frame
-			if(facesArray != null){
-				facesArrayWhileShoot = new Rect[facesArray.length];
-
-				for(int i = 0; i < facesArray.length; i++)
-					facesArrayWhileShoot[i] = new Rect(facesArray[i].tl(), facesArray[i].br());
-			}
-
-			//for all upper bodies, only if there is any upper bodies in the current camera frame
-			if(upperBodyArray != null){
-				upperBodyArrayWhileShoot = new Rect[upperBodyArray.length];
-
-				for (int i = 0; i < upperBodyArray.length; i++)
-					upperBodyArrayWhileShoot[i] = new Rect(upperBodyArray[i].tl(), upperBodyArray[i].br());
-			}
-
-			//for all lower bodies, only if there is any upper bodies in the current camera frame
-			if(lowerBodyArray != null){
-				lowerBodyArrayWhileShoot = new Rect[lowerBodyArray.length];
-
-				for (int i = 0; i < lowerBodyArray.length; i++)
-					lowerBodyArrayWhileShoot[i] = new Rect(lowerBodyArray[i].tl(), lowerBodyArray[i].br());
-			}
-		}*/
 }

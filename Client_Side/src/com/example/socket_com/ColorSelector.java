@@ -1,3 +1,7 @@
+/*
+ * ColorSelector activity - open before the game started to define player's color
+ */
+
 package com.example.socket_com;
 
 import java.util.List;
@@ -45,6 +49,7 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 	private Size                 SPECTRUM_SIZE;
 	private Scalar               CONTOUR_COLOR;
 
+	//openCV camera component
 	private JavaCameraView mOpenCvCameraView;
 
 	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
@@ -55,7 +60,7 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 			{
 				mOpenCvCameraView.enableView();
 				mOpenCvCameraView.setOnTouchListener(ColorSelector.this);
-				
+
 			} break;
 			default:
 			{
@@ -66,7 +71,7 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 	};
 
 	public ColorSelector() {
-		
+
 	}
 
 	/** Called when the activity is first created. */
@@ -87,6 +92,7 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 		pickColorCmd.setOnClickListener(this);
 	}
 
+	//called when the activity goes to background
 	@Override
 	public void onPause()
 	{
@@ -95,11 +101,12 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 			mOpenCvCameraView.disableView();
 	}
 
+	//called after the oncreate method
 	@Override
 	public void onResume()
 	{
 		super.onResume();
-		
+
 		if (!OpenCVLoader.initDebug()) {
 			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
 		} else {
@@ -113,6 +120,7 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 			mOpenCvCameraView.disableView();
 	}
 
+	//called when the openCV camera started
 	public void onCameraViewStarted(int width, int height) {
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
 		mDetector = new ColorBlobDetector();
@@ -123,23 +131,27 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 		CONTOUR_COLOR = new Scalar(0,255,0,255);
 	}
 
+	//called when the openCV camera stopped
 	public void onCameraViewStopped() {
 		mRgba.release();
 	}
 
+	//called when the user touch the screen
 	public boolean onTouch(View v, MotionEvent event) {
 
-
+		//input camera frame
 		int cols = mRgba.cols();
 		int rows = mRgba.rows();
 
+		//calculate screen offset
 		int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
 		int yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
 
 		int x = (int)event.getX() - xOffset;
 		int y = (int)event.getY() - yOffset;
 
-		if ((x < 0) || (y < 0) || (x > cols) || (y > rows)) return false;
+		if ((x < 0) || (y < 0) || (x > cols) || (y > rows))
+			return false;
 
 		Rect touchedRect = new Rect();
 
@@ -175,13 +187,17 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 		return false; 
 	}
 
+	//this method is called when the camera delivers a frame.
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 
 		mRgba = inputFrame.rgba();
 
+		//if a color selected
 		if (mIsColorSelected) {
 			mDetector.process(mRgba);
 			List<MatOfPoint> contours = mDetector.getContours();
+			
+			//draw contours on the screen - around the selected color
 			Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
 
 			Mat colorLabel = mRgba.submat(4, 68, 4, 68);
@@ -194,6 +210,7 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 		return mRgba;
 	}
 
+	//method to convert from HSV to RGB format
 	private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
 
 		Mat pointMatRgba = new Mat();
@@ -210,20 +227,20 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 		switch(v.getId()) {
 
 		case R.id.pick_color:
-			
+
 			/*
 			 *   this is the RGB values: 
 			 *   R - mBlobColorRgba.val[0] 
 			 *   G - mBlobColorRgba.val[1]
 			 *   B - mBlobColorRgba.val[2]
+			 *   
+			 *   the hsv values is at mBlobColorHsv
 			 */
-			Toast toast = Toast.makeText(getApplicationContext(), mBlobColorHsv.val[0] + " " + mBlobColorHsv.val[1] + " " + mBlobColorHsv.val[2], 1000);
-			toast.show();
-			
-			/*MainActivity.player.setPlayerColor(new RGB(mBlobColorRgba.val[0], mBlobColorRgba.val[1], mBlobColorRgba.val[2]));
+
+			MainActivity.player.setPlayerColor(new RGB(mBlobColorHsv.val[0], mBlobColorHsv.val[1], mBlobColorHsv.val[2]));
 			Intent gameInfo = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
 			startActivity(gameInfo);
-			finish();*/
+			finish();
 			break;
 		}
 	}

@@ -26,6 +26,6 @@ public abstract class Timer {
 
 	}
 	
-	//after the the duration is over
+	//after the the duration is over - client need to implement 
 	public abstract void onFinish();
 }
