@@ -137,7 +137,7 @@
         <service android:name="com.example.socket_com.HitService" />
 
         <activity
-            android:name=".GameManagerActivity"
+            android:name="com.example.socket_com.GameManagerActivity"
             android:label="@string/title_activity_game_manager" >
                <intent-filter>
                 <action android:name="com.example.socket_com.GAMEMANAGERACTIVITY" />

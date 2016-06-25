@@ -197,6 +197,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		//starting the service
 		Intent msgIntent = new Intent(this, HitService.class);
 		startService(msgIntent);
+		startService(msgIntent);
+		startService(msgIntent);
 
 		//creating a listener to the service 
 		IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_RESP);
@@ -211,11 +213,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		/****color detection*****************/
 
-		MainActivity.currentGamePlayersColors = new HashMap<String,RGB>();
-		MainActivity.currentGamePlayersColors.put("nati", new RGB(168.125, 78.65625, 68.921875));
-		MainActivity.currentGamePlayersColors.put("gili", new RGB(255, 212.546875, 191.34375));
 
-
+		Toast.makeText(getBaseContext(), MainActivity.currentGamePlayersColors.toString(), Toast.LENGTH_LONG).show();
 		players = new String[MainActivity.currentGamePlayersColors.size()];
 		colorsFounds = new HashMap<String,List<MatOfPoint>>();
 
@@ -224,7 +223,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		int i = 0;
 		while (it.hasNext()) {
 			Map.Entry<String,RGB> entry = (Map.Entry<String,RGB>)it.next();
-			players[i++] = (String) entry.getKey();
+			players[i] = (String) entry.getKey();
+			i++;
 		}
 		/**************************************************/
 
@@ -535,7 +535,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			/************************************************************************************************/
 
 			//get array of points
-			lowerBodyArray = upperBodies.toArray();
+			//lowerBodyArray = upperBodies.toArray();
 			
 			/*******************************drawing rectangles - test only***********************************/
 			//for (int i = 0; i < lowerBodyArray.length; i++)
@@ -726,7 +726,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				toast.show();					
 
 
-				//MainActivity.server_com.sendHitToServer(hitArea,hitPlayerColor);*/
+				MainActivity.server_com.sendHitToServer(hitArea,name);
 
 
 				/**********************************/

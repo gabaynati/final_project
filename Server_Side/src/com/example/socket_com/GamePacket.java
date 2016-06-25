@@ -24,7 +24,7 @@ public class GamePacket implements Serializable{
 	private int hitArea;
 	private int team;
 	private RGB playerColor;
-	private RGB hitPlayerColor;
+	private String hitPlayerNickName;
 	private GPSLocation player_loc,game_loc;
 	private HashMap<String,RGB> gamePlayersColors;
 
@@ -152,12 +152,13 @@ public class GamePacket implements Serializable{
 	public void setGamePlayersColors(HashMap<String,RGB> gamePlayersColors) {
 		this.gamePlayersColors = gamePlayersColors;
 	}
-	public RGB getHitPlayerColor() {
-		return hitPlayerColor;
+	public String getHitPlayerNickName() {
+		return hitPlayerNickName;
 	}
-	public void setHitPlayerColor(RGB hitPlayerColor) {
-		this.hitPlayerColor = hitPlayerColor;
+	public void setHitPlayerNickName(String hitPlayerNickName) {
+		this.hitPlayerNickName = hitPlayerNickName;
 	}
+
 
 
 }

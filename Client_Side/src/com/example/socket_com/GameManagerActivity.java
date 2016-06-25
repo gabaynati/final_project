@@ -1,8 +1,11 @@
-package com.example.hs;
+package com.example.socket_com;
 
 import java.util.Vector;
 
-import com.example.socket_com.GameDB;
+import com.example.hs.R;
+import com.example.hs.R.id;
+import com.example.hs.R.layout;
+import com.example.hs.R.menu;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
 	//*********server configurations****************/
 	public static String serverIP="192.168.1.15";
 	public static int serverPort=9002;
-	public static Player player=new Player(" "," ",2);
+	public static Player player;
 	public static String currentGame=null;
 	public static int currentGameNumOfPlayers=-1;
 	public static int team=-1;
@@ -139,7 +139,7 @@ public class MainActivity extends Activity {
 
 			String result="";
 			//disconnecting from server
-			if(!MainActivity.player.isConnectedToServer()){
+			if(MainActivity.player==null||!MainActivity.player.isConnectedToServer()){
 				txtResponse.setText("You have not logged in yet");
 				//Log.d("DDDDDD:", "NOT CONNECTED");
 				return;
@@ -259,7 +259,7 @@ public class MainActivity extends Activity {
 		public void onClick(View arg0) {
 
 			//moving to game interface
-			Intent intenet = new Intent("com.example.socket_com.GAMEMANAGERACTIVITY");
+			Intent intenet = new Intent("com.example.socket_com.COLORSELECTOR");
 			startActivity(intenet);
 
 		}
@@ -296,8 +296,10 @@ public class MainActivity extends Activity {
 
 		super.onDestroy();
 		//disconnecting from server
-		if(isConnected)
-			server_com.disconnectFromServer();
+		if(MainActivity.player!=null){
+			if(isConnected)
+				server_com.disconnectFromServer();
+		}
 		finish();
 		System.exit(0);
 	}

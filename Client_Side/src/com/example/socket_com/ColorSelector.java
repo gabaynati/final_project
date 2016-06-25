@@ -237,6 +237,10 @@ public class ColorSelector extends Activity implements OnTouchListener, OnClickL
 			 *   the hsv values is at mBlobColorHsv
 			 */
 
+
+
+			Toast toast2 = Toast.makeText(getApplicationContext(), mBlobColorRgba.val[0]+" "+mBlobColorRgba.val[1]+" "+mBlobColorRgba.val[2], 5000);
+			toast2.show();
 			MainActivity.player.setPlayerColor(new RGB(mBlobColorHsv.val[0], mBlobColorHsv.val[1], mBlobColorHsv.val[2]));
 			Intent gameInfo = new Intent("com.example.socket_com.FINDGAMEACTIVITY");
 			startActivity(gameInfo);

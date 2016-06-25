@@ -337,10 +337,9 @@ public class GameInfoActivity extends Activity {
 					Toast.makeText(getBaseContext(), "Wait for more: "+(MainActivity.currentGameNumOfPlayers-(team1.size()+team2.size()))+" to join", Toast.LENGTH_LONG).show();
 				else{
 					//moving to game interface
-					Toast.makeText(getBaseContext(), MainActivity.currentGamePlayersColors.toString(), Toast.LENGTH_LONG).show();
-//					Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
-//					startActivity(gameInfo);
-//					finish();
+					Intent gameInfo = new Intent("com.example.socket_com.GAMEINTERFACE");
+					startActivity(gameInfo);
+					finish();
 					return;
 				}
 
@@ -417,7 +416,6 @@ public class GameInfoActivity extends Activity {
 			while(true){
 				if(isCancelled())
 					break;  
-				getGameInfo();
 				publishProgress();
 				try {
 					Thread.sleep(3000);
@@ -439,6 +437,7 @@ public class GameInfoActivity extends Activity {
 		@Override
 		protected void onProgressUpdate(Void... v) {
 			super.onProgressUpdate(v);
+			getGameInfo();
 			updateLists();
 		}
 

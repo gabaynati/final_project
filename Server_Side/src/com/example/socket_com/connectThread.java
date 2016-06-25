@@ -109,14 +109,14 @@ public class connectThread extends Thread
 			server.addToServerLog(game.Hit(hitter_nickName));
 
 
-			//writing object to all the player who got hit
-			Player player=server.getPlayerByColor(packet.getHitPlayerColor());
-			if(player==null)
+			//writing object to the player who got hit
+			Player player_=server.getPlayerByNickName(packet.getHitPlayerNickName());
+			if(player_==null)
 				return;
 			else
 			{
-				GamePacket gotHitPacket=new GamePacket(player.getNickName(), player.getPassword(), GamePacket.hit,game.getGameName(),packet.getHitArea());
-				SendPacketThread t=new SendPacketThread(gotHitPacket,player);
+				GamePacket gotHitPacket=new GamePacket(player_.getNickName(), player_.getPassword(), GamePacket.hit,game.getGameName(),packet.getHitArea());
+				SendPacketThread t=new SendPacketThread(gotHitPacket,player_);
 				t.start();
 			}
 
@@ -162,9 +162,10 @@ public class connectThread extends Thread
 			joinGamePacket.setTeam(packet.getTeam());
 			Game game_=server.getGameByName(packet.getGameName());
 			if(game_.isGameFull()){
-				if(game_.getGamePlayersColors(packet.getNickName())!=null)
+				if(game_.getGamePlayersColors(packet.getNickName())!=null){
 					System.out.println(game_.getGamePlayersColors(packet.getNickName()));
-				//joinGamePacket.setGamePlayersColors(game_.getGamePlayersColors(packet.getNickName()));
+					joinGamePacket.setGamePlayersColors(game_.getGamePlayersColors(packet.getNickName()));
+				}
 			}
 			server.updatePanel();
 			SendPacketThread t=new SendPacketThread(joinGamePacket,server.getPlayerByIP(IPAddress));

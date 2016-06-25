@@ -221,8 +221,6 @@ public class ServerCommunication {
 
 			else if(packet.isHit()){
 				MainActivity.player.Hit(packet.getHitArea());
-
-
 				MainActivity.hitSem.release();
 
 			}
@@ -449,12 +447,12 @@ public class ServerCommunication {
 	 * @param f 
 	 * @param d 
 	 * @param azimut ***************************************************************/
-	public String sendHitToServer(int hitArea,RGB color ) {
+	public String sendHitToServer(int hitArea,String hitPlayerNickName ) {
 		MyClientTask_SendPakcet sendHit=new MyClientTask_SendPakcet();
 		String res="true";
 		try {
 			GamePacket packet=new GamePacket(MainActivity.player.getNickName(), MainActivity.player.getPassword(), GamePacket.hit, MainActivity.currentGame, hitArea);
-			packet.setHitPlayerColor(color);
+			packet.setHitPlayerNickName(hitPlayerNickName);
 			res = sendHit.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,packet).get(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

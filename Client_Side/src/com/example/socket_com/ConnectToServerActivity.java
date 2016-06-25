@@ -40,6 +40,7 @@ public class ConnectToServerActivity extends Activity {
 	boolean isTryingToConnect=false;
 	String buffer="";
 	ActivityAnimation anim;
+	GPSTracker gps;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -60,11 +61,19 @@ public class ConnectToServerActivity extends Activity {
 		//move();
 		anim=new ActivityAnimation(getApplicationContext());
 
-		GPSTracker gps = new GPSTracker(getBaseContext());
-
+		gps = new GPSTracker(this);
 		if(gps.canGetLocation()){ // gps enabled} // return boolean true/false
 			MainActivity.loc=new GPSLocation(gps.getLatitude(), gps.getLongitude());
 		}
+		else{
+			Toast.makeText(getApplicationContext(), "Please turn on GPS!", 20000).show();
+			finish();
+		}
+
+
+
+
+
 
 	}
 	private void setProgressByTimer(){
@@ -127,10 +136,6 @@ public class ConnectToServerActivity extends Activity {
 		public void onClick(View arg0) {
 
 
-
-
-
-
 			//running progressBar timer:
 			textResponse.setText("please wait...");
 			//checking for Internet connection
@@ -139,8 +144,19 @@ public class ConnectToServerActivity extends Activity {
 				textResponse.setText(buffer);
 				return;
 			}
+
+			String nickname="";
+			String password="";
+			//player info
+			nickname=editTextNickName.getText().toString();
+			password=editTextPassword.getText().toString();
+			if(nickname.equals("")||password.equals("")){
+				textResponse.setText("Please fill all fields!");
+				return ;
+			}
+
 			//trying to connect to server
-			new connectThread().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,arg0);
+			new connectThread(nickname,password).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,arg0);
 
 
 
@@ -154,38 +170,50 @@ public class ConnectToServerActivity extends Activity {
 	public class connectThread extends AsyncTask<View, Void, Void> {
 		View view;
 		boolean isConnectionSucced=false;
+		private String nickname;
+		private String password;
+		private String response="";
+		public connectThread(String nickname,String password) {
+			this.nickname=nickname;
+			this.password=password;
+		}
 		@Override
 		protected Void doInBackground(View... params) {
 			//setting the onclick method off
 			view=params[0];
 			view.setClickable(false);
+			isConnectionSucced=false;
 
 
 
-			
-	
+
 
 			//server info
 			String addr=MainActivity.serverIP;
 			int port=MainActivity.serverPort;
-			String nickname="";
-			String password="";
-			//player info
-			nickname=editTextNickName.getText().toString();
-			password=editTextPassword.getText().toString();
-			if(nickname.equals("")||password.equals("")){
-				textResponse.setText("please fill all fields!");
-				return null;
-			}
-			//checking if the user name exists in DB, if so his assigned port is returned
-			int isExists=GameDB.isExists(nickname,password);
-			if(isExists==GameDB.USER_NOT_EXISTS){
-				textResponse.setText("User name not registered!");
-				return null;
 
-			}
-			MainActivity.player=new Player(nickname, password,isExists);
-			
+
+//			//checking if the user name exists in DB, if so his assigned port is returned
+//			int isExists=GameDB.isExists(nickname,password);
+//			if(isExists==GameDB.USER_NOT_EXISTS){
+//				response="ERROR: WRONG user name or password !";
+//				return null;
+//
+//			}
+//			else if(isExists==GameDB.DBERROR){
+//				response="ERROR: CANT connect to DB!";
+//
+//				return null;
+//			}
+			int port_=0;
+			if(nickname.equals("nati"))
+				port_=9001;
+			else if(nickname.equals("gili"))
+				port_=9002;
+
+					
+			MainActivity.player=new Player(nickname, password,port_);
+
 
 
 
@@ -198,17 +226,6 @@ public class ConnectToServerActivity extends Activity {
 
 
 
-			//			//getting gps coordinates:
-			//			SingleShotLocationProvider.requestSingleUpdate(getBaseContext(), new SingleShotLocationProvider.LocationCallback() {
-			//			@Override 
-			//			public void onNewLocationAvailable(GPSCoordinates location) {
-			//
-			//
-			//				//Gathering this player's GPS and hitter player's GPS which has been received from server:
-			//				loc=new GPSLocation(location.latitude, location.longitude);
-			//		
-			//			}
-			//		});
 
 
 			//trying to connect to server
@@ -224,8 +241,12 @@ public class ConnectToServerActivity extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if(!MainActivity.connectSem.isTimedOut())
+			if(!MainActivity.connectSem.isTimedOut()){
 				isConnectionSucced=true;
+			}
+			else
+				response="ERROR:Server not responding";
+
 			return null;
 
 		}
@@ -256,8 +277,8 @@ public class ConnectToServerActivity extends Activity {
 			}
 			else{
 				MainActivity.isConnected=false;
-				buffer="You have faild to connect to server";
-				textResponse.setText(buffer);
+				
+				textResponse.setText(response);
 			}
 
 		}
