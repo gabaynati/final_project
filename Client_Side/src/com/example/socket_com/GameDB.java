@@ -17,7 +17,7 @@ public class GameDB {
 	public static Connection con = null;
 	public static Statement stmt = null;
 	public static ResultSet rs = null;
-	public static String dbConnectionString="jdbc:jtds:sqlserver://hns.database.windows.net:1433/hns;database=hns;integratedSecurity=true;user=hns;password=Seattle12";
+	public static String dbConnectionString="jdbc:jtds:sqlserver://hnsgame.database.windows.net:1433/hns;database=hns;integratedSecurity=true;user=hns;password=Seattle12";
 	public static final int USER_EXISTS=1,DBERROR=2,USER_NOT_EXISTS=3,REGISTRATION_SUCCEEDED=4;
 
 

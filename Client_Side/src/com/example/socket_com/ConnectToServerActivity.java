@@ -193,26 +193,26 @@ public class ConnectToServerActivity extends Activity {
 			int port=MainActivity.serverPort;
 
 
-//			//checking if the user name exists in DB, if so his assigned port is returned
-//			int isExists=GameDB.isExists(nickname,password);
-//			if(isExists==GameDB.USER_NOT_EXISTS){
-//				response="ERROR: WRONG user name or password !";
-//				return null;
-//
-//			}
-//			else if(isExists==GameDB.DBERROR){
-//				response="ERROR: CANT connect to DB!";
-//
-//				return null;
-//			}
-			int port_=0;
-			if(nickname.equals("nati"))
-				port_=9001;
-			else if(nickname.equals("gili"))
-				port_=9002;
+			//checking if the user name exists in DB, if so his assigned port is returned
+			int isExists=GameDB.isExists(nickname,password);
+			if(isExists==GameDB.USER_NOT_EXISTS){
+				response="ERROR: WRONG user name or password !";
+				return null;
+
+			}
+			else if(isExists==GameDB.DBERROR){
+				response="ERROR: CANT connect to DB!";
+
+				return null;
+			}
+//			int port_=0;
+//			if(nickname.equals("nati"))
+//				port_=9001;
+//			else if(nickname.equals("gili"))
+//				port_=9002;
 
 					
-			MainActivity.player=new Player(nickname, password,port_);
+			MainActivity.player=new Player(nickname, password,isExists);
 
 
 
