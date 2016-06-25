@@ -64,16 +64,15 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private int total_score=20;
 	private Context context;
 	//private MainActivity.logic MainActivity.logic;
-	private final int ramBurden = 5;
 	private FrameLayout frame;
 	private TextView current_bulletsText, total_bulletsText, slesh, score_lbl;
 	private ProgressBar player_life;
 	private ImageButton reload, target, shoot;
 	private ImageView img, bullet_hit, sight_img, board_num1, board_num2;
-	private int anim_index, soundIndex, state, unUsed, shootingTime;
+	private int soundIndex, writer, reader, shootingTime, anim_index;
 	private float x1, x2;
 	private AnimationDrawable shoot_animation, stand_animation;
-	private boolean someAnimationRun, someAnimationLoad, pressed, touched, write;
+	private boolean someAnimationRun, someAnimationLoad, touched, write;
 	private Player player=MainActivity.player;
 	private Handler AnimationHandler, DrawableHandler, changeAnimation, shootHandler;
 	private int[] drawableResources, sounds_frames;
@@ -428,10 +427,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mGray=inputFrame.gray();
 
 		MainActivity.logic.setMats(mGray, mRgba);
-
-
-		//shoot time
-		if(!someAnimationRun && touched){
+		
+		//on shooting time
+		if(touched){
 
 			//clear all colors from the map (not relevant contours)
 			colorsFounds.clear();
@@ -504,26 +502,31 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			 */
 
-			/*******************************drawing rectangles - test only***********************************/
-			//drawing rectangles around each lower body in the frame.
+
+			//get array of points
 			lowerBodyArray = lowerBodies.toArray();
+			
+			/*******************************drawing rectangles - test only***********************************/
 			for (int i = 0; i < lowerBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+			/************************************************************************************************/
 
-
-			//drawing rectangles around each upper body in the frame.
+			//get array of points
 			upperBodyArray = upperBodies.toArray();
+			
+			/*******************************drawing rectangles - test only***********************************/
 			for (int i = 0; i < upperBodyArray.length; i++)
 				Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
+			/************************************************************************************************/
 
-
-			//drawing rectangles around each lower body in the frame.
+			//get array of points
 			lowerBodyArray = upperBodies.toArray();
-			for (int i = 0; i < lowerBodyArray.length; i++)
-				Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+			
+			/*******************************drawing rectangles - test only***********************************/
+			//for (int i = 0; i < lowerBodyArray.length; i++)
+				//Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+			/************************************************************************************************/
 
-
-			/**********************************************************************************************/
 
 			touched = false;
 
@@ -941,12 +944,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//execute the animation in segment_animation once
 	private void executeSegmentsAnimation(){ 
 
-		segment_animation = new Bitmap[drawableResources.length];
+		segment_animation = new Bitmap[2];
 
-		state = 0;
-		unUsed = 0;
-		anim_index = 0;
+		writer = 0;
+		reader = 0;
 		soundIndex = 0;
+		anim_index = 0;
 		sight_img.setVisibility(View.INVISIBLE);
 
 		someAnimationRun = true;
@@ -980,14 +983,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					}
 				}
 
-				if(anim_index < segment_animation.length){
+				if(anim_index < drawableResources.length){
 					img.setBackgroundDrawable(null);
-					img.setImageBitmap(segment_animation[anim_index]);
+					img.setImageBitmap(segment_animation[reader]);
 
-					if(anim_index > 0)
-						segment_animation[anim_index - 1] = null;
+					reader = (reader + 1) % 2;
 					anim_index++;
-
 					System.gc();
 				}
 
@@ -1034,19 +1035,12 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					e.printStackTrace();
 				}
 
-				/*//clean up the bitmaps that already displayed
-				for(int i = unUsed; i < anim_index; i++){
-					segment_animation[i] = null;
-					unUsed++;
-				}*/
-
-				//System.gc();
-
 				//if there is more bitmaps to update
-				if(state < segment_animation.length){
-					//add one more bitmap to segment animation array
-					segment_animation[state] = BitmapFactory.decodeResource(getResources(), drawableResources[state]);
-					state ++;
+				if(anim_index < drawableResources.length){
+					//write bitmap to segment animation array
+					segment_animation[writer] = BitmapFactory.decodeResource(getResources(), drawableResources[anim_index]);
+					writer = (writer + 1) % 2;
+
 					DrawableHandler.postDelayed(drawableTask, 0);         ////return on that task again immediately
 				}
 

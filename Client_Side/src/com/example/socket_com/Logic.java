@@ -24,7 +24,8 @@ public class Logic {
 	private JavaCameraView mOpenCvCameraView;      //openCV camera
 	private Mat mGray, mRgba;                      //input camera frames
 	private int rectSize;                          //size of current hit rectangle
-	private Rect hitRect;                          //current hit rectangle
+	private Rect hitRect[];                          //current hit rectangle                        
+	private boolean isLowerBody;
 
 
 	//constructor
@@ -76,6 +77,9 @@ public class Logic {
 
 			Map.Entry<String, List<MatOfPoint>> entry = it.next();
 
+			if(isLowerBody)
+				return entry.getKey();
+
 			List<MatOfPoint> list = entry.getValue();
 
 			for (ListIterator<MatOfPoint> iter = list.listIterator(); iter.hasNext(); ) {
@@ -87,9 +91,13 @@ public class Logic {
 				Iterator<Point> iterator = listOfPoints.iterator();         
 				while(iterator.hasNext()){
 					Point p = iterator.next();
+					Point corP = getCorrectPoint(p);
+
 					//enough that one point is in the current hit rectangle
-					if(p.inside(hitRect))
-						return entry.getKey();
+					for(int i = 0; i < hitRect.length; i++){
+						if(corP.inside(hitRect[i]))
+							return entry.getKey();
+					}
 				}
 			}
 		}
@@ -124,7 +132,8 @@ public class Logic {
 			for (int i = 0; i < upperBodyArrayWhileShoot.length; i++){
 				if(sightPoint.inside(upperBodyArrayWhileShoot[i])){
 					rectSize = upperBodyArrayWhileShoot[i].width;
-					hitRect = upperBodyArrayWhileShoot[i];
+					hitRect = upperBodyArrayWhileShoot;
+					isLowerBody = false;
 					return true;
 				}
 			}
@@ -157,13 +166,20 @@ public class Logic {
 			for (int i = 0; i < lowerBodyArrayWhileShoot.length; i++){
 				if(sightPoint.inside(lowerBodyArrayWhileShoot[i])){
 					rectSize = lowerBodyArrayWhileShoot[i].width;
-					hitRect = lowerBodyArrayWhileShoot[i];
+					hitRect = lowerBodyArrayWhileShoot;
+					isLowerBody = true;
 					return true;
 				}
 			}
 		}
 
 		return false;
+	}
+
+	//return the correct point with offset
+	private Point getCorrectPoint(Point p){
+
+		return new Point(p.x - getOffset("X"), p.y - getOffset("Y"));
 	}
 
 	//return the weapon sight point
