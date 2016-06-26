@@ -26,12 +26,38 @@ public class Logic {
 	private int rectSize;                          //size of current hit rectangle
 	private Rect hitRect;                          //current hit rectangle                        
 	private boolean isLowerBody;
+	
+	private int area;                              //current hit area
+	private String injured;                        //current injured player
 
 
 	//constructor
 	public Logic(JavaCameraView CameraView){
 
 		this.mOpenCvCameraView = CameraView;
+		area = -1;
+		injured = "null";
+		hitRect = null;
+	}
+	
+	//get area
+	public int getArea(){
+		return area;
+	}
+	
+	//get injured player
+	public String getInjured(){
+		return injured;
+	}
+	
+	//clear area
+	public void resetArea(){
+		area = -1;
+	}
+	
+	//clear injured player
+	public void resetInjured(){
+		injured = "";
 	}
 
 	//set mats
@@ -40,47 +66,44 @@ public class Logic {
 		this.mRgba = mRgba;
 	}
 
+	//get the size of current hit rectangle
 	public int getSizeOfRect(){
 		return rectSize;
 	}
 
 	//check if the player hit someone and return the area index, if not hit return -1 
-	public int isHit(Rect[] facesArrayWhileShoot, Rect[] upperBodyArrayWhileShoot, Rect[] lowerBodyArrayWhileShoot){
+	public void isHit(Rect[] facesArrayWhileShoot, Rect[] upperBodyArrayWhileShoot, Rect[] lowerBodyArrayWhileShoot, HashMap<String,List<MatOfPoint>> colors){
 
-		if(checkForUpperBody(upperBodyArrayWhileShoot))
-			return UPPER_BODY_HIT;
-
-		if(checkForLowerBody(lowerBodyArrayWhileShoot))
-			return LOWER_BODY_HIT;
-
-		if(checkForFace(facesArrayWhileShoot))
-			return FACE_HIT;
-		/*
-		if(checkForLowerBody(lowerBodyArrayWhileShoot)){
-			facesArrayWhileShoot = null;
-			upperBodyArrayWhileShoot = null;
-			lowerBodyArrayWhileShoot = null;
-
-			return LOWER_BODY_HIT;
+		if(checkForUpperBody(upperBodyArrayWhileShoot)){
+			area = UPPER_BODY_HIT;
+			injured = specificHit(colors);
 		}
-		 */
 
-		return -1;
+		else if(checkForLowerBody(lowerBodyArrayWhileShoot)){
+			area = LOWER_BODY_HIT;
+			injured = specificHit(colors);
+		}
+
+		else if(checkForFace(facesArrayWhileShoot)){
+			area = FACE_HIT;
+			injured = specificHit(colors);
+		}
+
+		else
+			resetArea();
+
 	}
 
 	//after the hit check the specific player is injured and return is nick name, if is not defined player return null
-	public String specificHit(HashMap<String,List<MatOfPoint>> colors){
+	private String specificHit(HashMap<String,List<MatOfPoint>> colors){
 
 		Iterator<Map.Entry<String, List<MatOfPoint>>> it = colors.entrySet().iterator();
 
 		while (it.hasNext()) {
 
-			Map.Entry<String, List<MatOfPoint>> entry = it.next();
+			Map.Entry<String, List<MatOfPoint>> entry = (Map.Entry<String, List<MatOfPoint>>)it.next();
 
-			if(isLowerBody)
-				return entry.getKey();
-
-			List<MatOfPoint> list = entry.getValue();
+			List<MatOfPoint> list = (List<MatOfPoint>)entry.getValue();
 
 			for (ListIterator<MatOfPoint> iter = list.listIterator(); iter.hasNext(); ) {
 
@@ -102,7 +125,7 @@ public class Logic {
 			}
 		}
 
-		return null;
+		return "";
 	}
 
 	//check if hit at some face in the frame, if yes return true, else return false

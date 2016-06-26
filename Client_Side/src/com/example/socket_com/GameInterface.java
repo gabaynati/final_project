@@ -69,17 +69,16 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	private ProgressBar player_life;
 	private ImageButton reload, target, shoot;
 	private ImageView img, bullet_hit, sight_img, board_num1, board_num2;
-	private int soundIndex, writer, reader, shootingTime, anim_index;
+	private int soundIndex, writer, reader, anim_index, shootingTime;
 	private float x1, x2;
 	private AnimationDrawable shoot_animation, stand_animation;
 	private boolean someAnimationRun, someAnimationLoad, touched, write;
 	private Player player=MainActivity.player;
-	private Handler AnimationHandler, DrawableHandler, changeAnimation, shootHandler;
+	private Handler AnimationHandler, DrawableHandler, changeAnimation, shootHandler, checkForHitHandler;
 	private int[] drawableResources, sounds_frames;
 	private Bitmap[] segment_animation;
-	private Semaphore semaphore;
+	private Semaphore semaphore, process_semaphore;
 	public static final int UPPER_BODY_HIT_SCORE=50,FACE_HIT_SCORE=100,LOWER_BODY_HIT_SCORE=20;
-
 
 	/**********************************OpenCV configurations***************************************/
 
@@ -170,8 +169,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		AnimationHandler = new Handler();
 		DrawableHandler = new Handler();
 		changeAnimation = new Handler();
+		checkForHitHandler = new Handler();
 
 		semaphore = new Semaphore(1);
+		process_semaphore = new Semaphore(1);
 
 
 		Weapon mp412 = new Mp412(getApplicationContext(), "mp412", 60);
@@ -192,8 +193,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 
 
-
-		/*************service for listening to hits*****************/
+		
+		//*************service for listening to hits*****************//*
 		//starting the service
 		Intent msgIntent = new Intent(this, HitService.class);
 		startService(msgIntent);
@@ -205,18 +206,19 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		ResponseReceiver reponse = new ResponseReceiver();
 		registerReceiver(reponse, filter);
-		/***********************************************************/
+		//***********************************************************//*
+
+		 
 
 
 
-
-
-		/****color detection*****************/
+		/*********************players colors*****************/
 
 
 		Toast.makeText(getBaseContext(), MainActivity.currentGamePlayersColors.toString(), Toast.LENGTH_LONG).show();
-		players = new String[MainActivity.currentGamePlayersColors.size()];
+
 		colorsFounds = new HashMap<String,List<MatOfPoint>>();
+		players = new String[MainActivity.currentGamePlayersColors.size()];
 
 		Iterator<Map.Entry<String,RGB>> it = MainActivity.currentGamePlayersColors.entrySet().iterator();
 
@@ -226,7 +228,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			players[i] = (String) entry.getKey();
 			i++;
 		}
-		/**************************************************/
+		//**************************************************//
 
 
 
@@ -427,22 +429,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		mGray=inputFrame.gray();
 
 		MainActivity.logic.setMats(mGray, mRgba);
-		
-		for(int i = 0; i < players.length; i++){
 
-			RGB rgb = MainActivity.currentGamePlayersColors.get(players[i]);
-			Scalar hsv = new Scalar(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
-
-			mDetector.setHsvColor(hsv);
-
-			//search the color on the input frame
-			mDetector.process(mRgba);
-			List<MatOfPoint> contours = mDetector.getContours();
-
-			/**************draw the contours on the screen - test only**********/
-			Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
-		}
-		
 		//on shooting time
 		if(touched){
 
@@ -520,32 +507,45 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			//get array of points
 			lowerBodyArray = lowerBodies.toArray();
-			
+
 			/*******************************drawing rectangles - test only***********************************/
 			//for (int i = 0; i < lowerBodyArray.length; i++)
-				//Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+			//Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
 			/************************************************************************************************/
 
 			//get array of points
 			upperBodyArray = upperBodies.toArray();
-			
+
 			/*******************************drawing rectangles - test only***********************************/
 			//for (int i = 0; i < upperBodyArray.length; i++)
-				//Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
+			//Imgproc.rectangle(mRgba, upperBodyArray[i].tl(), upperBodyArray[i].br(), RECT_COLOR, 3);
 			/************************************************************************************************/
 
 			//get array of points
 			//lowerBodyArray = upperBodies.toArray();
-			
+
 			/*******************************drawing rectangles - test only***********************************/
 			//for (int i = 0; i < lowerBodyArray.length; i++)
-				//Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
+			//Imgproc.rectangle(mRgba, lowerBodyArray[i].tl(), lowerBodyArray[i].br(), RECT_COLOR, 3);
 			/************************************************************************************************/
 
 
-			touched = false;
 
 
+			//if this player hits someone - hitArea = area index
+			Thread thread = new Thread() {
+				@Override
+				public void run() {
+
+					MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray, colorsFounds);
+
+					touched = false;
+
+				}
+
+			};
+
+			thread.start();
 		}
 
 		return mRgba;
@@ -592,6 +592,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 						executeReplaceAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("drop"));
 
 						player.chengeCurrentWeapon(-1);
+						shootingTime = (player.getWeapons()[player.getCurrentWeapon()]).shootingTime();
 					}
 
 
@@ -609,6 +610,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 						executeReplaceAnimation(player.getWeapons()[player.getCurrent_weapon()].getAnimation("drop"));
 
 						player.chengeCurrentWeapon(1);
+						shootingTime = (player.getWeapons()[player.getCurrentWeapon()]).shootingTime();
 					}
 
 					break;
@@ -628,10 +630,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			{
 				if(!someAnimationRun && !someAnimationLoad){
 
-					touched = true;
 					shootHandler = new Handler();
-					shootHandler.postDelayed(shootAction, shootingTime);
-					shoot();
+					shootHandler.postDelayed(shootAction, 0);
 				}
 				break;
 			}
@@ -660,6 +660,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		@Override
 		public void run() {
 
+			touched = true;
 			shoot();
 			shootHandler.postDelayed(this, shootingTime);
 		}
@@ -672,40 +673,40 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		int currentBullets = (player.getWeapons()[player.getCurrentWeapon()]).getCurrentBullets();
 		if(currentBullets > 0){
+
 			someAnimationRun = true;
 			executeAnimation(shoot_animation);
 			player.getWeapons()[player.getCurrentWeapon()].shoot();
 
-			//catch the detection rectangles on shoot time
-			//MainActivity.logic.catchRect();
 
+			checkForHitHandler.postDelayed(hitCheck, 100);						
 
-			//if this player hits someone - hitArea = area index
-			final int hitArea = MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray);
+			//MainActivity.server_com.sendHitToServer(hitArea,name);
 
-			String hit_area="";
-			switch(hitArea){
-			case Logic.UPPER_BODY_HIT:
-				hit_area="Upper body";
-				break;
-			case Logic.FACE_HIT:
-				hit_area="Head shot";
-				break;
-			case Logic.LOWER_BODY_HIT:
-				hit_area="Lower body";
-				break;
-			}	
+		}
 
-			//hit was detected
+		//update screen
+		setScreen();
+
+	}
+	/*****************************************************************/
+
+	//runnable to check if the player hit somebody
+	private Runnable hitCheck = new Runnable() {
+		@Override
+		public void run() {
+
+			//busy wait - wait until all detection process are done  
+			while(touched);
+
+			//get the current hit area and injured player
+			int hitArea = MainActivity.logic.getArea();
+			String injured = MainActivity.logic.getInjured();
+			
+			//hit detected
 			if(hitArea != -1){
-
-				String name = MainActivity.logic.specificHit(colorsFounds);
-
-				if(name == null)
-					name = "null";
-
-				Toast toast2 = Toast.makeText(getApplicationContext(), "HIT: " + name, 1000);
-				toast2.show();
+				
+				drawHit();
 
 				switch(hitArea){
 				case Logic.UPPER_BODY_HIT:
@@ -718,26 +719,20 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					total_score+=LOWER_BODY_HIT_SCORE;
 					break;
 				}
-				//updating the socre:
+				//updating the score:
 				score_lbl.setText("Score: " + total_score);
 
-				drawHit();
-				Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + hit_area + " " + player.getLife(), 1000);
-				toast.show();					
+				//player detected
+				if(!(injured.equals(""))){
+					Toast toast = Toast.makeText(getApplicationContext(), "HIT: " + injured, 1000);
+					toast.show();
 
-
-				MainActivity.server_com.sendHitToServer(hitArea,name);
-
-
-				/**********************************/
+					//send data to server
+					MainActivity.server_com.sendHitToServer(hitArea, injured);
+				}
 			}
-
-			//update screen
-			setScreen();
 		}
-	}
-	/*****************************************************************/
-
+	};
 
 	//drawing bullet hole when there is a hit
 	private void drawHit(){
@@ -1024,7 +1019,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					AnimationHandler.removeCallbacks(animationDisplayTask);    //kill this thread
 				}
 
-				
+
 				AnimationHandler.postDelayed(animationDisplayTask, 0);    //return on that task again after 60 milliseconds
 
 				write = false;
