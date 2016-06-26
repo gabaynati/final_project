@@ -60,19 +60,18 @@ import org.opencv.imgproc.Imgproc;
 
 public class GameInterface extends Activity implements OnTouchListener, OnClickListener, CvCameraViewListener2 {
 
-	//private Vector<HitListener_Thread> hitThreads;
+	private final int ramBorden = 5;
 	private int total_score=20;
 	private Context context;
-	//private MainActivity.logic MainActivity.logic;
 	private FrameLayout frame;
 	private TextView current_bulletsText, total_bulletsText, slesh, score_lbl;
 	private ProgressBar player_life;
 	private ImageButton reload, target, shoot;
 	private ImageView img, bullet_hit, sight_img, board_num1, board_num2;
-	private int soundIndex, writer, reader, anim_index, shootingTime;
+	private int soundIndex, writer, reader, anim_index, shootingTime, nSpace, state;
 	private float x1, x2;
 	private AnimationDrawable shoot_animation, stand_animation;
-	private boolean someAnimationRun, someAnimationLoad, touched, write;
+	private boolean someAnimationRun, someAnimationLoad, touched;
 	private Player player=MainActivity.player;
 	private Handler AnimationHandler, DrawableHandler, changeAnimation, shootHandler, checkForHitHandler;
 	private int[] drawableResources, sounds_frames;
@@ -192,8 +191,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		shoot.setOnTouchListener(this);
 
 
-
 		
+
 		//*************service for listening to hits*****************//*
 		//starting the service
 		Intent msgIntent = new Intent(this, HitService.class);
@@ -434,8 +433,8 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		if(touched){
 
 			//clear all colors from the map (not relevant contours)
-			colorsFounds.clear();
-
+			//colorsFounds.clear();
+			
 			//for each player search is specific color
 			for(int i = 0; i < players.length; i++){
 
@@ -448,14 +447,14 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				mDetector.process(mRgba);
 				List<MatOfPoint> contours = mDetector.getContours();
 
-				/*************draw the contours on the screen - test only**********/
+			 //*************draw the contours on the screen - test only**********//
 				//Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
 
 				//if color found add it to the map
 				if(!contours.isEmpty())
 					colorsFounds.put(players[i], contours);
 			}
-
+			  
 
 			if (mAbsoluteDetectorSize_lower == 0) {
 				int height = mGray.rows();
@@ -537,7 +536,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				@Override
 				public void run() {
 
-					MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray, colorsFounds);
+					//MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray, colorsFounds);
 
 					touched = false;
 
@@ -681,7 +680,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			checkForHitHandler.postDelayed(hitCheck, 100);						
 
-			//MainActivity.server_com.sendHitToServer(hitArea,name);
+			MainActivity.server_com.sendHitToServer(hitArea,name);
 
 		}
 
@@ -702,10 +701,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 			//get the current hit area and injured player
 			int hitArea = MainActivity.logic.getArea();
 			String injured = MainActivity.logic.getInjured();
-			
+
 			//hit detected
 			if(hitArea != -1){
-				
+
 				drawHit();
 
 				switch(hitArea){
@@ -858,9 +857,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		if(anim.equals("stand")){
 
-			/*if(stand_animation == null)
-				stand_animation = player.getWeapons()[player.getCurrent_weapon()].getAnimation("stand");*/
-
 			animation = stand_animation;
 		}
 
@@ -954,16 +950,17 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 	//execute the animation in segment_animation once
 	private void executeSegmentsAnimation(){ 
 
-		segment_animation = new Bitmap[2];
+		segment_animation = new Bitmap[ramBorden];
 
 		writer = 0;
 		reader = 0;
 		soundIndex = 0;
 		anim_index = 0;
+		state = 0;
+		nSpace = ramBorden;
 		sight_img.setVisibility(View.INVISIBLE);
 
 		someAnimationRun = true;
-		write = false;
 
 		//start threads
 		DrawableHandler.postDelayed(drawableTask, 0);
@@ -976,8 +973,9 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		public void run() {          
 
 			android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
-
-			if(write){
+			//if(anim_index < drawableResources.length){
+				if(state < drawableResources.length)
+					while(nSpace >= ramBorden);
 
 				try {
 					semaphore.acquire();
@@ -997,8 +995,10 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 					img.setBackgroundDrawable(null);
 					img.setImageBitmap(segment_animation[reader]);
 
-					reader = (reader + 1) % 2;
+					reader = (reader + 1) % ramBorden;
 					anim_index++;
+					nSpace++;
+
 					System.gc();
 				}
 
@@ -1016,27 +1016,30 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 						changeAnimation.post(changeAnimationTask);		
 
 					someAnimationRun = false;
+
+					semaphore.release();
 					AnimationHandler.removeCallbacks(animationDisplayTask);    //kill this thread
+					return;
 				}
 
-
-				AnimationHandler.postDelayed(animationDisplayTask, 100);    //return on that task again after 60 milliseconds
-
-				write = false;
 				semaphore.release();
+				AnimationHandler.postDelayed(animationDisplayTask, 50);    //return on that task again after 50 milliseconds
+
+			
 			}
-		}
-	};
-	/*****************************************************************/
+			//}
 
-	//this runnable task is for keep update the current animation array that run
-	//and clean up the bitmaps that already displayed 
-	private Runnable drawableTask = new Runnable() {
-		public void run() {
+		};
+		/*****************************************************************/
 
-			android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
+		//this runnable task is for keep update the current animation array that run
+		//and clean up the bitmaps that already displayed 
+		private Runnable drawableTask = new Runnable() {
+			public void run() {
 
-			if(!write){
+				android.os.Process.setThreadPriority(Thread.MAX_PRIORITY);
+
+				while(nSpace <= 0);
 
 				try {
 					semaphore.acquire();
@@ -1046,169 +1049,168 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				}
 
 				//if there is more bitmaps to update
-				if(anim_index < drawableResources.length){
+				if(state < drawableResources.length){
 					//write bitmap to segment animation array
-					segment_animation[writer] = BitmapFactory.decodeResource(getResources(), drawableResources[anim_index]);
-					writer = (writer + 1) % 2;
+					segment_animation[writer] = BitmapFactory.decodeResource(getResources(), drawableResources[state]);
+					writer = (writer + 1) % ramBorden;
 
+					state++;
+					nSpace--;
+					semaphore.release();
 					DrawableHandler.postDelayed(drawableTask, 0);         ////return on that task again immediately
 				}
 
 				else{
-					write = true;
 					semaphore.release();
 					DrawableHandler.removeCallbacks(drawableTask);        //kill this thread
 				}
 
-				write = true;
-				semaphore.release();
 			}
+		};
+		/*****************************************************************/
+
+		//this runnable task is for change the animations references that need to execute immediacy
+		//this task on separate thread to not disturb the camera frames continuous
+		private Runnable changeAnimationTask = new Runnable() {
+			public void run() {	
+
+				shoot_animation = null;
+
+				System.gc();
+
+				if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState())
+					shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
+
+
+				else
+					shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("targetshoot");
+
+
+
+				(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
+			}
+		};
+
+		/*****************************************************************/
+
+		//reload the weapon
+		private void reload(){
+
+			if(player.getWeapons()[player.getCurrent_weapon()].target_state){
+				shoot_animation = null;
+				System.gc();
+			}
+
+			drawableResources = player.getWeapons()[player.getCurrent_weapon()].reload();
+
+			if(drawableResources != null)
+				executeSegmentsAnimation();
+
+			sounds_frames = (player.getWeapons()[player.getCurrentWeapon()]).framesToNeedToPlay();
 		}
-	};
-	/*****************************************************************/
+		/*****************************************************************/
 
-	//this runnable task is for change the animations references that need to execute immediacy
-	//this task on separate thread to not disturb the camera frames continuous
-	private Runnable changeAnimationTask = new Runnable() {
-		public void run() {	
-
-			shoot_animation = null;
-
-			System.gc();
-
-			if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState())
-				shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("shoot");
+		//switch to target state and vice versa
+		private void targetState(){
 
 
-			else
-				shoot_animation = (player.getWeapons()[player.getCurrentWeapon()]).getAnimation("targetshoot");
+			//if the weapon already on target state
+			if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
+				changeAnimation.post(changeAnimationTask);
+				((AnimationDrawable)(img.getBackground())).stop();
+				executeAnimation((player.getWeapons()[player.getCurrentWeapon()]).getAnimation("normal"));
+				sight_img.setVisibility(View.VISIBLE);
+			}
 
-
-
-			(player.getWeapons()[player.getCurrentWeapon()]).setTargetState();
-		}
-	};
-
-	/*****************************************************************/
-
-	//reload the weapon
-	private void reload(){
-
-		if(player.getWeapons()[player.getCurrent_weapon()].target_state){
-			shoot_animation = null;
-			System.gc();
+			else{
+				changeAnimation.post(changeAnimationTask);
+				setAnimation("target");
+				sight_img.setVisibility(View.INVISIBLE);
+			}	
 		}
 
-		drawableResources = player.getWeapons()[player.getCurrent_weapon()].reload();
 
-		if(drawableResources != null)
-			executeSegmentsAnimation();
-
-		sounds_frames = (player.getWeapons()[player.getCurrentWeapon()]).framesToNeedToPlay();
-	}
-	/*****************************************************************/
-
-	//switch to target state and vice versa
-	private void targetState(){
-
-
-		//if the weapon already on target state
-		if((player.getWeapons()[player.getCurrentWeapon()]).getTargetState()){
-			changeAnimation.post(changeAnimationTask);
-			((AnimationDrawable)(img.getBackground())).stop();
-			executeAnimation((player.getWeapons()[player.getCurrentWeapon()]).getAnimation("normal"));
-			sight_img.setVisibility(View.VISIBLE);
-		}
-
-		else{
-			changeAnimation.post(changeAnimationTask);
-			setAnimation("target");
-			sight_img.setVisibility(View.INVISIBLE);
-		}	
-	}
-
-
-	/*****************************************************************/
-	//	//this thread used to check if this player got shot by someone
-	//	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
-	//		private String response;
-	//		private boolean run=true;
-	//		@Override
-	//		protected String doInBackground(Void... arg0) {
-	//			while(run){
-	//				
-	////				if (isCancelled()) break;
-	////				
-	////				//blocking thread until hit packet received from server:
-	////				try {
-	////					MainActivity.hitSem.acquire();
-	////				} catch (InterruptedException e) {
-	////					// TODO Auto-generated catch block
-	////					e.printStackTrace();
-	////				}		
-	////
-	////
-	////				 
-	////
-	////
-	////				publishProgress();
-	//
-	//			}
-	//			return response;
-	//		}
-	//
-	//
-	//
-	//		public void stop() {
-	//			run=false;
-	//			
-	//		}
-	//
-	//
-	//
-	//		@Override
-	//		protected void onProgressUpdate(Void... v) {
-	//			super.onProgressUpdate(v);
-	//			hitRecvied();
-	////			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
-	////				@Override 
-	////				public void onNewLocationAvailable(GPSCoordinates location) {
-	////
-	////
-	////					//Gathering this player's GPS and hitter player's GPS which has been received from server:
-	////					loc = new Location("thisLoc");
-	////					tar = new Location("hitterLoc");
-	////
-	////					loc.setLatitude(location.latitude);
-	////					loc.setLongitude(location.longitude);
-	////					tar.setLatitude(MainActivity.hitterLatitude);
-	////					tar.setLongitude(MainActivity.hitterLongitude);
-	////
-	////
-	////					float deg = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
-	////
-	////					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
-	////					toast.show();
-	////
-	////					//checking if this player got shot by someone.
-	////					/*if(MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
-	////						hitRecvied();
-	////
-	////					}*/
-	////					hitRecvied();
-	////				}
-	////			});
-	//		}
-	//
-	//		@Override
-	//		protected void onPostExecute(String result) {
-	//			super.onPostExecute(result);
-	//		}
-	//
-	//	}
-	/*****************************************************************/
-	//this class is a listener to the hit service
-	public class ResponseReceiver extends BroadcastReceiver {
+		/*****************************************************************/
+		//	//this thread used to check if this player got shot by someone
+		//	public  class HitListener_Thread extends AsyncTask<Void, Void, String> {
+		//		private String response;
+		//		private boolean run=true;
+		//		@Override
+		//		protected String doInBackground(Void... arg0) {
+		//			while(run){
+		//				
+		////				if (isCancelled()) break;
+		////				
+		////				//blocking thread until hit packet received from server:
+		////				try {
+		////					MainActivity.hitSem.acquire();
+		////				} catch (InterruptedException e) {
+		////					// TODO Auto-generated catch block
+		////					e.printStackTrace();
+		////				}		
+		////
+		////
+		////				 
+		////
+		////
+		////				publishProgress();
+		//
+		//			}
+		//			return response;
+		//		}
+		//
+		//
+		//
+		//		public void stop() {
+		//			run=false;
+		//			
+		//		}
+		//
+		//
+		//
+		//		@Override
+		//		protected void onProgressUpdate(Void... v) {
+		//			super.onProgressUpdate(v);
+		//			hitRecvied();
+		////			SingleShotLocationProvider.requestSingleUpdate(context, new SingleShotLocationProvider.LocationCallback() {
+		////				@Override 
+		////				public void onNewLocationAvailable(GPSCoordinates location) {
+		////
+		////
+		////					//Gathering this player's GPS and hitter player's GPS which has been received from server:
+		////					loc = new Location("thisLoc");
+		////					tar = new Location("hitterLoc");
+		////
+		////					loc.setLatitude(location.latitude);
+		////					loc.setLongitude(location.longitude);
+		////					tar.setLatitude(MainActivity.hitterLatitude);
+		////					tar.setLongitude(MainActivity.hitterLongitude);
+		////
+		////
+		////					float deg = MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth);
+		////
+		////					Toast toast = Toast.makeText(getApplicationContext(), "azimuth = " + deg, 10000);
+		////					toast.show();
+		////
+		////					//checking if this player got shot by someone.
+		////					/*if(MainActivity.logic.isInjured(loc, tar, MainActivity.hitterAzimuth)){
+		////						hitRecvied();
+		////
+		////					}*/
+		////					hitRecvied();
+		////				}
+		////			});
+		//		}
+		//
+		//		@Override
+		//		protected void onPostExecute(String result) {
+		//			super.onPostExecute(result);
+		//		}
+		//
+		//	}
+		/*****************************************************************/
+		//this class is a listener to the hit service
+		public class ResponseReceiver extends BroadcastReceiver {
 
 
 		public static final String ACTION_RESP = "hit";
@@ -1219,5 +1221,5 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 		}
 	}
-	/*****************************************************************/
-}
+		/*****************************************************************/
+	}
