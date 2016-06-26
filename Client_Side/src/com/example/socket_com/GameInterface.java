@@ -433,7 +433,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 		if(touched){
 
 			//clear all colors from the map (not relevant contours)
-			//colorsFounds.clear();
+			colorsFounds.clear();
 			
 			//for each player search is specific color
 			for(int i = 0; i < players.length; i++){
@@ -536,7 +536,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				@Override
 				public void run() {
 
-					//MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray, colorsFounds);
+					MainActivity.logic.isHit(facesArray, upperBodyArray, lowerBodyArray, colorsFounds);
 
 					touched = false;
 
