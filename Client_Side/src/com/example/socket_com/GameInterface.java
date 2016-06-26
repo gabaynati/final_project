@@ -680,8 +680,6 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 
 			checkForHitHandler.postDelayed(hitCheck, 100);						
 
-			MainActivity.server_com.sendHitToServer(hitArea,name);
-
 		}
 
 		//update screen
