@@ -1020,7 +1020,7 @@ public class GameInterface extends Activity implements OnTouchListener, OnClickL
 				}
 
 
-				AnimationHandler.postDelayed(animationDisplayTask, 0);    //return on that task again after 60 milliseconds
+				AnimationHandler.postDelayed(animationDisplayTask, 100);    //return on that task again after 60 milliseconds
 
 				write = false;
 				semaphore.release();
